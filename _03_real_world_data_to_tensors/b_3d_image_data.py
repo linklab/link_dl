@@ -28,11 +28,12 @@ print(vol.shape) # >>> torch.Size([1, 1, 99, 512, 512])
 
 print("#" * 50, 2)
 
-mean = torch.mean(vol, dim=-1, keepdim=True)
+mean = torch.mean(vol, dim=(3, 4), keepdim=True)
 print(mean.shape)
-std = torch.std(vol, dim=-1, keepdim=True)
+std = torch.std(vol, dim=(3, 4), keepdim=True)
 print(std.shape)
 vol = (vol - mean) / std
 print(vol.shape)
 
-print(vol[0, 0])
+print(vol[0, 0, 0])
+

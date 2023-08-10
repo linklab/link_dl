@@ -2,7 +2,7 @@ import csv
 import os
 import numpy as np
 
-wine_path = os.path.join(os.path.pardir, "_00_data", "d_tabular-data", "winequality-white.csv")
+wine_path = os.path.join(os.path.pardir, "_00_data", "d_tabular-wine", "winequality-white.csv")
 wineq_numpy = np.loadtxt(wine_path, dtype=np.float32, delimiter=";", skiprows=1)
 print(wineq_numpy.dtype)
 print(wineq_numpy.shape)
