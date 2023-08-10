@@ -1,5 +1,6 @@
 import torch
-from torch import optim, nn
+from torch import optim
+from torch import nn
 
 x = torch.ones(3)
 w = torch.ones(3, requires_grad=True)
