@@ -24,7 +24,8 @@ pip install imageio
 
 # Data
 ## General Data
-- https://drive.google.com/file/d/1woTj_4uQLkNISzEFMHp7shjHtRZOEVoi/view?usp=drive_link
+https://drive.google.com/file/d/1f7iEO5E25KVFE9qPyGZl8_dp_nY_1pug/view?usp=drive_link
+
 ## YOLO Data
 - https://www.kaggle.com/datasets/734b7bcb7ef13a045cbdd007a3c19874c2586ed0b02b4afc86126e89d00af8d2?resource=download
 
