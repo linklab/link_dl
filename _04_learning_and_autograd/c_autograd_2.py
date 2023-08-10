@@ -42,3 +42,19 @@ y = 2 * x
 z = 3 + x.detach()
 r = (y + z).sum()
 make_dot(r).render("torchviz_2", format="png")
+
+print("#" * 50, 2)
+
+a = torch.randn(2, 2, requires_grad=True)
+b = a * 2
+make_dot(b).render("torchviz_3", format="png")
+
+
+a = torch.randn(2, 2, requires_grad=True)
+print(a.requires_grad)
+with torch.no_grad():
+    print(a.requires_grad)
+    b = a * 2
+    print(a.requires_grad)
+    print(b.requires_grad)
+    make_dot(b).render("torchviz_4", format="png")
