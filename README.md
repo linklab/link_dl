@@ -20,6 +20,8 @@ pip install pandas
 pip install scikit-learn
 pip install matplotlib
 pip install imageio
+pip install graphviz
+pip install torchviz
 '''
 
 # Data
