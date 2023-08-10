@@ -3,7 +3,7 @@ import torch
 import os
 import imageio
 
-video_path = os.path.join(os.path.pardir, "data", "g_video-cockatoo", "cockatoo.mp4")
+video_path = os.path.join(os.path.pardir, "_00_data", "g_video-cockatoo", "cockatoo.mp4")
 
 reader = imageio.get_reader(video_path)
 print(type(reader))

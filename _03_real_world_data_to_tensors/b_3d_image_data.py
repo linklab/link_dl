@@ -3,7 +3,7 @@ import numpy as np
 
 import imageio.v2 as imageio
 
-dir_path = os.path.join(os.path.pardir, "data", "c_volumetric-dicom", "2-LUNG_3.0_B70f-04083")
+dir_path = os.path.join(os.path.pardir, "_00_data", "c_volumetric-dicom", "2-LUNG_3.0_B70f-04083")
 vol_arr = imageio.volread(dir_path, format='DICOM')
 print(type(vol_arr))
 print(vol_arr.shape)

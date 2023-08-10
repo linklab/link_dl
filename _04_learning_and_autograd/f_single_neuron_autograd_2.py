@@ -13,8 +13,6 @@ def learn(W, b, X, y):
         y_pred = model(X, W, b)
         loss = loss_fn(y_pred, y)
 
-        optimizer.zero_grad()
-
         loss.backward()
 
         if epoch % 100 == 0:
@@ -24,6 +22,7 @@ def learn(W, b, X, y):
             print("W.grad: {0}, b.grad:{1}".format(W.grad, b.grad))
 
         optimizer.step()
+        optimizer.zero_grad()
 
 
 def main():
@@ -31,12 +30,6 @@ def main():
     b = torch.zeros((1,), requires_grad=True)
 
     X, y = get_data()
-    y_pred = model(X, W, b)
-    print(y_pred.shape)
-    print(y_pred)
-
-    loss = loss_fn(y_pred, y)
-    print(loss)
 
     learn(W, b, X, y)
 

@@ -1,7 +1,6 @@
 import torch
 from _04_learning_and_autograd.a_single_neuron import model, loss_fn, get_data
 
-
 def learn(W, b, X, y):
     MAX_EPOCHS = 20_000
     LEARNING_RATE = 0.01
@@ -9,10 +8,6 @@ def learn(W, b, X, y):
     for epoch in range(0, MAX_EPOCHS):
         y_pred = model(X, W, b)
         loss = loss_fn(y_pred, y)
-
-        if W.grad is not None and b.grad is not None:
-            W.grad = None
-            b.grad = None
 
         loss.backward()
 
@@ -25,18 +20,15 @@ def learn(W, b, X, y):
         with torch.no_grad():
             W -= LEARNING_RATE * W.grad
             b -= LEARNING_RATE * b.grad
+            W.grad = None
+            b.grad = None
+
 
 def main():
     W = torch.ones((2,), requires_grad=True)
     b = torch.zeros((1,), requires_grad=True)
 
     X, y = get_data()
-    y_pred = model(X, W, b)
-    print(y_pred.shape)
-    print(y_pred)
-
-    loss = loss_fn(y_pred, y)
-    print(loss)
 
     learn(W, b, X, y)
 

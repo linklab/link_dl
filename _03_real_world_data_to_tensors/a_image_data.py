@@ -2,7 +2,7 @@ import os
 import imageio.v2 as imageio
 import torch
 
-img_arr = imageio.imread(os.path.join(os.path.pardir, "data", "a_image-dog", "bobby.jpg"))
+img_arr = imageio.imread(os.path.join(os.path.pardir, "_00_data", "a_image-dog", "bobby.jpg"))
 print(type(img_arr))
 print(img_arr.shape)
 print(img_arr.dtype)
@@ -13,7 +13,7 @@ print(out.shape)
 
 print("#" * 50, 1)
 
-data_dir = os.path.join(os.path.pardir, "data", "b_image-cats")
+data_dir = os.path.join(os.path.pardir, "_00_data", "b_image-cats")
 filenames = [
     name for name in os.listdir(data_dir) if os.path.splitext(name)[-1] == '.png'
 ]

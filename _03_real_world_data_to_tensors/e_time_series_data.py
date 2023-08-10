@@ -3,7 +3,7 @@ import numpy as np
 import torch
 torch.set_printoptions(edgeitems=2, threshold=50, linewidth=75)
 
-bikes_path = os.path.join(os.path.pardir, "data", "e_time-series-bike-sharing-dataset", "hour-fixed.csv")
+bikes_path = os.path.join(os.path.pardir, "_00_data", "e_time-series-bike-sharing-dataset", "hour-fixed.csv")
 
 bikes_numpy = np.loadtxt(
     fname=bikes_path, dtype=np.float32, delimiter=",", skiprows=1,

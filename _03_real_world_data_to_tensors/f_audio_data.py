@@ -2,8 +2,8 @@ import torch
 import os
 import scipy.io.wavfile as wavfile
 
-audio_1_path = os.path.join(os.path.pardir, "data", "f_audio-chirp", "1-100038-A-14.wav")
-audio_2_path = os.path.join(os.path.pardir, "data", "f_audio-chirp", "1-100210-A-36.wav")
+audio_1_path = os.path.join(os.path.pardir, "_00_data", "f_audio-chirp", "1-100038-A-14.wav")
+audio_2_path = os.path.join(os.path.pardir, "_00_data", "f_audio-chirp", "1-100210-A-36.wav")
 
 freq_1, waveform_arr_1 = wavfile.read(audio_1_path)
 print(freq_1)
