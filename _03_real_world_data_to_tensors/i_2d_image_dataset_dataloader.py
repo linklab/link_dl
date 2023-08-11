@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 
-class CatDog2DImageDataset(Dataset):
+class DogCat2DImageDataset(Dataset):
     def __init__(self):
         self.image_transforms = transforms.Compose([
             transforms.Resize(size=(256, 256)),
@@ -21,6 +21,7 @@ class CatDog2DImageDataset(Dataset):
             Image.open(os.path.join(cats_dir, "cat3.png"))   # (256, 256, 3)
         ]
 
+        # 0: "dog", 1: "cat"
         self.image_labels = [
             0, 1, 1, 1
         ]
@@ -31,28 +32,23 @@ class CatDog2DImageDataset(Dataset):
     def __getitem__(self, idx):
         image = self.image_transforms(self.image_array[idx])
         label = self.image_labels[idx]
-        return image, label
+        return {'input': image, 'target': label}
 
 
 if __name__ == "__main__":
-    cat_dog_2d_image_dataset = CatDog2DImageDataset()
+    dog_cat_2d_image_dataset = DogCat2DImageDataset()
 
-    label_str = {
-        0: "dog",
-        1: "cat"
-    }
+    for idx, sample in enumerate(dog_cat_2d_image_dataset):
+        print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target']))
 
-    for image, label in cat_dog_2d_image_dataset:
-        print("{0}: {1}".format(image.shape, label_str[label]))
-
-    cat_dog_2d_image_dataloader = DataLoader(
-        dataset=cat_dog_2d_image_dataset,
+    dataloader = DataLoader(
+        dataset=dog_cat_2d_image_dataset,
         batch_size=2,
         shuffle=True
     )
 
     print()
 
-    for images, labels in cat_dog_2d_image_dataloader:
-        print("{0}: {1}".format(images.shape, labels))
+    for idx, batch in enumerate(dataloader):
+        print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target']))
 

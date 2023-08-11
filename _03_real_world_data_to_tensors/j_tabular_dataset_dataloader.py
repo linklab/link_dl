@@ -25,16 +25,16 @@ class WineDataset(Dataset):
     def __getitem__(self, idx):
         wine_feature = self.data[idx]
         wine_target = self.target[idx]
-        return wine_feature, wine_target
+        return {'input': wine_feature, 'target': wine_target}
 
 
 if __name__ == "__main__":
     wine_dataset = WineDataset()
 
-    for wine_feature, wine_target in wine_dataset:
-        print("{0}: {1}".format(wine_feature.shape, wine_target.shape))
+    for idx, sample in enumerate(wine_dataset):
+        print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target']))
 
-    wine_dataloader = DataLoader(
+    dataloader = DataLoader(
         dataset=wine_dataset,
         batch_size=32,
         shuffle=True,
@@ -43,6 +43,6 @@ if __name__ == "__main__":
 
     print()
 
-    for wine_features, wine_targets in wine_dataloader:
-        print("{0}: {1}".format(wine_features.shape, wine_targets.shape))
+    for idx, batch in enumerate(dataloader):
+        print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target']))
 

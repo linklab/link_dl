@@ -17,8 +17,7 @@ class BikesDataset(Dataset):
         bikes = torch.from_numpy(bikes_numpy)
 
         daily_bikes = bikes.view(-1, 24, bikes.shape[1])  # daily_bikes.shape: torch.Size([730, 24, 17])
-
-        self.daily_bikes_target = daily_bikes[:, :, -1].unsqueeze(dim=-1)
+        daily_bikes_target = daily_bikes[:, :, -1].unsqueeze(dim=-1)
 
         daily_bikes_data = daily_bikes[:, :, :-1]
         eye_matrix = torch.eye(4)
@@ -41,6 +40,7 @@ class BikesDataset(Dataset):
         daily_bikes_data[:, :, 9] = (daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
 
         self.daily_bikes_data = daily_bikes_data.transpose(1, 2)
+        self.daily_bikes_target = daily_bikes_target.transpose(1, 2)
 
         assert len(self.daily_bikes_data) == len(self.daily_bikes_target)
 
@@ -50,16 +50,16 @@ class BikesDataset(Dataset):
     def __getitem__(self, idx):
         bike_feature = self.daily_bikes_data[idx]
         bike_target = self.daily_bikes_target[idx]
-        return bike_feature, bike_target
+        return {'input': bike_feature, 'target': bike_target}
 
 
 if __name__ == "__main__":
     bikes_dataset = BikesDataset()
 
-    for bike_feature, bike_target in bikes_dataset:
-        print("{0}: {1}".format(bike_feature.shape, bike_target.shape))
+    for idx, sample in enumerate(bikes_dataset):
+        print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target'].shape))
 
-    bikes_dataloader = DataLoader(
+    dataloader = DataLoader(
         dataset=bikes_dataset,
         batch_size=32,
         shuffle=True,
@@ -68,6 +68,6 @@ if __name__ == "__main__":
 
     print()
 
-    for bikes_features, bikes_targets in bikes_dataloader:
-        print("{0}: {1}".format(bikes_features.shape, bikes_targets.shape))
+    for idx, batch in enumerate(dataloader):
+        print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))
 
