@@ -28,7 +28,7 @@ if __name__ == "__main__":
     for idx, sample in enumerate(linear_regression_dataset):
         print("{0} - {1}: {2}".format(idx, sample['input'], sample['target']))
 
-    dataloader = DataLoader(
+    data_loader = DataLoader(
         dataset=linear_regression_dataset,
         batch_size=4,
         shuffle=True
@@ -36,6 +36,6 @@ if __name__ == "__main__":
 
     print()
 
-    for idx, batch in enumerate(dataloader):
+    for idx, batch in enumerate(data_loader):
         print("{0} - {1}: {2}".format(idx, batch['input'], batch['target']))
 

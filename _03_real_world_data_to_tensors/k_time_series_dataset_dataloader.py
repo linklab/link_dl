@@ -32,12 +32,12 @@ class BikesDataset(Dataset):
         daily_bikes_data = torch.stack(day_data_torch_list, dim=0)
 
         daily_bikes_data = torch.cat(
-            [daily_bikes_data[:, :, :9], daily_bikes_data[:, :, 10:]],
-            dim=2
+            [daily_bikes_data[:, :, :9], daily_bikes_data[:, :, 10:]], dim=2
         )
 
         temperatures = daily_bikes_data[:, :, 9]
-        daily_bikes_data[:, :, 9] = (daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
+        daily_bikes_data[:, :, 9] = \
+            (daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
 
         self.daily_bikes_data = daily_bikes_data.transpose(1, 2)
         self.daily_bikes_target = daily_bikes_target.transpose(1, 2)
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     for idx, sample in enumerate(bikes_dataset):
         print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target'].shape))
 
-    dataloader = DataLoader(
+    data_loader = DataLoader(
         dataset=bikes_dataset,
         batch_size=32,
         shuffle=True,
@@ -68,6 +68,6 @@ if __name__ == "__main__":
 
     print()
 
-    for idx, batch in enumerate(dataloader):
+    for idx, batch in enumerate(data_loader):
         print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))
 
