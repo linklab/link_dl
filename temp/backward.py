@@ -15,10 +15,10 @@ y = torch.sin(x)
 # y = a + b x + c x^2 + d x^3
 # requires_grad=True로 설정하여 역전파 단계 중에 이 텐서들에 대한 변화도를 계산할 필요가
 # 있음을 나타냅니다.
-a = torch.randn((), device=device, dtype=dtype, requires_grad=True)
-b = torch.randn((), device=device, dtype=dtype, requires_grad=True)
-c = torch.randn((), device=device, dtype=dtype, requires_grad=True)
-d = torch.randn((), device=device, dtype=dtype, requires_grad=True)
+a = torch.randn(size=(), device=device, dtype=dtype, requires_grad=True)
+b = torch.randn(size=(), device=device, dtype=dtype, requires_grad=True)
+c = torch.randn(size=(), device=device, dtype=dtype, requires_grad=True)
+d = torch.randn(size=(), device=device, dtype=dtype, requires_grad=True)
 
 learning_rate = 1e-6
 for t in range(2000):
@@ -40,7 +40,7 @@ for t in range(2000):
 
     # 경사하강법(gradient descent)을 사용하여 가중치를 직접 갱신합니다.
     # torch.no_grad()로 감싸는 이유는, 가중치들이 requires_grad=True 지만
-    # autograd에서는 이를 추적하지 않을 것이기 때문입니다.
+    # autograd에서는 이를 추적하지 말아야 되기 때문입니다.
     with torch.no_grad():
         a -= learning_rate * a.grad
         b -= learning_rate * b.grad

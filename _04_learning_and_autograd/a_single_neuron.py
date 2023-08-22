@@ -46,12 +46,12 @@ def gradient(W, b, X, y):
 
     dy_pred_df = 1.0
 
-    u = torch.sum(X * W, dim=1) + b
-    df_du = activate(u) * (1.0 - activate(u))
-    df_du = df_du.unsqueeze(dim=-1)             # dl_dy_pred.shape: [12, 1]
+    z = torch.sum(X * W, dim=1) + b
+    ds_dz = activate(z) * (1.0 - activate(z))
+    ds_dz = ds_dz.unsqueeze(dim=-1)             # dl_dy_pred.shape: [12, 1]
 
-    W_grad = torch.mean(dl_dy_pred * dy_pred_df * df_du * X, dim=0)
-    b_grad = torch.mean(dl_dy_pred * dy_pred_df * df_du * 1.0, dim=0)
+    W_grad = torch.mean(dl_dy_pred * dy_pred_df * ds_dz * X, dim=0)
+    b_grad = torch.mean(dl_dy_pred * dy_pred_df * ds_dz * 1.0, dim=0)
 
     return W_grad, b_grad
 
