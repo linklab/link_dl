@@ -17,7 +17,7 @@ print(t7.shape, t7.equal(t8))
 
 print("#" * 50, 1)
 
-t9 = torch.arange(0, 3)   # tensor([0, 1, 2])
+t9 = torch.arange(0, 3)  # tensor([0, 1, 2])
 t10 = torch.arange(3, 6)  # tensor([3, 4, 5])
 
 print(t9.size(), t10.size())
@@ -34,7 +34,7 @@ print(t11.equal(t12))
 # >>> True
 
 t13 = torch.stack((t9, t10), dim=1)
-print(t13.size()) # >>> torch.Size([3,2])
+print(t13.size())  # >>> torch.Size([3,2])
 print(t13)
 # >>> tensor([[0, 3],
 #             [1, 4],

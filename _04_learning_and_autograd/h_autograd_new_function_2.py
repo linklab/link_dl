@@ -12,15 +12,15 @@ optimizer = optim.SGD([w], lr=LEARNING_RATE)
 
 
 def sigmoid(x):
-    return 1.0 / (1.0 + (-x).exp())
+  return 1.0 / (1.0 + (-x).exp())
 
 
 for t in range(EPOCHS):
-    y_pred = sigmoid(x * w)
-    loss = (y_pred - y).pow(2).mean()
+  y_pred = sigmoid(x * w)
+  loss = (y_pred - y).pow(2).mean()
 
-    loss.backward()
-    optimizer.step()
-    optimizer.zero_grad()
+  loss.backward()
+  optimizer.step()
+  optimizer.zero_grad()
 
-    print(w)
+  print(w)

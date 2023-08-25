@@ -11,20 +11,21 @@ print(vol_array[0])
 
 print("#" * 50, 1)
 
-
 import matplotlib.pyplot as plt
+
 fig = plt.figure(figsize=(10, 10))
 for id in range(0, 99):
-    fig.add_subplot(10, 10, id + 1)
-    plt.imshow(vol_array[id])
+  fig.add_subplot(10, 10, id + 1)
+  plt.imshow(vol_array[id])
 plt.show()
 
 import torch
+
 vol = torch.from_numpy(vol_array).float()
 vol = torch.unsqueeze(vol, 0)  # channel
 vol = torch.unsqueeze(vol, 0)  # data size
 
-print(vol.shape) # >>> torch.Size([1, 1, 99, 512, 512])
+print(vol.shape)  # >>> torch.Size([1, 1, 99, 512, 512])
 
 print("#" * 50, 2)
 
@@ -36,4 +37,3 @@ vol = (vol - mean) / std
 print(vol.shape)
 
 print(vol[0, 0, 0])
-

@@ -9,17 +9,17 @@ input_t = torch.arange(start=-8, end=8.1, step=0.1)
 # >>> tensor([-8.0000e+00, -7.9000e+00, -7.8000e+00, ...,  7.8000e+00,  7.9000e+00, 8.0000e+00])
 
 activation_list = [
-    nn.Tanh(),
-    nn.Sigmoid(),
+  nn.Tanh(),
+  nn.Sigmoid(),
 
-    nn.Softplus(),
-    nn.ReLU(),
+  nn.Softplus(),
+  nn.ReLU(),
 
-    nn.ReLU6(),
-    nn.ELU(),
+  nn.ReLU6(),
+  nn.ELU(),
 
-    nn.LeakyReLU(negative_slope=0.1),
-    nn.RReLU(),
+  nn.LeakyReLU(negative_slope=0.1),
+  nn.RReLU(),
 ]
 
 fig, axs = plt.subplots(4, 2)
@@ -29,15 +29,15 @@ fig.set_figwidth(x)
 fig.set_figheight(y)
 
 for idx, activation_func in enumerate(activation_list):
-    i, j = divmod(idx, 2)
-    axs[i][j].set_title(type(activation_func).__name__)
+  i, j = divmod(idx, 2)
+  axs[i][j].set_title(type(activation_func).__name__)
 
-    output_t = activation_func(input_t)
+  output_t = activation_func(input_t)
 
-    axs[i][j].grid()
-    axs[i][j].plot(input_t.numpy(), input_t.numpy(), 'k', linewidth=1)
-    axs[i][j].plot([-8, 8], [0, 0], 'k', linewidth=1)
-    axs[i][j].plot([0, 0], [-8, 8], 'k', linewidth=1)
-    axs[i][j].plot(input_t.numpy(), output_t.numpy(), 'r', linewidth=3)
+  axs[i][j].grid()
+  axs[i][j].plot(input_t.numpy(), input_t.numpy(), 'k', linewidth=1)
+  axs[i][j].plot([-8, 8], [0, 0], 'k', linewidth=1)
+  axs[i][j].plot([0, 0], [-8, 8], 'k', linewidth=1)
+  axs[i][j].plot(input_t.numpy(), output_t.numpy(), 'r', linewidth=3)
 
 plt.show()

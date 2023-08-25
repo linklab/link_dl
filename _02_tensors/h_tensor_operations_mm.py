@@ -1,7 +1,7 @@
 import torch
 
 t1 = torch.dot(
-    torch.tensor([2, 3]), torch.tensor([2, 1])
+  torch.tensor([2, 3]), torch.tensor([2, 1])
 )
 print(t1, t1.size())
 

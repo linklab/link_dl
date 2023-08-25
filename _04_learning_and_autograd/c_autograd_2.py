@@ -49,12 +49,12 @@ a = torch.randn(2, 2, requires_grad=True)
 b = a * 2
 make_dot(b).render("torchviz_3", format="png")
 
-
 a = torch.randn(2, 2, requires_grad=True)
 print(a.requires_grad)
 with torch.no_grad():
-    print(a.requires_grad)
-    b = a * 2
-    print(a.requires_grad)
-    print(b.requires_grad)
-    make_dot(b).render("torchviz_4", format="png")
+  print(a.requires_grad)
+  b = a * 2
+
+print(a.requires_grad)
+print(b.requires_grad)
+make_dot(b).render("torchviz_4", format="png")

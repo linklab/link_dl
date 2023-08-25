@@ -21,6 +21,7 @@ print(waveform.shape)
 print("#" * 50, 1)
 
 from scipy import signal
+
 _, _, sp_arr_1 = signal.spectrogram(waveform_arr_1, freq_1)
 _, _, sp_arr_2 = signal.spectrogram(waveform_arr_2, freq_2)
 

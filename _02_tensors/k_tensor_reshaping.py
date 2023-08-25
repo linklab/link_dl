@@ -34,8 +34,8 @@ t10 = t9.unsqueeze(1)  # Shape becomes (3, 1)
 print(t10)
 
 t11 = torch.tensor(
-    [[1, 2, 3],
-     [4, 5, 6]]
+  [[1, 2, 3],
+   [4, 5, 6]]
 )
 t12 = t11.unsqueeze(1)  # Shape becomes (2, 1, 3)
 print(t12, t12.shape)
@@ -65,8 +65,8 @@ print(t17)
 print("#" * 50, 4)
 
 t18 = torch.randn(2, 3, 5)
-print(t18.shape)                            # >>> torch.Size([2, 3, 5])
-print(torch.permute(t18, (2, 0, 1)).size()) # >>> torch.Size([5, 2, 3])
+print(t18.shape)  # >>> torch.Size([2, 3, 5])
+print(torch.permute(t18, (2, 0, 1)).size())  # >>> torch.Size([5, 2, 3])
 
 # Original tensor with shape (2, 3)
 t19 = torch.tensor([[1, 2, 3], [4, 5, 6]])
@@ -78,11 +78,10 @@ print(t20)
 print(t21)
 
 # Transpose the tensor
-t22 = torch.transpose(t19, 0, 1)    # Shape becomes (3, 2)
+t22 = torch.transpose(t19, 0, 1)  # Shape becomes (3, 2)
 
 print(t22)
 
-t23 = torch.t(t19)                  # Shape becomes (3, 2)
+t23 = torch.t(t19)  # Shape becomes (3, 2)
 
 print(t23)
-

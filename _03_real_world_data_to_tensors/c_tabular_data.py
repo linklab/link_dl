@@ -22,7 +22,7 @@ print(wineq.dtype)
 print(wineq.shape)
 print()
 
-data = wineq[:, :-1]   # Selects all rows and all columns except the last
+data = wineq[:, :-1]  # Selects all rows and all columns except the last
 print(data.dtype)
 print(data.shape)
 print(data)
@@ -34,7 +34,7 @@ print(target.shape)
 print(target)
 print()
 
-target = wineq[:, -1].long()   # treat labels as an integer
+target = wineq[:, -1].long()  # treat labels as an integer
 print(target.dtype)
 print(target.shape)
 print(target)
@@ -51,7 +51,6 @@ print(onehot_vector[0])
 print(onehot_vector[1])
 print(onehot_vector[-2])
 print(onehot_vector)
-
 
 print("#" * 50, 3)
 
