@@ -166,3 +166,5 @@ _08_object_detection/YOLO/yolo_v1.tar
 *.tar
 data.zip
 torchviz*
+
+wandb
