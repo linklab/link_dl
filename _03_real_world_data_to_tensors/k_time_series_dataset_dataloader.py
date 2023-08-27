@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 
 
 class BikesDataset(Dataset):
@@ -52,21 +52,36 @@ class BikesDataset(Dataset):
     bike_target = self.daily_bikes_target[idx]
     return {'input': bike_feature, 'target': bike_target}
 
+  def __str__(self):
+    str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
+      len(self.daily_bikes_data), self.daily_bikes_data.shape, self.daily_bikes_target.shape
+    )
+    return str
+
 
 if __name__ == "__main__":
   bikes_dataset = BikesDataset()
+  print(bikes_dataset)
+
+  print("#" * 50, 1)
 
   for idx, sample in enumerate(bikes_dataset):
     print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target'].shape))
 
-  data_loader = DataLoader(
-    dataset=bikes_dataset,
+  train_dataset, validation_dataset, test_dataset = random_split(bikes_dataset, [0.7, 0.2, 0.1])
+
+  print("#" * 50, 2)
+
+  print(len(train_dataset), len(validation_dataset), len(test_dataset))
+
+  print("#" * 50, 3)
+
+  train_data_loader = DataLoader(
+    dataset=train_dataset,
     batch_size=32,
     shuffle=True,
     drop_last=True
   )
 
-  print()
-
-  for idx, batch in enumerate(data_loader):
+  for idx, batch in enumerate(train_data_loader):
     print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))

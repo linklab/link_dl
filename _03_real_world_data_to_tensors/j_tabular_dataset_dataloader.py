@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 
 
 class WineDataset(Dataset):
@@ -15,7 +15,9 @@ class WineDataset(Dataset):
     data_var = torch.var(data, dim=0)
     self.data = (data - data_mean) / torch.sqrt(data_var)
 
-    self.target = wineq[:, -1]  # Selects all rows and the last column
+    target = wineq[:, -1].long()  # treat labels as an integer
+    eye_matrix = torch.eye(10)
+    self.target = eye_matrix[target]
 
     assert len(self.data) == len(self.target)
 
@@ -27,21 +29,37 @@ class WineDataset(Dataset):
     wine_target = self.target[idx]
     return {'input': wine_feature, 'target': wine_target}
 
+  def __str__(self):
+    str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
+      len(self.data), self.data.shape, self.target.shape
+    )
+    return str
+
 
 if __name__ == "__main__":
   wine_dataset = WineDataset()
 
-  for idx, sample in enumerate(wine_dataset):
-    print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target']))
+  print(wine_dataset)
 
-  data_loader = DataLoader(
-    dataset=wine_dataset,
+  print("#" * 50, 1)
+
+  for idx, sample in enumerate(wine_dataset):
+    print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target'].shape))
+
+  train_dataset, validation_dataset, test_dataset = random_split(wine_dataset, [0.7, 0.2, 0.1])
+
+  print("#" * 50, 2)
+
+  print(len(train_dataset), len(validation_dataset), len(test_dataset))
+
+  print("#" * 50, 3)
+
+  train_data_loader = DataLoader(
+    dataset=train_dataset,
     batch_size=32,
     shuffle=True,
     drop_last=True
   )
 
-  print()
-
-  for idx, batch in enumerate(data_loader):
-    print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target']))
+  for idx, batch in enumerate(train_data_loader):
+    print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))
