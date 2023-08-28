@@ -18,10 +18,14 @@ print("#" * 50, 1)
 
 import numpy as np
 
+print(housing.data.min(), housing.data.max())
+
 data_mean = np.mean(housing.data, axis=0)
 data_var = np.var(housing.data, axis=0)
 data = (housing.data - data_mean) / np.sqrt(data_var)
 target = housing.target
+
+print(data.min(), data.max())
 
 print("#" * 50, 2)
 

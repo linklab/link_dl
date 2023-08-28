@@ -1,3 +1,4 @@
+import torch
 from torch import nn, optim
 from torch.utils.data import random_split, DataLoader
 from _03_real_world_data_to_tensors.h_linear_regression_dataset_dataloader import LinearRegressionDataset
@@ -50,9 +51,10 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
       optimizer.step()
 
     loss_validation = 0.0
-    for idx, validation_batch in enumerate(validation_data_loader):
-      output_batch = model(validation_batch['input'])
-      loss_validation += loss_fn(output_batch, validation_batch['target']).item()
+    with torch.no_grad():
+      for idx, validation_batch in enumerate(validation_data_loader):
+        output_batch = model(validation_batch['input'])
+        loss_validation += loss_fn(output_batch, validation_batch['target']).item()
 
     if epoch == 1 or epoch % 10 == 0:
       print(
