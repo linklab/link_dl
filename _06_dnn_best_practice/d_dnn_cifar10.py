@@ -2,21 +2,24 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+import torchvision.transforms as T
 from datetime import datetime
 import wandb
 
 
-def get_data():
+def get_data_flattened():
   data_path = '../_00_data/i_cifar10/'
   class_names = [
     'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
   ]
 
+  # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
   transformed_cifar10 = datasets.CIFAR10(
     data_path, train=True, download=False, transform=transforms.Compose([
       transforms.ToTensor(), transforms.Normalize(
         mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
-      )
+      ),
+      T.Lambda(lambda x: torch.flatten(x))
     ])
   )
 
@@ -24,7 +27,8 @@ def get_data():
     data_path, train=False, download=False, transform=transforms.Compose([
       transforms.ToTensor(), transforms.Normalize(
         mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
-      )
+      ),
+      T.Lambda(lambda x: torch.flatten(x))
     ])
   )
 
@@ -70,10 +74,7 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     loss_train = 0.0
     num_train_samples = 0
     for idx, train_batch in enumerate(train_data_loader):
-      # input.shape: torch.Size([256, 3, 32, 32]) --> torch.Size([256, 3072])
-      # target.shape: torch.Size([256])
       input, target = train_batch
-      input = input.flatten(start_dim=1)
 
       output_batch = model(input)
       loss = loss_fn(output_batch, target)
@@ -123,12 +124,12 @@ def main():
     mode="disabled",
     project="dnn_cifar10",
     notes="cifar10 experiment",
-    tags=["my_model", "cifar10"],
+    tags=["dnn", "cifar10"],
     name=current_time_str,
     config=config
   )
 
-  train_data_loader, validation_data_loader = get_data()
+  train_data_loader, validation_data_loader = get_data_flattened()
 
   linear_model, optimizer = get_model_and_optimizer()
 
