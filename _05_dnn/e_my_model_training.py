@@ -47,30 +47,30 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
 
   for epoch in range(1, n_epochs + 1):
     loss_train = 0.0
-    num_train_samples = 0
-    for idx, train_batch in enumerate(train_data_loader):
-      output_batch = model(train_batch['input'])
-      loss = loss_fn(output_batch, train_batch['target'])
+    num_trains = 0
+    for train_batch in train_data_loader:
+      output_train = model(train_batch['input'])
+      loss = loss_fn(output_train, train_batch['target'])
       loss_train += loss.item()
-      num_train_samples += len(train_batch)
+      num_trains += 1
 
       optimizer.zero_grad()
       loss.backward()
       optimizer.step()
 
     loss_validation = 0.0
-    num_validation_samples = 0
+    num_validations = 0
     with torch.no_grad():
-      for idx, validation_batch in enumerate(validation_data_loader):
-        output_batch = model(validation_batch['input'])
-        loss_validation += loss_fn(output_batch, validation_batch['target']).item()
-        num_validation_samples += len(validation_batch)
+      for validation_batch in validation_data_loader:
+        output_validation = model(validation_batch['input'])
+        loss_validation += loss_fn(output_validation, validation_batch['target']).item()
+        num_validations += 1
 
     if epoch == 1 or epoch % 10 == 0:
       print(
         f"Epoch {epoch}, "
-        f"Training loss {loss_train / num_train_samples:.4f}, "
-        f"Validation loss {loss_validation / num_validation_samples:.4f}"
+        f"Training loss {loss_train / num_trains:.4f}, "
+        f"Validation loss {loss_validation / num_validations:.4f}"
       )
 
 

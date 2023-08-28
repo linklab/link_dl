@@ -1,167 +1,178 @@
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
 import torchvision.transforms as T
+from torchvision import datasets, transforms
 from datetime import datetime
 import wandb
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(f"Training on device {device}.")
+class Cifar10Train:
+  def __init__(self, use_wandb):
+    current_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
 
+    config = {
+      'epochs': 10_000,
+      'learning_rate': 1e-3,
+      'batch_size': 256,
+      'n_hidden_unit_list': [128, 128],
+    }
 
-def get_data_flattened():
-  data_path = '../_00_data/j_cifar10/'
+    wandb.init(
+      mode="online" if use_wandb else "disabled",
+      project="dnn_cifar10",
+      notes="cifar10 experiment",
+      tags=["dnn", "cifar10"],
+      name=current_time_str,
+      config=config
+    )
 
-  # class_names = [
-  #   'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
-  # ]
+    self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Training on device {self.device}.")
 
-  # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
-  transformed_cifar10 = datasets.CIFAR10(
-    data_path, train=True, download=True, transform=transforms.Compose([
-      transforms.ToTensor(), transforms.Normalize(
-        mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
-      ),
-      T.Lambda(lambda x: torch.flatten(x))
-    ])
-  )
+    self.num_train_data, self.train_data_loader, self.num_validation_data, self.validation_data_loader \
+      = self.get_data_flattened()
 
-  transformed_cifar10_val = datasets.CIFAR10(
-    data_path, train=False, download=True, transform=transforms.Compose([
-      transforms.ToTensor(), transforms.Normalize(
-        mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
-      ),
-      T.Lambda(lambda x: torch.flatten(x))
-    ])
-  )
+    self.model, self.optimizer = self.get_model_and_optimizer()
+    wandb.watch(self.model)
 
-  train_data_loader = DataLoader(
-    dataset=transformed_cifar10, batch_size=wandb.config.batch_size, shuffle=True, pin_memory=True
-  )
-  validation_data_loader = DataLoader(
-    dataset=transformed_cifar10_val, batch_size=wandb.config.batch_size, pin_memory=True
-  )
+  def get_data_flattened(self):
+    data_path = '../_00_data/j_cifar10/'
 
-  return train_data_loader, validation_data_loader
+    # class_names = [
+    #   'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
+    # ]
 
+    # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
+    transformed_cifar10_train = datasets.CIFAR10(
+      data_path, train=True, download=True, transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
+        T.Lambda(lambda x: torch.flatten(x))
+      ])
+    )
 
-def get_model_and_optimizer():
-  class MyModel(nn.Module):
-    def __init__(self, n_input, n_output):
-      super().__init__()
+    transformed_cifar10_validation = datasets.CIFAR10(
+      data_path, train=False, download=True, transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
+        T.Lambda(lambda x: torch.flatten(x))
+      ])
+    )
 
-      self.model = nn.Sequential(
-        nn.Linear(n_input, wandb.config.n_hidden_unit_list[0]),
-        nn.Sigmoid(),
-        nn.Linear(wandb.config.n_hidden_unit_list[0], wandb.config.n_hidden_unit_list[1]),
-        nn.Sigmoid(),
-        nn.Linear(wandb.config.n_hidden_unit_list[1], n_output),
-      )
+    train_data_loader = DataLoader(
+      dataset=transformed_cifar10_train, batch_size=wandb.config.batch_size, shuffle=True, pin_memory=True
+    )
+    validation_data_loader = DataLoader(
+      dataset=transformed_cifar10_validation, batch_size=wandb.config.batch_size, pin_memory=True
+    )
 
-    def forward(self, x):
-      x = self.model(x)
-      return x
+    return len(transformed_cifar10_train), train_data_loader, len(transformed_cifar10_validation), validation_data_loader
 
-  # 3 * 32 * 32 = 3072
-  my_model = MyModel(n_input=3072, n_output=10).to(device)
-  optimizer = optim.SGD(my_model.parameters(), lr=wandb.config.learning_rate)
+  def get_model_and_optimizer(self):
+    class MyModel(nn.Module):
+      def __init__(self, n_input, n_output):
+        super().__init__()
 
-  return my_model, optimizer
+        self.model = nn.Sequential(
+          nn.Linear(n_input, wandb.config.n_hidden_unit_list[0]),
+          nn.Sigmoid(),
+          nn.Linear(wandb.config.n_hidden_unit_list[0], wandb.config.n_hidden_unit_list[1]),
+          nn.Sigmoid(),
+          nn.Linear(wandb.config.n_hidden_unit_list[1], n_output),
+        )
 
+      def forward(self, x):
+        x = self.model(x)
+        return x
 
-def training_loop(model, optimizer, train_data_loader, validation_data_loader):
-  n_epochs = wandb.config.epochs
-  loss_fn = nn.CrossEntropyLoss()  # Use a built-in loss function
+    # 3 * 32 * 32 = 3072
+    my_model = MyModel(n_input=3072, n_output=10).to(self.device)
+    optimizer = optim.SGD(my_model.parameters(), lr=wandb.config.learning_rate)
 
-  for epoch in range(1, n_epochs + 1):
+    return my_model, optimizer
+
+  def do_train_data(self, loss_fn):
     loss_train = 0.0
     num_corrects_train = 0
-    num_train_samples = 0
-    for idx, train_batch in enumerate(train_data_loader):
+    num_trains = 0
+    for train_batch in self.train_data_loader:
       input_train, target_train = train_batch
-      input_train = input_train.to(device)
-      target_train = target_train.to(device)
+      input_train = input_train.to(device=self.device)
+      target_train = target_train.to(device=self.device)
 
-      output_train = model(input_train)
+      output_train = self.model(input_train)
       loss = loss_fn(output_train, target_train)
       loss_train += loss.item()
 
       predicted_train = torch.argmax(output_train, dim=1)
-      num_corrects_train += int((predicted_train == target_train).sum())
+      num_corrects_train += torch.sum(predicted_train == target_train)
 
-      num_train_samples += len(train_batch)
+      num_trains += 1
 
-      optimizer.zero_grad()
+      self.optimizer.zero_grad()
       loss.backward()
-      optimizer.step()
+      self.optimizer.step()
 
+    train_loss = loss_train / num_trains
+    train_accuracy = num_corrects_train / self.num_train_data
+
+    return train_loss, train_accuracy
+
+  def do_validation_data(self, loss_fn):
     loss_validation = 0.0
     num_corrects_validation = 0
-    num_validation_samples = 0
+    num_validations = 0
     with torch.no_grad():
-      for idx, validation_batch in enumerate(validation_data_loader):
+      for validation_batch in self.validation_data_loader:
         input_validation, target_validation = validation_batch
-        input_validation = input_validation.to(device)
-        target_validation = target_validation.to(device)
+        input_validation = input_validation.to(device=self.device)
+        target_validation = target_validation.to(device=self.device)
 
-        output_validation = model(input_validation)
+        output_validation = self.model(input_validation)
         loss_validation += loss_fn(output_validation, target_validation).item()
+
         predicted_validation = torch.argmax(output_validation, dim=1)
-        num_corrects_validation += int((predicted_validation == target_validation).sum())
-        num_validation_samples += len(validation_batch)
+        num_corrects_validation += torch.sum(predicted_validation == target_validation)
 
-    if epoch == 1 or epoch % 10 == 0:
-      print(
-        f"[Epoch {epoch}] "
-        f"Training loss {loss_train / num_train_samples:.4f}, "
-        f"Training accuracy {num_corrects_train / num_train_samples:.4f} | "
-        f"Validation loss {loss_validation / num_validation_samples:.4f}, "
-        f"Validation accuracy {num_corrects_validation / num_validation_samples:.4f}"
-      )
+        num_validations += 1
 
-    wandb.log({
-      "Epoch": epoch,
-      "Training loss": loss_train / num_train_samples,
-      "Training accuracy": num_corrects_train / num_train_samples,
-      "Validation loss": loss_validation / num_validation_samples,
-      "Validation accuracy": num_corrects_validation / num_validation_samples,
-    })
+    validation_loss = loss_validation / num_validations
+    validation_accuracy = num_corrects_validation / self.num_validation_data
+
+    return validation_loss, validation_accuracy
+
+  def train_loop(self):
+    n_epochs = wandb.config.epochs
+    loss_fn = nn.CrossEntropyLoss()  # Use a built-in loss function
+
+    for epoch in range(1, n_epochs + 1):
+      train_loss, train_accuracy = self.do_train_data(loss_fn)
+      validation_loss, validation_accuracy = self.do_validation_data(loss_fn)
+
+      if epoch == 1 or epoch % 10 == 0:
+        print(
+          f"[Epoch {epoch}] "
+          f"Training loss: {train_loss:.4f}, "
+          f"Training accuracy: {train_accuracy:.4f} | "
+          f"Validation loss: {validation_loss:.4f}, "
+          f"Validation accuracy: {validation_accuracy:.4f}"
+        )
+
+      wandb.log({
+        "Epoch": epoch,
+        "Training loss": train_loss,
+        "Training accuracy": train_accuracy,
+        "Validation loss": validation_loss,
+        "Validation accuracy": validation_accuracy,
+      })
+
+    wandb.finish()
 
 
-def main():
-  current_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-
-  config = {
-    'epochs': 10_000,
-    'learning_rate': 1e-4,
-    'batch_size': 256,
-    'n_hidden_unit_list': [20, 20],
-  }
-
-  wandb.init(
-    mode="disabled",
-    project="dnn_cifar10",
-    notes="cifar10 experiment",
-    tags=["dnn", "cifar10"],
-    name=current_time_str,
-    config=config
-  )
-
-  train_data_loader, validation_data_loader = get_data_flattened()
-
-  linear_model, optimizer = get_model_and_optimizer()
-
-  wandb.watch(linear_model)
-
-  training_loop(
-    model=linear_model,
-    optimizer=optimizer,
-    train_data_loader=train_data_loader,
-    validation_data_loader=validation_data_loader
-  )
-  wandb.finish()
+def main(use_wandb):
+  mnist_train = Cifar10Train(use_wandb)
+  mnist_train.train_loop()
 
 
 if __name__ == "__main__":
-  main()
+  main(use_wandb=True)

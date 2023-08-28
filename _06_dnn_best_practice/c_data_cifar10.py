@@ -5,9 +5,9 @@ import torch
 from torchvision import datasets
 data_path = '../_00_data/j_cifar10/'
 cifar10_train = datasets.CIFAR10(data_path, train=True, download=True)
-cifar10_valid = datasets.CIFAR10(data_path, train=False, download=True)
+cifar10_validation = datasets.CIFAR10(data_path, train=False, download=True)
 
-print(len(cifar10_train), len(cifar10_valid))  # >>> 50000 10000
+print(len(cifar10_train), len(cifar10_validation))  # >>> 50000 10000
 
 class_names = [
   'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
@@ -65,7 +65,7 @@ transformed_cifar10_train = datasets.CIFAR10(
   ])
 )
 
-transformed_cifar10_valid = datasets.CIFAR10(
+transformed_cifar10_validation = datasets.CIFAR10(
   data_path, train=False, download=False, transform=transforms.Compose([
     transforms.ToTensor(), transforms.Normalize(
       mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
@@ -78,4 +78,4 @@ img_t, _ = transformed_cifar10_train[0]
 print(img_t.shape)
 
 print(len(transformed_cifar10_train))
-print(len(transformed_cifar10_valid))
+print(len(transformed_cifar10_validation))

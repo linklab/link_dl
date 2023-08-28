@@ -5,9 +5,9 @@ import torch
 from torchvision import datasets
 data_path = '../_00_data/j_mnist/'
 mnist_train = datasets.MNIST(data_path, train=True, download=True)
-mnist_valid = datasets.MNIST(data_path, train=False, download=True)
+mnist_validation = datasets.MNIST(data_path, train=False, download=True)
 
-print(len(mnist_train), len(mnist_valid))  # >>> 60000 10000
+print(len(mnist_train), len(mnist_validation))  # >>> 60000 10000
 
 fig = plt.figure(figsize=(8, 3))
 num_classes = 10
@@ -61,7 +61,7 @@ transformed_mnist_train = datasets.MNIST(
   ])
 )
 
-transformed_mnist_valid = datasets.MNIST(
+transformed_mnist_validation = datasets.MNIST(
   data_path, train=False, download=False, transform=transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=0.1307, std=0.3081),
@@ -72,5 +72,5 @@ img_t, _ = transformed_mnist_train[0]
 print(img_t.shape)
 
 print(len(transformed_mnist_train))
-print(len(transformed_mnist_valid))
+print(len(transformed_mnist_validation))
 
