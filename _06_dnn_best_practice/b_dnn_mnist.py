@@ -30,10 +30,10 @@ def get_data_flattened():
   )
 
   train_data_loader = DataLoader(
-    dataset=transformed_mnist_train, batch_size=wandb.config.batch_size, shuffle=True
+    dataset=transformed_mnist_train, batch_size=wandb.config.batch_size, shuffle=True, pin_memory=True
   )
   validation_data_loader = DataLoader(
-    dataset=transformed_mnist_valid, batch_size=wandb.config.batch_size
+    dataset=transformed_mnist_valid, batch_size=wandb.config.batch_size, pin_memory=True
   )
 
   return train_data_loader, validation_data_loader
@@ -72,15 +72,17 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     num_corrects_train = 0
     num_train_samples = 0
     for idx, train_batch in enumerate(train_data_loader):
-      input, target = train_batch
-      input = input.to(device=device)
-      target = target.to(device=device)
+      input_train, target_train = train_batch
+      input_train = input_train.to(device=device)
+      target_train = target_train.to(device=device)
 
-      output = model(input)
-      loss = loss_fn(output, target)
+      output_train = model(input_train)
+      loss = loss_fn(output_train, target_train)
       loss_train += loss.item()
-      predicted = torch.argmax(output, dim=1)
-      num_corrects_train += int((predicted == target).sum())
+
+      predicted_train = torch.argmax(output_train, dim=1)
+      num_corrects_train += int((predicted_train == target_train).sum())
+
       num_train_samples += len(train_batch)
 
       optimizer.zero_grad()
@@ -92,14 +94,16 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     num_validation_samples = 0
     with torch.no_grad():
       for idx, validation_batch in enumerate(validation_data_loader):
-        input, target = validation_batch
-        input = input.to(device=device)
-        target = target.to(device=device)
+        input_validation, target_validation = validation_batch
+        input_validation = input_validation.to(device=device)
+        target_validation = target_validation.to(device=device)
 
-        output = model(input)
-        loss_validation += loss_fn(output, target).item()
-        predicted = torch.argmax(output, dim=1)
-        num_corrects_validation += int((predicted == target).sum())
+        output_validation = model(input_validation)
+        loss_validation += loss_fn(output_validation, target_validation).item()
+
+        predicted_validation = torch.argmax(output_validation, dim=1)
+        num_corrects_validation += int((predicted_validation == target_validation).sum())
+
         num_validation_samples += len(validation_batch)
 
     if epoch == 1 or epoch % 10 == 0:
