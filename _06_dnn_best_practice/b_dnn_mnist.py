@@ -6,11 +6,15 @@ from torchvision import datasets, transforms
 from datetime import datetime
 import wandb
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(f"Training on device {device}.")
 
 def get_data_flattened():
-  data_path = '../_00_data/j_mnist/'
+  data_path = '../_00_data/i_mnist/'
+
+  # input.shape: torch.Size([-1, 1, 28, 28]) --> torch.Size([-1, 784])
   transformed_mnist_train = datasets.MNIST(
-    data_path, train=True, download=False, transform=transforms.Compose([
+    data_path, train=True, download=True, transform=transforms.Compose([
       transforms.ToTensor(),
       transforms.Normalize(mean=0.1307, std=0.3081),
       T.Lambda(lambda x: torch.flatten(x))
@@ -18,7 +22,7 @@ def get_data_flattened():
   )
 
   transformed_mnist_valid = datasets.MNIST(
-    data_path, train=False, download=False, transform=transforms.Compose([
+    data_path, train=False, download=True, transform=transforms.Compose([
       transforms.ToTensor(),
       transforms.Normalize(mean=0.1307, std=0.3081),
       T.Lambda(lambda x: torch.flatten(x))
@@ -53,7 +57,7 @@ def get_model_and_optimizer():
       return x
 
   # 1 * 28 * 28 = 784
-  my_model = MyModel(n_input=784, n_output=10)
+  my_model = MyModel(n_input=784, n_output=10).to(device)
   optimizer = optim.SGD(my_model.parameters(), lr=wandb.config.learning_rate)
 
   return my_model, optimizer
@@ -65,15 +69,18 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
 
   for epoch in range(1, n_epochs + 1):
     loss_train = 0.0
+    num_corrects_train = 0
     num_train_samples = 0
     for idx, train_batch in enumerate(train_data_loader):
-      # input.shape: torch.Size([256, 1, 28, 28]) --> torch.Size([256, 784])
-      # target.shape: torch.Size([256])
       input, target = train_batch
+      input = input.to(device=device)
+      target = target.to(device=device)
 
-      output_batch = model(input)
-      loss = loss_fn(output_batch, target)
+      output = model(input)
+      loss = loss_fn(output, target)
       loss_train += loss.item()
+      predicted = torch.argmax(output, dim=1)
+      num_corrects_train += int((predicted == target).sum())
       num_train_samples += len(train_batch)
 
       optimizer.zero_grad()
@@ -81,26 +88,35 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
       optimizer.step()
 
     loss_validation = 0.0
+    num_corrects_validation = 0
     num_validation_samples = 0
     with torch.no_grad():
       for idx, validation_batch in enumerate(validation_data_loader):
         input, target = validation_batch
+        input = input.to(device=device)
+        target = target.to(device=device)
 
-        output_batch = model(input)
-        loss_validation += loss_fn(output_batch, target).item()
+        output = model(input)
+        loss_validation += loss_fn(output, target).item()
+        predicted = torch.argmax(output, dim=1)
+        num_corrects_validation += int((predicted == target).sum())
         num_validation_samples += len(validation_batch)
 
     if epoch == 1 or epoch % 10 == 0:
       print(
-        f"Epoch {epoch}, "
+        f"[Epoch {epoch}] "
         f"Training loss {loss_train / num_train_samples:.4f}, "
-        f"Validation loss {loss_validation / num_validation_samples:.4f}"
+        f"Training accuracy {num_corrects_train / num_train_samples:.4f} | "
+        f"Validation loss {loss_validation / num_validation_samples:.4f}, "
+        f"Validation accuracy {num_corrects_validation / num_validation_samples:.4f}"
       )
 
     wandb.log({
       "Epoch": epoch,
       "Training loss": loss_train / num_train_samples,
-      "Validation loss": loss_validation / num_validation_samples
+      "Training accuracy": num_corrects_train / num_train_samples,
+      "Validation loss": loss_validation / num_validation_samples,
+      "Validation accuracy": num_corrects_validation / num_validation_samples,
     })
 
 
