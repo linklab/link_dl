@@ -17,8 +17,14 @@ git clone git@github.com:linklab/link_dl.git
 # dependencies
 
 '''
-pip install torch pip install torchvision pip install pandas pip install scikit-learn pip install matplotlib pip install
-imageio pip install graphviz pip install torchviz
+- pip install torch 
+- pip install torchvision
+- pip install pandas 
+- pip install scikit-learn 
+- pip install matplotlib 
+- pip install imageio 
+- pip install graphviz 
+- pip install torchviz
 '''
 
 # Graphviz

@@ -61,11 +61,11 @@ class Cifar10Train:
 
     train_data_loader = DataLoader(
       dataset=transformed_cifar10_train, batch_size=wandb.config.batch_size, shuffle=True,
-      pin_memory=True, num_workers=20
+      pin_memory=True, num_workers=20, persistent_workers=True
     )
     validation_data_loader = DataLoader(
       dataset=transformed_cifar10_validation, batch_size=wandb.config.batch_size,
-      pin_memory=True, num_workers=20
+      pin_memory=True, num_workers=20, persistent_workers=True
     )
 
     return len(transformed_cifar10_train), train_data_loader, len(transformed_cifar10_validation), validation_data_loader

@@ -4,6 +4,7 @@ from torch.utils.data import random_split, DataLoader
 from _03_real_world_data_to_tensors.k_california_housing_dataset_dataloader import CaliforniaHousingDataset
 from datetime import datetime
 import wandb
+import argparse
 
 
 def get_data():
@@ -82,24 +83,26 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     })
 
 
-def main():
+def main(args):
   current_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
 
   config = {
-    'epochs': 10_000,
+    'epochs': args.epochs,
+    'batch_size': args.batch_size,
     'learning_rate': 1e-3,
-    'batch_size': 256,
     'n_hidden_unit_list': [20, 20],
   }
 
   wandb.init(
-    # mode="disabled",
+    mode="online" if args.wandb else "disabled",
     project="my_model_training",
     notes="My first wandb experiment",
     tags=["my_model", "california_housing"],
     name=current_time_str,
     config=config
   )
+
+  print(wandb.config)
 
   train_data_loader, validation_data_loader = get_data()
 
@@ -118,5 +121,25 @@ def main():
   wandb.finish()
 
 
+# https://docs.wandb.ai/guides/track/config
 if __name__ == "__main__":
-  main()
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+  )
+
+  parser.add_argument(
+    "-w", "--wandb", type=bool, default=False, help="Use wandb"
+  )
+
+  parser.add_argument(
+    "-b", "--batch_size", type=int, default=128, help="Batch size"
+  )
+
+  parser.add_argument(
+    "-e", "--epochs", type=int, default=1000, help="Number of training epochs"
+  )
+
+  args = parser.parse_args()
+
+  main(args)
+
