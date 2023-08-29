@@ -161,7 +161,7 @@ cython_debug/
 
 _00_data/*
 _00_data/data.zip
-_08_object_detection/YOLO/yolo_v1.tar
+_01_code/_10_object_detection/YOLO/yolo_v1.tar
 
 *.tar
 data.zip
