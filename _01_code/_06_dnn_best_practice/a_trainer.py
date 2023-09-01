@@ -1,5 +1,8 @@
+from datetime import datetime
 import torch
 from torch import nn
+
+from _01_code._99_common_utils.utils import strfdelta
 
 
 class ClassificationTrainer:
@@ -72,18 +75,21 @@ class ClassificationTrainer:
 
     def train_loop(self):
         n_epochs = self.wandb.config.epochs
+        training_start_time = datetime.now()
 
         for epoch in range(1, n_epochs + 1):
             train_loss, train_accuracy = self.do_train()
             validation_loss, validation_accuracy = self.do_validation()
 
+            elapsed_time = datetime.now() - training_start_time
             if epoch == 1 or epoch % 10 == 0:
                 print(
-                    f"[Epoch {epoch}] "
-                    f"Training loss: {train_loss:.4f}, "
-                    f"Training accuracy: {train_accuracy:.4f} | "
-                    f"Validation loss: {validation_loss:.4f}, "
-                    f"Validation accuracy: {validation_accuracy:.4f}"
+                    f"[Epoch {epoch:>3}] "
+                    f"Training loss: {train_loss:6.3f}, "
+                    f"Training accuracy: {train_accuracy:6.3f} | "
+                    f"Validation loss: {validation_loss:6.3f}, "
+                    f"Validation accuracy: {validation_accuracy:6.3f} | "
+                    f"Training time: {strfdelta(elapsed_time, '%H:%M:%S')} "
                 )
 
             self.wandb.log({
