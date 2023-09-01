@@ -1,8 +1,49 @@
 from datetime import datetime
+
+import numpy as np
 import torch
 from torch import nn
 
 from _01_code._99_common_utils.utils import strfdelta
+
+
+class EarlyStopping:
+    """Early stops the training if validation loss doesn't improve after a given patience."""
+    def __init__(self, patience=7, path='checkpoint.pt'):
+        """
+        Args:
+            patience (int): How long to wait after last time validation loss improved.
+                            Default: 7
+            path (str): Path for the checkpoint to be saved to.
+                            Default: 'checkpoint.pt'
+        """
+        self.patience = patience
+        self.counter = 0
+        self.early_stop = False
+        self.val_loss_min = None
+        self.path = path
+
+    def check_and_save(self, val_loss, model):
+        if self.val_loss_min is None:
+            self.val_loss_min = val_loss
+            self.save_checkpoint(val_loss, model)
+        elif val_loss >= self.val_loss_min:
+            self.counter += 1
+            print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            if self.counter >= self.patience:
+                self.early_stop = True
+        else:
+            self.val_loss_min = val_loss
+            self.save_checkpoint(val_loss, model)
+            self.counter = 0
+
+        return self.early_stop
+
+    def save_checkpoint(self, val_loss, model):
+        '''Saves model when validation loss decrease.'''
+        print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
+        torch.save(model.state_dict(), self.path)
+        self.val_loss_min = val_loss
 
 
 class ClassificationTrainer:
@@ -74,6 +115,7 @@ class ClassificationTrainer:
         return validation_loss, validation_accuracy
 
     def train_loop(self):
+        early_stopping = EarlyStopping()
         n_epochs = self.wandb.config.epochs
         training_start_time = datetime.now()
 
@@ -85,10 +127,10 @@ class ClassificationTrainer:
             if epoch == 1 or epoch % 10 == 0:
                 print(
                     f"[Epoch {epoch:>3}] "
-                    f"Training loss: {train_loss:6.3f}, "
-                    f"Training accuracy: {train_accuracy:6.3f} | "
-                    f"Validation loss: {validation_loss:6.3f}, "
-                    f"Validation accuracy: {validation_accuracy:6.3f} | "
+                    f"Training loss: {train_loss:5.2f}, "
+                    f"Training accuracy: {train_accuracy:5.2f} | "
+                    f"Validation loss: {validation_loss:5.2f}, "
+                    f"Validation accuracy: {validation_accuracy:5.2f} | "
                     f"Training time: {strfdelta(elapsed_time, '%H:%M:%S')} "
                 )
 
@@ -99,5 +141,13 @@ class ClassificationTrainer:
                 "Validation loss": validation_loss,
                 "Validation accuracy": validation_accuracy,
             })
+
+            early_stop = early_stopping.check_and_save(validation_loss, self.model)
+
+            if early_stop:
+                break
+
+        elapsed_time = datetime.now() - training_start_time
+        print(f"Final training time: {strfdelta(elapsed_time, '%H:%M:%S')}")
 
         self.wandb.finish()
