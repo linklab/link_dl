@@ -54,6 +54,7 @@ print(imgs.view(1, -1).std(dim=-1))
 
 import torchvision.transforms as T
 
+# input.shape: torch.Size([-1, 1, 28, 28]) --> torch.Size([-1, 784])
 transformed_mnist_train = datasets.MNIST(
   data_path, train=True, download=False, transform=transforms.Compose([
     transforms.ToTensor(),

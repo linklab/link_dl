@@ -94,7 +94,7 @@ def main(args):
   }
 
   wandb.init(
-    mode="online" if args.wandb else "disabled",
+    mode="online" if args.use_wandb else "disabled",
     project="my_model_training",
     notes="My first wandb experiment",
     tags=["my_model", "california_housing"],
@@ -123,20 +123,18 @@ def main(args):
 
 # https://docs.wandb.ai/guides/track/config
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+  parser = argparse.ArgumentParser()
+
+  parser.add_argument(
+    "-w", "--use_wandb", type=bool, default=False, help="True or False"
   )
 
   parser.add_argument(
-    "-w", "--wandb", type=bool, default=False, help="Use wandb"
+    "-b", "--batch_size", type=int, default=128, help="Batch size (int)"
   )
 
   parser.add_argument(
-    "-b", "--batch_size", type=int, default=128, help="Batch size"
-  )
-
-  parser.add_argument(
-    "-e", "--epochs", type=int, default=1000, help="Number of training epochs"
+    "-e", "--epochs", type=int, default=1000, help="Number of training epochs (int)"
   )
 
   args = parser.parse_args()

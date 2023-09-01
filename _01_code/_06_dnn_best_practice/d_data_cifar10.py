@@ -57,6 +57,7 @@ print(imgs.view(3, -1).std(dim=-1))
 
 import torchvision.transforms as T
 
+# input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
 transformed_cifar10_train = datasets.CIFAR10(
   data_path, train=True, download=False, transform=transforms.Compose([
     transforms.ToTensor(), transforms.Normalize(
