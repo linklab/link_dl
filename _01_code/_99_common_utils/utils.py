@@ -25,7 +25,7 @@ def is_mac():
 
 def get_num_cpu_cores():
     import multiprocessing
-    multiprocessing.cpu_count()
+    return multiprocessing.cpu_count()
 
 
 if __name__ == "__main__":
