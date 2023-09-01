@@ -2,6 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import torch
 import os
+
+from torch.utils.data import random_split
 from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
@@ -52,6 +54,8 @@ print(imgs.view(1, -1).mean(dim=-1))
 print(imgs.view(1, -1).std(dim=-1))
 # >>> tensor([0.3081])
 
+print("#" * 50, 4)
+
 import torchvision.transforms as T
 
 # input.shape: torch.Size([-1, 1, 28, 28]) --> torch.Size([-1, 784])
@@ -63,6 +67,8 @@ transformed_mnist_train = datasets.MNIST(
   ])
 )
 
+transformed_mnist_train, transformed_mnist_test = random_split(transformed_mnist_train, [59000, 1000])
+
 transformed_mnist_validation = datasets.MNIST(
   data_path, train=False, download=False, transform=transforms.Compose([
     transforms.ToTensor(),
@@ -70,6 +76,9 @@ transformed_mnist_validation = datasets.MNIST(
     T.Lambda(lambda x: torch.flatten(x))
   ])
 )
+
+print(len(transformed_mnist_train), len(transformed_mnist_validation), len(transformed_mnist_test))
+
 img_t, _ = transformed_mnist_train[0]
 print(img_t.shape)
 

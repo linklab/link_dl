@@ -1,6 +1,5 @@
 from datetime import datetime
-
-import numpy as np
+import os
 import torch
 from torch import nn
 
@@ -9,32 +8,34 @@ from _01_code._99_common_utils.utils import strfdelta
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
-    def __init__(self, patience=7, path='checkpoint.pt'):
+    def __init__(self, patience, project_name, run_time_str):
         """
         Args:
             patience (int): How long to wait after last time validation loss improved.
-                            Default: 7
             path (str): Path for the checkpoint to be saved to.
-                            Default: 'checkpoint.pt'
         """
         self.patience = patience
         self.counter = 0
         self.early_stop = False
         self.val_loss_min = None
-        self.path = path
+        self.file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_{run_time_str}.pt"
+        )
+        self.latest_file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_latest.pt"
+        )
 
     def check_and_save(self, val_loss, model):
         if self.val_loss_min is None:
             self.val_loss_min = val_loss
-            self.save_checkpoint(val_loss, model)
         elif val_loss >= self.val_loss_min:
             self.counter += 1
             print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
-            self.val_loss_min = val_loss
             self.save_checkpoint(val_loss, model)
+            self.val_loss_min = val_loss
             self.counter = 0
 
         return self.early_stop
@@ -42,16 +43,19 @@ class EarlyStopping:
     def save_checkpoint(self, val_loss, model):
         '''Saves model when validation loss decrease.'''
         print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
-        torch.save(model.state_dict(), self.path)
+        torch.save(model.state_dict(), self.file_path)
+        torch.save(model.state_dict(), self.latest_file_path)
         self.val_loss_min = val_loss
 
 
 class ClassificationTrainer:
-    def __init__(self, model, optimizer, train_data_loader, validation_data_loader, wandb, device):
+    def __init__(self, project_name, model, optimizer, train_data_loader, validation_data_loader, run_time_str, wandb, device):
+        self.project_name = project_name
         self.model = model
         self.optimizer = optimizer
         self.train_data_loader = train_data_loader
         self.validation_data_loader = validation_data_loader
+        self.run_time_str = run_time_str
         self.wandb = wandb
         self.device = device
 
@@ -115,7 +119,9 @@ class ClassificationTrainer:
         return validation_loss, validation_accuracy
 
     def train_loop(self):
-        early_stopping = EarlyStopping()
+        early_stopping = EarlyStopping(
+            patience=7, project_name=f"{self.project_name}", run_time_str=f"{self.run_time_str}.pt"
+        )
         n_epochs = self.wandb.config.epochs
         training_start_time = datetime.now()
 

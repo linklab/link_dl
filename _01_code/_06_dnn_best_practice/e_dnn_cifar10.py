@@ -12,6 +12,10 @@ import wandb
 from _01_code._06_dnn_best_practice.a_trainer import ClassificationTrainer
 from _01_code._99_common_utils.utils import is_linux, get_num_cpu_cores
 
+def get_ready():
+  current_path = os.path.dirname(os.path.abspath(__file__))
+  if not os.path.isdir(os.path.join(current_path, "checkpoints")):
+    os.makedirs(os.path.join(current_path, "checkpoints"))
 
 def get_data_flattened():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
@@ -76,7 +80,9 @@ def get_model_and_optimizer():
 
 
 def main(args):
-  current_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
+  get_ready()
+
+  run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
 
   config = {
     'epochs': args.epochs,
@@ -90,7 +96,7 @@ def main(args):
     project="dnn_cifar10",
     notes="cifar10 experiment",
     tags=["dnn", "cifar10"],
-    name=current_time_str,
+    name=run_time_str,
     config=config
   )
   print(args)
@@ -105,7 +111,7 @@ def main(args):
   wandb.watch(model)
 
   classification_trainer = ClassificationTrainer(
-    model, optimizer, train_data_loader, validation_data_loader, wandb, device
+    "cifar10", model, optimizer, train_data_loader, validation_data_loader, run_time_str, wandb, device
   )
   classification_trainer.train_loop()
 
@@ -122,7 +128,7 @@ if __name__ == "__main__":
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=1000, help="Number of training epochs (int)"
+    "-e", "--epochs", type=int, default=10_000, help="Number of training epochs (int)"
   )
 
   args = parser.parse_args()

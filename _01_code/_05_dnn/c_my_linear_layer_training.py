@@ -60,12 +60,11 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
         loss_validation += loss_fn(output_validation, validation_batch['target']).item()
         num_validations += 1
 
-    if epoch == 1 or epoch % 10 == 0:
-      print(
-        f"Epoch {epoch}, "
-        f"Training loss {loss_train / num_trains:.4f}, "
-        f"Validation loss {loss_validation / num_validations:.4f}"
-      )
+    print(
+      f"Epoch {epoch}, "
+      f"Training loss {loss_train / num_trains:.4f}, "
+      f"Validation loss {loss_validation / num_validations:.4f}"
+    )
 
 
 if __name__ == "__main__":
