@@ -75,6 +75,8 @@ class ClassificationTrainer:
         num_trained_samples = 0
         num_trains = 0
 
+        print(next(self.model.parameters()).is_cuda)
+
         for train_batch in self.train_data_loader:
             input_train, target_train = train_batch
             input_train = input_train.to(device=self.device)
