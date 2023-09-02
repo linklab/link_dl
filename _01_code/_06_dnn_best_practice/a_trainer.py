@@ -121,9 +121,6 @@ class ClassificationTrainer:
                 num_validations += 1
 
         validation_loss = loss_validation / num_validations
-
-        print(num_corrects_validation, num_validated_samples)
-
         validation_accuracy = num_corrects_validation / num_validated_samples
 
         return validation_loss, validation_accuracy
