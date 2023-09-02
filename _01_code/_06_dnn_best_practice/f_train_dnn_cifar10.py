@@ -2,7 +2,6 @@ import argparse
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, random_split
-import torchvision.transforms as T
 from torchvision import datasets, transforms
 from datetime import datetime
 import os
@@ -29,51 +28,38 @@ def get_ready():
 def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
 
-  # class_names = [
-  #   'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
-  # ]
+  cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
+  cifar10_train, cifar10_test = random_split(cifar10_train, [49_000, 1_000])
+  cifar10_validation = datasets.CIFAR10(data_path, train=False, download=False, transform=transforms.ToTensor())
 
-  transformed_cifar10_train = datasets.CIFAR10(
-    data_path, train=True, download=True, transform=transforms.Compose([
-      transforms.ToTensor(),
-      transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
-      T.Lambda(lambda x: torch.flatten(x))
-    ])
-  )
-
-  transformed_cifar10_train, transformed_cifar10_test = random_split(transformed_cifar10_train, [59000, 1000])
-
-  transformed_cifar10_validation = datasets.CIFAR10(
-    data_path, train=False, download=True, transform=transforms.Compose([
-      transforms.ToTensor(),
-      transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
-      T.Lambda(lambda x: torch.flatten(x))
-    ])
-  )
-
-  print("Num Train Samples: ", len(transformed_cifar10_train))
-  print("Num Validation Samples: ", len(transformed_cifar10_validation))
-  print("Num Test Samples: ", len(transformed_cifar10_test))
+  print("Num Train Samples: ", len(cifar10_train))
+  print("Num Validation Samples: ", len(cifar10_validation))
+  print("Num Test Samples: ", len(cifar10_test))
 
   num_data_loading_workers = get_num_cpu_cores() if is_linux() else 0
   print("Number of Data Loading Workers:", num_data_loading_workers)
 
   train_data_loader = DataLoader(
-    dataset=transformed_cifar10_train, batch_size=wandb.config.batch_size, shuffle=True,
+    dataset=cifar10_train, batch_size=wandb.config.batch_size, shuffle=True,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
   validation_data_loader = DataLoader(
-    dataset=transformed_cifar10_validation, batch_size=wandb.config.batch_size,
+    dataset=cifar10_validation, batch_size=wandb.config.batch_size,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
   test_data_loader = DataLoader(
-    dataset=transformed_cifar10_test, batch_size=len(transformed_cifar10_test),
+    dataset=cifar10_test, batch_size=len(cifar10_test),
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
-  return train_data_loader, validation_data_loader, test_data_loader
+  cifar10_transforms = nn.Sequential(
+    transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
+    nn.Flatten(),
+  )
+
+  return train_data_loader, validation_data_loader, test_data_loader, cifar10_transforms
 
 
 def get_model_and_optimizer():
@@ -94,7 +80,7 @@ def get_model_and_optimizer():
       return x
 
   # 3 * 32 * 32 = 3072
-  my_model = MyModel(n_input=3072, n_output=10)
+  my_model = MyModel(n_input=3_072, n_output=10)
   optimizer = optim.SGD(my_model.parameters(), lr=wandb.config.learning_rate)
 
   return my_model, optimizer
@@ -127,19 +113,19 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, test_data_loader = get_data()
+  train_data_loader, validation_data_loader, test_data_loader, cifar10_transforms = get_data()
   model, optimizer = get_model_and_optimizer()
   model.to(device)
   wandb.watch(model)
 
   classification_trainer = ClassificationTrainer(
-    "cifar10", model, optimizer, train_data_loader, validation_data_loader,
+    "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device
   )
   classification_trainer.train_loop()
 
   test_model, _ = get_model_and_optimizer()
-  classification_tester = ClassificationTester("cifar10", test_model, test_data_loader)
+  classification_tester = ClassificationTester("cifar10", test_model, test_data_loader, cifar10_transforms)
   classification_tester.test()
 
   wandb.finish()

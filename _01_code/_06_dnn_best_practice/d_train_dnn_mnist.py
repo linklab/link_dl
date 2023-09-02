@@ -2,7 +2,6 @@ import argparse
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, random_split
-import torchvision.transforms as T
 from torchvision import datasets, transforms
 from datetime import datetime
 import os
