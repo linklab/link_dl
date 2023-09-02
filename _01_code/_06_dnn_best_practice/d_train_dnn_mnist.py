@@ -22,6 +22,9 @@ from _01_code._99_common_utils.utils import is_linux, get_num_cpu_cores
 
 
 def get_ready():
+  if is_linux():
+    torch.multiprocessing.set_start_method('spawn')
+
   if not os.path.isdir(os.path.join(CURRENT_FILE_PATH, "checkpoints")):
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
