@@ -75,8 +75,6 @@ class ClassificationTrainer:
         num_trained_samples = 0
         num_trains = 0
 
-        print(next(self.model.parameters()).is_cuda)
-
         for train_batch in self.train_data_loader:
             input_train, target_train = train_batch
             input_train = input_train.to(device=self.device)
@@ -87,7 +85,7 @@ class ClassificationTrainer:
             loss_train += loss.item()
 
             predicted_train = torch.argmax(output_train, dim=1)
-            num_corrects_train += torch.sum(torch.eq(predicted_train, target_train))
+            num_corrects_train += torch.sum(torch.eq(predicted_train, target_train)).item()
 
             num_trained_samples += len(input_train)
             num_trains += 1
@@ -117,7 +115,7 @@ class ClassificationTrainer:
                 loss_validation += self.loss_fn(output_validation, target_validation).item()
 
                 predicted_validation = torch.argmax(output_validation, dim=1)
-                num_corrects_validation += torch.sum(torch.eq(predicted_validation, target_validation))
+                num_corrects_validation += torch.sum(torch.eq(predicted_validation, target_validation)).item()
 
                 num_validated_samples += len(input_validation)
                 num_validations += 1
