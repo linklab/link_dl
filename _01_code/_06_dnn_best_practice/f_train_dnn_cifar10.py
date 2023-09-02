@@ -133,7 +133,8 @@ def main(args):
   wandb.watch(model)
 
   classification_trainer = ClassificationTrainer(
-    "cifar10", model, optimizer, train_data_loader, validation_data_loader, run_time_str, wandb, device
+    "cifar10", model, optimizer, train_data_loader, validation_data_loader,
+    run_time_str, wandb, device
   )
   classification_trainer.train_loop()
 
