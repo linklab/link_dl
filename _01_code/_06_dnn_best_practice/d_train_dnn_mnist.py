@@ -30,6 +30,7 @@ def get_data():
 
   mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transforms.ToTensor())
   mnist_train, mnist_test = random_split(mnist_train, [59_000, 1_000])
+  torch.save(mnist_test, os.path.join(CURRENT_FILE_PATH, "checkpoints", "mnist_test_dataset.pt"))
   mnist_validation = datasets.MNIST(data_path, train=False, download=True, transform=transforms.ToTensor())
 
   print("Num Train Samples: ", len(mnist_train))

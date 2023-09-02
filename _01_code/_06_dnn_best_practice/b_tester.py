@@ -34,7 +34,7 @@ class ClassificationTester:
                 predicted_test = torch.argmax(output_test, dim=1)
                 num_corrects_test += torch.sum(torch.eq(predicted_test, target_test))
 
-                num_tested_samples += len(test_batch)
+                num_tested_samples += len(input_test)
 
             test_accuracy = num_corrects_test / num_tested_samples
 

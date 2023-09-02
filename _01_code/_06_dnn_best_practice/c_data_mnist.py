@@ -26,7 +26,7 @@ print("#" * 50, 1)
 
 img, label = mnist_train[0]
 print(type(img))                  # >>> <class 'PIL.Image.Image'>
-print(label)  # >>> 1 automobile
+print(label)  # >>> 5
 plt.imshow(img)
 plt.show()
 
@@ -56,9 +56,6 @@ print(imgs.view(1, -1).std(dim=-1))
 # >>> tensor([0.3081])
 
 print("#" * 50, 4)
-
-import torchvision.transforms as T
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # >>> 60_000
 mnist_train = datasets.MNIST(data_path, train=True, download=False, transform=transforms.ToTensor())

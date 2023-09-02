@@ -40,16 +40,16 @@ print(type(img))                  # >>> <class 'numpy.ndarray'>
 print("#" * 50, 2)
 
 from torchvision import transforms
-tensor_cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
+cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
 
-img_t, _ = tensor_cifar10_train[0]
+img_t, _ = cifar10_train[0]
 print(type(img_t))
 print(img_t.shape)
 print(img_t.min(), img_t.max())
 
 print("#" * 50, 3)
 
-imgs = torch.stack([img_t for img_t, _ in tensor_cifar10_train], dim=3)
+imgs = torch.stack([img_t for img_t, _ in cifar10_train], dim=3)
 print(imgs.shape)
 
 print(imgs.view(3, -1).mean(dim=-1))
@@ -60,8 +60,6 @@ print(imgs.view(3, -1).std(dim=-1))
 
 print("#" * 50, 4)
 
-import torchvision.transforms as T
-
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
 cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
 cifar10_train, cifar10_test = random_split(cifar10_train, [49_000, 1_000])
@@ -70,7 +68,7 @@ cifar10_validation = datasets.CIFAR10(data_path, train=False, download=False, tr
 print(len(cifar10_train), len(cifar10_validation), len(cifar10_test))
 
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
-mnist_transforms = nn.Sequential(
+cifar10_transforms = nn.Sequential(
   transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
   nn.Flatten()
 )
@@ -80,5 +78,5 @@ train_data_loader = DataLoader(dataset=cifar10_train, batch_size=32, shuffle=Tru
 for train_batch in train_data_loader:
     input, target = train_batch
     print(input.shape, " - 1")
-    input = mnist_transforms(input)
+    input = cifar10_transforms(input)
     print(input.shape, " - 2")
