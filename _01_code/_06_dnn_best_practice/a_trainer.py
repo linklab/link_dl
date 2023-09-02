@@ -95,7 +95,7 @@ class ClassificationTrainer:
             self.optimizer.step()
 
         train_loss = loss_train / num_trains
-        train_accuracy = num_corrects_train / num_trained_samples
+        train_accuracy = 100.0 * num_corrects_train / num_trained_samples
 
         return train_loss, train_accuracy
 
@@ -121,7 +121,7 @@ class ClassificationTrainer:
                 num_validations += 1
 
         validation_loss = loss_validation / num_validations
-        validation_accuracy = num_corrects_validation / num_validated_samples
+        validation_accuracy = 100.0 * num_corrects_validation / num_validated_samples
 
         return validation_loss, validation_accuracy
 
