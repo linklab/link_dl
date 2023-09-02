@@ -87,7 +87,7 @@ class ClassificationTrainer:
             predicted_train = torch.argmax(output_train, dim=1)
             num_corrects_train += torch.sum(torch.eq(predicted_train, target_train))
 
-            num_trained_samples += len(train_batch)
+            num_trained_samples += len(input_train)
             num_trains += 1
 
             self.optimizer.zero_grad()
@@ -117,10 +117,13 @@ class ClassificationTrainer:
                 predicted_validation = torch.argmax(output_validation, dim=1)
                 num_corrects_validation += torch.sum(torch.eq(predicted_validation, target_validation))
 
-                num_validated_samples += len(validation_batch)
+                num_validated_samples += len(input_validation)
                 num_validations += 1
 
         validation_loss = loss_validation / num_validations
+
+        print(num_corrects_validation, num_validated_samples)
+
         validation_accuracy = num_corrects_validation / num_validated_samples
 
         return validation_loss, validation_accuracy
