@@ -57,13 +57,15 @@ print(imgs.view(1, -1).std(dim=-1))
 print("#" * 50, 4)
 
 import torchvision.transforms as T
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # input.shape: torch.Size([-1, 1, 28, 28]) --> torch.Size([-1, 784])
 transformed_mnist_train = datasets.MNIST(
   data_path, train=True, download=False, transform=transforms.Compose([
     transforms.ToTensor(),
+    T.Lambda(lambda x: x.to(device)),
     transforms.Normalize(mean=0.1307, std=0.3081),
-    T.Lambda(lambda x: torch.flatten(x))
+    T.Lambda(lambda x: torch.flatten(x)),
   ])
 )
 
@@ -72,6 +74,7 @@ transformed_mnist_train, transformed_mnist_test = random_split(transformed_mnist
 transformed_mnist_validation = datasets.MNIST(
   data_path, train=False, download=False, transform=transforms.Compose([
     transforms.ToTensor(),
+    T.Lambda(lambda x: x.to(device)),
     transforms.Normalize(mean=0.1307, std=0.3081),
     T.Lambda(lambda x: torch.flatten(x))
   ])

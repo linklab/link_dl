@@ -151,7 +151,7 @@ class ClassificationTrainer:
                     f"V_accuracy: {validation_accuracy:6.3f} | "
                     f"{message} | "
                     f"T_time: {strfdelta(elapsed_time, '%H:%M:%S')}, "
-                    f"T_speed (epochs/sec.): {epoch_per_second:4.2f}"
+                    f"T_speed: {epoch_per_second:4.2f}"
                 )
 
                 self.wandb.log({

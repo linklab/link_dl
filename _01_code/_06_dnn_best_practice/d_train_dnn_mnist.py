@@ -26,12 +26,13 @@ def get_ready():
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 
-def get_data_flattened():
+def get_data_flattened(device):
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 
   transformed_mnist_train = datasets.MNIST(
     data_path, train=True, download=True, transform=transforms.Compose([
       transforms.ToTensor(),
+      T.Lambda(lambda x: x.to(device)),
       transforms.Normalize(mean=0.1307, std=0.3081),
       T.Lambda(lambda x: torch.flatten(x))
     ])
@@ -42,6 +43,7 @@ def get_data_flattened():
   transformed_mnist_validation = datasets.MNIST(
     data_path, train=False, download=True, transform=transforms.Compose([
       transforms.ToTensor(),
+      T.Lambda(lambda x: x.to(device)),
       transforms.Normalize(mean=0.1307, std=0.3081),
       T.Lambda(lambda x: torch.flatten(x))
     ])
@@ -123,7 +125,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, test_data_loader = get_data_flattened()
+  train_data_loader, validation_data_loader, test_data_loader = get_data_flattened(device)
   model, optimizer = get_model_and_optimizer()
   model.to(device)
   wandb.watch(model)
