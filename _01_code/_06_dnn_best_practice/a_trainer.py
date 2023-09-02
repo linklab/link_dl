@@ -35,7 +35,7 @@ class EarlyStopping:
             self.val_loss_min = new_validation_loss
             message = f'Early stopping is stated!'
         elif new_validation_loss < self.val_loss_min - self.delta:
-            message = f'V_loss decreased ({self.val_loss_min:6.3f} --> {new_validation_loss:6.3f}). Saving model ...'
+            message = f'V_loss decreased ({self.val_loss_min:6.3f} --> {new_validation_loss:6.3f}). Saving model...'
             self.save_checkpoint(new_validation_loss, model)
             self.val_loss_min = new_validation_loss
             self.counter = 0
@@ -139,6 +139,7 @@ class ClassificationTrainer:
                 validation_loss, validation_accuracy = self.do_validation()
 
                 elapsed_time = datetime.now() - training_start_time
+                epoch_per_second = epoch / elapsed_time.seconds
 
                 message, early_stop = early_stopping.check_and_save(validation_loss, self.model)
 
@@ -149,7 +150,8 @@ class ClassificationTrainer:
                     f"V_loss: {validation_loss:6.3f}, "
                     f"V_accuracy: {validation_accuracy:6.3f} | "
                     f"{message} | "
-                    f"T_time: {strfdelta(elapsed_time, '%H:%M:%S')} "
+                    f"T_time: {strfdelta(elapsed_time, '%H:%M:%S')}, "
+                    f"T_speed (epochs/sec.): {epoch_per_second:4.2f}"
                 )
 
                 self.wandb.log({
@@ -158,6 +160,7 @@ class ClassificationTrainer:
                     "Training accuracy": train_accuracy,
                     "Validation loss": validation_loss,
                     "Validation accuracy": validation_accuracy,
+                    "Training speed (epochs/sec.)": epoch_per_second,
                 })
 
                 if early_stop:
