@@ -28,9 +28,9 @@ def get_ready():
 def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
 
-  cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
+  cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=transforms.ToTensor())
   cifar10_train, cifar10_test = random_split(cifar10_train, [49_000, 1_000])
-  cifar10_validation = datasets.CIFAR10(data_path, train=False, download=False, transform=transforms.ToTensor())
+  cifar10_validation = datasets.CIFAR10(data_path, train=False, download=True, transform=transforms.ToTensor())
 
   print("Num Train Samples: ", len(cifar10_train))
   print("Num Validation Samples: ", len(cifar10_validation))

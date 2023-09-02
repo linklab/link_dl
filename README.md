@@ -25,6 +25,7 @@ git clone git@github.com:linklab/link_dl.git
 - pip install imageio 
 - pip install graphviz 
 - pip install torchviz
+- pip install wandb
 '''
 
 # Graphviz

@@ -1,10 +1,19 @@
 import torch
 from torch import nn, optim
 from torch.utils.data import random_split, DataLoader
-from _01_code._03_real_world_data_to_tensors.k_california_housing_dataset_dataloader import CaliforniaHousingDataset
 from datetime import datetime
 import wandb
 import argparse
+
+from pathlib import Path
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
+print("BASE_PATH", BASE_PATH)
+
+import sys
+sys.path.append(BASE_PATH)
+
+from _01_code._03_real_world_data_to_tensors.k_california_housing_dataset_dataloader \
+  import CaliforniaHousingDataset
 
 
 def get_data():
@@ -129,11 +138,11 @@ if __name__ == "__main__":
   )
 
   parser.add_argument(
-    "-b", "--batch_size", type=int, default=128, help="Batch size (int)"
+    "-b", "--batch_size", type=int, default=256, help="Batch size (int)"
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=1000, help="Number of training epochs (int)"
+    "-e", "--epochs", type=int, default=1_000, help="Number of training epochs (int)"
   )
 
   args = parser.parse_args()

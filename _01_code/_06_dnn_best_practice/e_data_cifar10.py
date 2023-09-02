@@ -72,7 +72,7 @@ print(len(cifar10_train), len(cifar10_validation), len(cifar10_test))
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
 mnist_transforms = nn.Sequential(
   transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
-  nn.Flatten(),
+  nn.Flatten()
 )
 
 train_data_loader = DataLoader(dataset=cifar10_train, batch_size=32, shuffle=True)
