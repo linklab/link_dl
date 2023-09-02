@@ -26,7 +26,7 @@ def get_ready():
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 
-def get_data_flattened():
+def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
 
   # class_names = [
@@ -127,7 +127,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, test_data_loader = get_data_flattened()
+  train_data_loader, validation_data_loader, test_data_loader = get_data()
   model, optimizer = get_model_and_optimizer()
   model.to(device)
   wandb.watch(model)
@@ -141,6 +141,9 @@ def main(args):
   test_model, _ = get_model_and_optimizer()
   classification_tester = ClassificationTester("cifar10", test_model, test_data_loader)
   classification_tester.test()
+
+  wandb.finish()
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

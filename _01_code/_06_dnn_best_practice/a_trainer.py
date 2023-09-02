@@ -56,12 +56,16 @@ class EarlyStopping:
 
 
 class ClassificationTrainer:
-    def __init__(self, project_name, model, optimizer, train_data_loader, validation_data_loader, run_time_str, wandb, device):
+    def __init__(
+            self, project_name, model, optimizer, train_data_loader, validation_data_loader, transforms,
+            run_time_str, wandb, device
+    ):
         self.project_name = project_name
         self.model = model
         self.optimizer = optimizer
         self.train_data_loader = train_data_loader
         self.validation_data_loader = validation_data_loader
+        self.transforms = transforms
         self.run_time_str = run_time_str
         self.wandb = wandb
         self.device = device
@@ -79,6 +83,8 @@ class ClassificationTrainer:
             input_train, target_train = train_batch
             input_train = input_train.to(device=self.device)
             target_train = target_train.to(device=self.device)
+
+            input_train = self.transforms(input_train)
 
             output_train = self.model(input_train)
             loss = self.loss_fn(output_train, target_train)
@@ -110,6 +116,8 @@ class ClassificationTrainer:
                 input_validation, target_validation = validation_batch
                 input_validation = input_validation.to(device=self.device)
                 target_validation = target_validation.to(device=self.device)
+
+                input_validation = self.transforms(input_validation)
 
                 output_validation = self.model(input_validation)
                 loss_validation += self.loss_fn(output_validation, target_validation).item()
@@ -157,9 +165,9 @@ class ClassificationTrainer:
                 self.wandb.log({
                     "Epoch": epoch,
                     "Training loss": train_loss,
-                    "Training accuracy": train_accuracy,
+                    "Training accuracy (%)": train_accuracy,
                     "Validation loss": validation_loss,
-                    "Validation accuracy": validation_accuracy,
+                    "Validation accuracy (%)": validation_accuracy,
                     "Training speed (epochs/sec.)": epoch_per_second,
                 })
 
@@ -169,4 +177,3 @@ class ClassificationTrainer:
         elapsed_time = datetime.now() - training_start_time
         print(f"Final training time: {strfdelta(elapsed_time, '%H:%M:%S')}")
 
-        self.wandb.finish()

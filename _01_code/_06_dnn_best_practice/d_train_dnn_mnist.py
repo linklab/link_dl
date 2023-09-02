@@ -26,50 +26,41 @@ def get_ready():
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 
-def get_data_flattened():
+def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 
-  transformed_mnist_train = datasets.MNIST(
-    data_path, train=True, download=True, transform=transforms.Compose([
-      transforms.ToTensor(),
-      transforms.Normalize(mean=0.1307, std=0.3081),
-      T.Lambda(lambda x: torch.flatten(x))
-    ])
-  )
+  mnist_train = datasets.MNIST(data_path, train=True, download=False, transform=transforms.ToTensor())
+  mnist_train, mnist_test = random_split(mnist_train, [59_000, 1_000])
+  mnist_validation = datasets.MNIST(data_path, train=False, download=False, transform=transforms.ToTensor())
 
-  transformed_mnist_train, transformed_mnist_test = random_split(transformed_mnist_train, [59000, 1000])
-
-  transformed_mnist_validation = datasets.MNIST(
-    data_path, train=False, download=True, transform=transforms.Compose([
-      transforms.ToTensor(),
-      transforms.Normalize(mean=0.1307, std=0.3081),
-      T.Lambda(lambda x: torch.flatten(x))
-    ])
-  )
-
-  print("Num Train Samples: ", len(transformed_mnist_train))
-  print("Num Validation Samples: ", len(transformed_mnist_validation))
-  print("Num Test Samples: ", len(transformed_mnist_test))
+  print("Num Train Samples: ", len(mnist_train))
+  print("Num Validation Samples: ", len(mnist_validation))
+  print("Num Test Samples: ", len(mnist_test))
 
   num_data_loading_workers = get_num_cpu_cores() if is_linux() else 0
   print("Number of Data Loading Workers:", num_data_loading_workers)
 
   train_data_loader = DataLoader(
-    dataset=transformed_mnist_train, batch_size=wandb.config.batch_size, shuffle=True,
+    dataset=mnist_train, batch_size=wandb.config.batch_size, shuffle=True,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
   validation_data_loader = DataLoader(
-    dataset=transformed_mnist_validation, batch_size=wandb.config.batch_size,
+    dataset=mnist_validation, batch_size=wandb.config.batch_size,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
   test_data_loader = DataLoader(
-    dataset=transformed_mnist_test, batch_size=len(transformed_mnist_test),
+    dataset=mnist_test, batch_size=len(mnist_test),
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
-  return train_data_loader, validation_data_loader, test_data_loader
+  mnist_transforms = nn.Sequential(
+    transforms.Normalize(mean=0.1307, std=0.3081),
+    nn.Flatten(),
+  )
+
+  return train_data_loader, validation_data_loader, test_data_loader, mnist_transforms
 
 
 def get_model_and_optimizer():
@@ -123,20 +114,22 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, test_data_loader = get_data_flattened()
+  train_data_loader, validation_data_loader, test_data_loader, mnist_transforms = get_data()
   model, optimizer = get_model_and_optimizer()
   model.to(device)
   wandb.watch(model)
 
   classification_trainer = ClassificationTrainer(
-    "mnist", model, optimizer, train_data_loader, validation_data_loader,
+    "mnist", model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
     run_time_str, wandb, device
   )
   classification_trainer.train_loop()
 
   test_model, _ = get_model_and_optimizer()
-  classification_tester = ClassificationTester("mnist", test_model, test_data_loader)
+  classification_tester = ClassificationTester("mnist", test_model, test_data_loader, mnist_transforms)
   classification_tester.test()
+
+  wandb.finish()
 
 
 if __name__ == "__main__":

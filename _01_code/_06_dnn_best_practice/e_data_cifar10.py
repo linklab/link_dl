@@ -3,7 +3,8 @@ from matplotlib import pyplot as plt
 import torch
 import os
 
-from torch.utils.data import random_split
+from torch import nn
+from torch.utils.data import random_split, DataLoader
 from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
@@ -62,27 +63,22 @@ print("#" * 50, 4)
 import torchvision.transforms as T
 
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
-transformed_cifar10_train = datasets.CIFAR10(
-  data_path, train=True, download=False, transform=transforms.Compose([
-    transforms.ToTensor(), transforms.Normalize(
-      mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
-    ),
-    T.Lambda(lambda x: torch.flatten(x))
-  ])
+cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
+cifar10_train, cifar10_test = random_split(cifar10_train, [49_000, 1_000])
+cifar10_validation = datasets.CIFAR10(data_path, train=False, download=False, transform=transforms.ToTensor())
+
+print(len(cifar10_train), len(cifar10_validation), len(cifar10_test))
+
+# input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
+mnist_transforms = nn.Sequential(
+  transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
+  nn.Flatten(),
 )
 
-transformed_cifar10_train, transformed_cifar10_test = random_split(transformed_cifar10_train, [49000, 1000])
+train_data_loader = DataLoader(dataset=cifar10_train, batch_size=32, shuffle=True)
 
-transformed_cifar10_validation = datasets.CIFAR10(
-  data_path, train=False, download=False, transform=transforms.Compose([
-    transforms.ToTensor(), transforms.Normalize(
-      mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)
-    ),
-    T.Lambda(lambda x: torch.flatten(x))
-  ])
-)
-
-print(len(transformed_cifar10_train), len(transformed_cifar10_validation), len(transformed_cifar10_test))
-
-img_t, _ = transformed_cifar10_train[0]
-print(img_t.shape)
+for train_batch in train_data_loader:
+    input, target = train_batch
+    print(input.shape, " - 1")
+    input = mnist_transforms(input)
+    print(input.shape, " - 2")

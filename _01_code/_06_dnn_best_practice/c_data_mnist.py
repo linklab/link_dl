@@ -3,7 +3,8 @@ from matplotlib import pyplot as plt
 import torch
 import os
 
-from torch.utils.data import random_split
+from torch import nn
+from torch.utils.data import random_split, DataLoader
 from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
@@ -59,27 +60,23 @@ print("#" * 50, 4)
 import torchvision.transforms as T
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+# >>> 60_000
+mnist_train = datasets.MNIST(data_path, train=True, download=False, transform=transforms.ToTensor())
+mnist_train, mnist_test = random_split(mnist_train, [59_000, 1_000])
+mnist_validation = datasets.MNIST(data_path, train=False, download=False, transform=transforms.ToTensor())
+
+print(len(mnist_train), len(mnist_validation), len(mnist_test))
+
 # input.shape: torch.Size([-1, 1, 28, 28]) --> torch.Size([-1, 784])
-transformed_mnist_train = datasets.MNIST(
-  data_path, train=True, download=False, transform=transforms.Compose([
-    transforms.ToTensor(),
-    T.Lambda(lambda x: x.to(device)),
-    transforms.Normalize(mean=0.1307, std=0.3081),
-    T.Lambda(lambda x: torch.flatten(x)),
-  ])
+mnist_transforms = nn.Sequential(
+  transforms.Normalize(mean=0.1307, std=0.3081),
+  nn.Flatten(),
 )
 
-transformed_mnist_train, transformed_mnist_test = random_split(transformed_mnist_train, [59000, 1000])
+train_data_loader = DataLoader(dataset=mnist_train, batch_size=32, shuffle=True)
 
-transformed_mnist_validation = datasets.MNIST(
-  data_path, train=False, download=False, transform=transforms.Compose([
-    transforms.ToTensor(),
-    T.Lambda(lambda x: x.to(device)),
-    transforms.Normalize(mean=0.1307, std=0.3081),
-    T.Lambda(lambda x: torch.flatten(x))
-  ])
-)
-print(len(transformed_mnist_train), len(transformed_mnist_validation), len(transformed_mnist_test))
-
-img_t, _ = transformed_mnist_train[0]
-print(img_t.shape)
+for train_batch in train_data_loader:
+    input, target = train_batch
+    print(input.shape, " - 1")
+    input = mnist_transforms(input)
+    print(input.shape, " - 2")
