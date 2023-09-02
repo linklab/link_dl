@@ -1,5 +1,4 @@
 import argparse
-
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, random_split
@@ -9,19 +8,29 @@ from datetime import datetime
 import os
 import wandb
 
-from _01_code._06_dnn_best_practice.a_trainer import ClassificationTrainer
+from pathlib import Path
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
+print("BASE_PATH", BASE_PATH)
+CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+import sys
+sys.path.append(BASE_PATH)
+
+from a_trainer import ClassificationTrainer
+from b_tester import ClassificationTester
 from _01_code._99_common_utils.utils import is_linux, get_num_cpu_cores
 
+
 def get_ready():
-  current_path = os.path.dirname(os.path.abspath(__file__))
-  if not os.path.isdir(os.path.join(current_path, "checkpoints")):
-    os.makedirs(os.path.join(current_path, "checkpoints"))
+  if not os.path.isdir(os.path.join(CURRENT_FILE_PATH, "checkpoints")):
+    os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
+
 
 def get_data_flattened():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 
   transformed_mnist_train = datasets.MNIST(
-    data_path, train=True, download=False, transform=transforms.Compose([
+    data_path, train=True, download=True, transform=transforms.Compose([
       transforms.ToTensor(),
       transforms.Normalize(mean=0.1307, std=0.3081),
       T.Lambda(lambda x: torch.flatten(x))
@@ -31,7 +40,7 @@ def get_data_flattened():
   transformed_mnist_train, transformed_mnist_test = random_split(transformed_mnist_train, [59000, 1000])
 
   transformed_mnist_validation = datasets.MNIST(
-    data_path, train=False, download=False, transform=transforms.Compose([
+    data_path, train=False, download=True, transform=transforms.Compose([
       transforms.ToTensor(),
       transforms.Normalize(mean=0.1307, std=0.3081),
       T.Lambda(lambda x: torch.flatten(x))
@@ -49,12 +58,18 @@ def get_data_flattened():
     dataset=transformed_mnist_train, batch_size=wandb.config.batch_size, shuffle=True,
     pin_memory=True, num_workers=num_data_loading_workers
   )
+
   validation_data_loader = DataLoader(
     dataset=transformed_mnist_validation, batch_size=wandb.config.batch_size,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
-  return train_data_loader, validation_data_loader
+  test_data_loader = DataLoader(
+    dataset=transformed_mnist_test, batch_size=len(transformed_mnist_test),
+    pin_memory=True, num_workers=num_data_loading_workers
+  )
+
+  return train_data_loader, validation_data_loader, test_data_loader
 
 
 def get_model_and_optimizer():
@@ -89,8 +104,9 @@ def main(args):
   config = {
     'epochs': args.epochs,
     'batch_size': args.batch_size,
-    'learning_rate': 1e-3,
-    'n_hidden_unit_list': [128, 128],
+    'validation_intervals': args.validation_intervals,
+    'learning_rate': args.learning_rate,
+    'n_hidden_unit_list': [256, 256],
   }
 
   wandb.init(
@@ -107,7 +123,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader = get_data_flattened()
+  train_data_loader, validation_data_loader, test_data_loader = get_data_flattened()
   model, optimizer = get_model_and_optimizer()
   model.to(device)
   wandb.watch(model)
@@ -118,6 +134,10 @@ def main(args):
   )
   classification_trainer.train_loop()
 
+  test_model, _ = get_model_and_optimizer()
+  classification_tester = ClassificationTester("mnist", test_model, test_data_loader)
+  classification_tester.test()
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
@@ -127,11 +147,23 @@ if __name__ == "__main__":
   )
 
   parser.add_argument(
-    "-b", "--batch_size", type=int, default=128, help="Batch size (int)"
+    "-e", "--epochs", type=int, default=10_000,
+    help="Number of training epochs (int, default: 10,000)"
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=10_000, help="Number of training epochs (int)"
+    "-b", "--batch_size", type=int, default=256,
+    help="Batch size (int, default: 256)"
+  )
+
+  parser.add_argument(
+    "-r", "--learning_rate", type=float, default=1e-3,
+    help="Learning rate (float, default: 1e-3)"
+  )
+
+  parser.add_argument(
+    "-v", "--validation_intervals", type=int, default=10,
+    help="Number of training epochs between validations (int, default: 10)"
   )
 
   args = parser.parse_args()

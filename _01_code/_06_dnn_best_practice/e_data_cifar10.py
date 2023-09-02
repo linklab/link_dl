@@ -2,6 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import torch
 import os
+
+from torch.utils.data import random_split
 from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
@@ -55,6 +57,8 @@ print(imgs.view(3, -1).mean(dim=-1))
 print(imgs.view(3, -1).std(dim=-1))
 # >>> tensor([0.2470, 0.2435, 0.2616])
 
+print("#" * 50, 4)
+
 import torchvision.transforms as T
 
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
@@ -67,6 +71,8 @@ transformed_cifar10_train = datasets.CIFAR10(
   ])
 )
 
+transformed_cifar10_train, transformed_cifar10_test = random_split(transformed_cifar10_train, [49000, 1000])
+
 transformed_cifar10_validation = datasets.CIFAR10(
   data_path, train=False, download=False, transform=transforms.Compose([
     transforms.ToTensor(), transforms.Normalize(
@@ -76,8 +82,7 @@ transformed_cifar10_validation = datasets.CIFAR10(
   ])
 )
 
+print(len(transformed_cifar10_train), len(transformed_cifar10_validation), len(transformed_cifar10_test))
+
 img_t, _ = transformed_cifar10_train[0]
 print(img_t.shape)
-
-print(len(transformed_cifar10_train))
-print(len(transformed_cifar10_validation))

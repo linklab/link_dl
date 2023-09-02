@@ -76,12 +76,7 @@ transformed_mnist_validation = datasets.MNIST(
     T.Lambda(lambda x: torch.flatten(x))
   ])
 )
-
 print(len(transformed_mnist_train), len(transformed_mnist_validation), len(transformed_mnist_test))
 
 img_t, _ = transformed_mnist_train[0]
 print(img_t.shape)
-
-print(len(transformed_mnist_train))
-print(len(transformed_mnist_validation))
-

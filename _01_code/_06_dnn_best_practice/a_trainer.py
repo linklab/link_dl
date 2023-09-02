@@ -8,15 +8,17 @@ from _01_code._99_common_utils.utils import strfdelta
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
-    def __init__(self, patience, project_name, run_time_str):
+    def __init__(self, patience=7, delta=0.001, project_name=None, run_time_str=None):
         """
         Args:
             patience (int): How long to wait after last time validation loss improved.
+            delta (float): Minimum change in the monitored quantity to qualify as an improvement.
             path (str): Path for the checkpoint to be saved to.
         """
         self.patience = patience
         self.counter = 0
-        self.early_stop = False
+        self.delta = delta
+
         self.val_loss_min = None
         self.file_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_{run_time_str}.pt"
@@ -25,24 +27,29 @@ class EarlyStopping:
             os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_latest.pt"
         )
 
-    def check_and_save(self, val_loss, model):
-        if self.val_loss_min is None:
-            self.val_loss_min = val_loss
-        elif val_loss >= self.val_loss_min:
-            self.counter += 1
-            print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
-            if self.counter >= self.patience:
-                self.early_stop = True
-        else:
-            self.save_checkpoint(val_loss, model)
-            self.val_loss_min = val_loss
-            self.counter = 0
+    def check_and_save(self, new_validation_loss, model):
+        early_stop = False
+        message = None
 
-        return self.early_stop
+        if self.val_loss_min is None:
+            self.val_loss_min = new_validation_loss
+            message = f'Early stopping is stated!'
+        elif new_validation_loss < self.val_loss_min - self.delta:
+            message = f'V_loss decreased ({self.val_loss_min:6.3f} --> {new_validation_loss:6.3f}). Saving model ...'
+            self.save_checkpoint(new_validation_loss, model)
+            self.val_loss_min = new_validation_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            message = f'Early stopping counter: {self.counter} out of {self.patience}'
+            if self.counter >= self.patience:
+                early_stop = True
+                message += " *** TRAIN EARLY STOPPED! ***"
+
+        return message, early_stop
 
     def save_checkpoint(self, val_loss, model):
         '''Saves model when validation loss decrease.'''
-        print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
         torch.save(model.state_dict(), self.file_path)
         torch.save(model.state_dict(), self.latest_file_path)
         self.val_loss_min = val_loss
@@ -127,31 +134,34 @@ class ClassificationTrainer:
 
         for epoch in range(1, n_epochs + 1):
             train_loss, train_accuracy = self.do_train()
-            validation_loss, validation_accuracy = self.do_validation()
 
-            elapsed_time = datetime.now() - training_start_time
-            if epoch == 1 or epoch % 10 == 0:
+            if epoch == 1 or epoch % self.wandb.config.validation_intervals == 0:
+                validation_loss, validation_accuracy = self.do_validation()
+
+                elapsed_time = datetime.now() - training_start_time
+
+                message, early_stop = early_stopping.check_and_save(validation_loss, self.model)
+
                 print(
                     f"[Epoch {epoch:>3}] "
-                    f"Training loss: {train_loss:5.2f}, "
-                    f"Training accuracy: {train_accuracy:5.2f} | "
-                    f"Validation loss: {validation_loss:5.2f}, "
-                    f"Validation accuracy: {validation_accuracy:5.2f} | "
-                    f"Training time: {strfdelta(elapsed_time, '%H:%M:%S')} "
+                    f"T_loss: {train_loss:6.3f}, "
+                    f"T_accuracy: {train_accuracy:6.3f} | "
+                    f"V_loss: {validation_loss:6.3f}, "
+                    f"V_accuracy: {validation_accuracy:6.3f} | "
+                    f"{message} | "
+                    f"T_time: {strfdelta(elapsed_time, '%H:%M:%S')} "
                 )
 
-            self.wandb.log({
-                "Epoch": epoch,
-                "Training loss": train_loss,
-                "Training accuracy": train_accuracy,
-                "Validation loss": validation_loss,
-                "Validation accuracy": validation_accuracy,
-            })
+                self.wandb.log({
+                    "Epoch": epoch,
+                    "Training loss": train_loss,
+                    "Training accuracy": train_accuracy,
+                    "Validation loss": validation_loss,
+                    "Validation accuracy": validation_accuracy,
+                })
 
-            early_stop = early_stopping.check_and_save(validation_loss, self.model)
-
-            if early_stop:
-                break
+                if early_stop:
+                    break
 
         elapsed_time = datetime.now() - training_start_time
         print(f"Final training time: {strfdelta(elapsed_time, '%H:%M:%S')}")
