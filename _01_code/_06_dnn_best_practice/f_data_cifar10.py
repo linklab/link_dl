@@ -66,6 +66,7 @@ print(len(cifar10_train), len(cifar10_validation), len(cifar10_test))
 
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
 cifar10_transforms = nn.Sequential(
+  transforms.ConvertImageDtype(torch.float),
   transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
   nn.Flatten()
 )
