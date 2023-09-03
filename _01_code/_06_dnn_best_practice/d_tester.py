@@ -17,7 +17,7 @@ class ClassificationTester:
             os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_latest.pt"
         )
 
-        self.model.load_state_dict(torch.load(self.latest_file_path))
+        self.model.load_state_dict(torch.load(self.latest_file_path, map_location=torch.device('cpu')))
 
     def test(self):
         num_corrects_test = 0

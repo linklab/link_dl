@@ -19,6 +19,7 @@ sys.path.append(BASE_PATH)
 from e_mnist_train_dnn import get_model
 from d_tester import ClassificationTester
 
+
 def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 
