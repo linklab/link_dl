@@ -38,4 +38,4 @@ class ClassificationTester:
 
             test_accuracy = 100.0 * num_corrects_test / num_tested_samples
 
-        print(f"TEST RESULTS: {test_accuracy:6.3f}")
+        print(f"TEST RESULTS: {test_accuracy:6.3f}%")
