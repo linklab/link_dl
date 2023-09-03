@@ -14,7 +14,7 @@ CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.append(BASE_PATH)
 
-from g_cifar10_train_dnn import get_model_and_optimizer
+from g_cifar10_train_dnn import get_model
 from b_tester import ClassificationTester
 
 def main():
@@ -28,7 +28,7 @@ def main():
     nn.Flatten(),
   )
 
-  test_model, _ = get_model_and_optimizer()
+  test_model = get_model()
   classification_tester = ClassificationTester("cifar10", test_model, test_data_loader, cifar10_transforms)
   classification_tester.test()
 

@@ -57,7 +57,7 @@ def get_data():
   return train_data_loader, validation_data_loader, mnist_transforms
 
 
-def get_model_and_optimizer():
+def get_model():
   class MyModel(nn.Module):
     def __init__(self, n_input, n_output):
       super().__init__()
@@ -76,9 +76,8 @@ def get_model_and_optimizer():
 
   # 1 * 28 * 28 = 784
   my_model = MyModel(n_input=784, n_output=10)
-  optimizer = optim.SGD(my_model.parameters(), lr=wandb.config.learning_rate)
 
-  return my_model, optimizer
+  return my_model
 
 
 def main(args):
@@ -108,9 +107,11 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, mnist_transforms = get_data()
-  model, optimizer = get_model_and_optimizer()
+  model = get_model()
   model.to(device)
   wandb.watch(model)
+
+  optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
     "mnist", model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,

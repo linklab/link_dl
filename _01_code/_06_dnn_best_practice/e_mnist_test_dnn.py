@@ -14,7 +14,7 @@ CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.append(BASE_PATH)
 
-from d_mnist_train_dnn import get_model_and_optimizer
+from d_mnist_train_dnn import get_model
 from b_tester import ClassificationTester
 
 def main():
@@ -28,7 +28,7 @@ def main():
     nn.Flatten(),
   )
 
-  test_model, _ = get_model_and_optimizer()
+  test_model, _ = get_model()
   classification_tester = ClassificationTester("mnist", test_model, test_data_loader, mnist_transforms)
   classification_tester.test()
 
