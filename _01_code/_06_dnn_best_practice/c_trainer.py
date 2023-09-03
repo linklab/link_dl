@@ -8,14 +8,7 @@ from _01_code._99_common_utils.utils import strfdelta
 
 class EarlyStopping:
   """Early stops the training if validation loss doesn't improve after a given patience."""
-
   def __init__(self, patience=7, delta=0.001, project_name=None, run_time_str=None):
-    """
-    Args:
-        patience (int): How long to wait after last time validation loss improved.
-        delta (float): Minimum change in the monitored quantity to qualify as an improvement.
-        path (str): Path for the checkpoint to be saved to.
-    """
     self.patience = patience
     self.counter = 0
     self.delta = delta

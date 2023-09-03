@@ -17,7 +17,7 @@ import sys
 sys.path.append(BASE_PATH)
 
 from g_cifar10_train_dnn import get_model
-from b_tester import ClassificationTester
+from d_tester import ClassificationTester
 
 
 def get_data():

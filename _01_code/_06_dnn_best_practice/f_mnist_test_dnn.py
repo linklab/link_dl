@@ -16,8 +16,8 @@ CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.append(BASE_PATH)
 
-from d_mnist_train_dnn import get_model
-from b_tester import ClassificationTester
+from e_mnist_train_dnn import get_model
+from d_tester import ClassificationTester
 
 def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")

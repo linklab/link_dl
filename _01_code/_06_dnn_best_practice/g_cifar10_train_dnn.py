@@ -15,7 +15,7 @@ CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.append(BASE_PATH)
 
-from a_trainer import ClassificationTrainer
+from c_trainer import ClassificationTrainer
 from _01_code._99_common_utils.utils import is_linux, get_num_cpu_cores
 
 
@@ -62,9 +62,9 @@ def get_model():
 
       self.model = nn.Sequential(
         nn.Linear(n_input, 256),
-        nn.Sigmoid(),
+        nn.ReLU(),
         nn.Linear(256, 256),
-        nn.Sigmoid(),
+        nn.ReLU(),
         nn.Linear(256, n_output),
       )
 
