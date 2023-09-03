@@ -63,11 +63,11 @@ def get_model_and_optimizer():
       super().__init__()
 
       self.model = nn.Sequential(
-        nn.Linear(n_input, wandb.config.n_hidden_unit_list[0]),
+        nn.Linear(n_input, 256),
         nn.Sigmoid(),
-        nn.Linear(wandb.config.n_hidden_unit_list[0], wandb.config.n_hidden_unit_list[1]),
+        nn.Linear(256, 256),
         nn.Sigmoid(),
-        nn.Linear(wandb.config.n_hidden_unit_list[1], n_output),
+        nn.Linear(256, n_output),
       )
 
     def forward(self, x):
@@ -90,8 +90,7 @@ def main(args):
     'epochs': args.epochs,
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
-    'learning_rate': args.learning_rate,
-    'n_hidden_unit_list': [256, 256],
+    'learning_rate': args.learning_rate
   }
 
   wandb.init(
