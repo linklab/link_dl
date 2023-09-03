@@ -9,9 +9,9 @@ from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
 cifar10_train = datasets.CIFAR10(data_path, train=True, download=True)
-cifar10_validation = datasets.CIFAR10(data_path, train=False, download=True)
+cifar10_test = datasets.CIFAR10(data_path, train=False, download=True)
 
-print(len(cifar10_train), len(cifar10_validation))  # >>> 50000 10000
+print(len(cifar10_train), len(cifar10_test))  # >>> 50000 10000
 
 class_names = [
   'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
@@ -41,6 +41,7 @@ print("#" * 50, 2)
 
 from torchvision import transforms
 cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
+cifar10_train, cifar10_validation = random_split(cifar10_train, [45_000, 5_000])
 
 img_t, _ = cifar10_train[0]
 print(type(img_t))
@@ -61,10 +62,6 @@ print(imgs.view(3, -1).std(dim=-1))
 print("#" * 50, 4)
 
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
-cifar10_train = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
-cifar10_train, cifar10_test = random_split(cifar10_train, [49_000, 1_000])
-cifar10_validation = datasets.CIFAR10(data_path, train=False, download=False, transform=transforms.ToTensor())
-
 print(len(cifar10_train), len(cifar10_validation), len(cifar10_test))
 
 # input.shape: torch.Size([-1, 3, 32, 32]) --> torch.Size([-1, 3072])
@@ -75,8 +72,8 @@ cifar10_transforms = nn.Sequential(
 
 train_data_loader = DataLoader(dataset=cifar10_train, batch_size=32, shuffle=True)
 
-for train_batch in train_data_loader:
+for idx, train_batch in enumerate(train_data_loader):
     input, target = train_batch
-    print(input.shape, " - 1")
-    input = cifar10_transforms(input)
-    print(input.shape, " - 2")
+    transformed_input = cifar10_transforms(input)
+    if idx == 0:
+        print(input.shape, transformed_input.shape)

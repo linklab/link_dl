@@ -28,13 +28,10 @@ def get_data():
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 
   mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transforms.ToTensor())
-  mnist_train, mnist_test = random_split(mnist_train, [59_000, 1_000])
-  torch.save(mnist_test, os.path.join(CURRENT_FILE_PATH, "checkpoints", "mnist_test_dataset.pt"))
-  mnist_validation = datasets.MNIST(data_path, train=False, download=True, transform=transforms.ToTensor())
+  mnist_train, mnist_validation = random_split(mnist_train, [55_000, 5_000])
 
   print("Num Train Samples: ", len(mnist_train))
   print("Num Validation Samples: ", len(mnist_validation))
-  print("Num Test Samples: ", len(mnist_test))
 
   num_data_loading_workers = get_num_cpu_cores() if is_linux() else 0
   print("Number of Data Loading Workers:", num_data_loading_workers)
@@ -50,6 +47,7 @@ def get_data():
   )
 
   mnist_transforms = nn.Sequential(
+    transforms.ConvertImageDtype(torch.float),
     transforms.Normalize(mean=0.1307, std=0.3081),
     nn.Flatten(),
   )

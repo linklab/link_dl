@@ -44,4 +44,5 @@ class ClassificationTester:
         with torch.no_grad():
             input_test = self.transforms(input_test)
             output_test = self.model(input_test)
-        return output_test
+            predicted_test = torch.argmax(output_test, dim=1)
+        return predicted_test.item()

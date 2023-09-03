@@ -9,9 +9,9 @@ from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 mnist_train = datasets.MNIST(data_path, train=True, download=True)
-mnist_validation = datasets.MNIST(data_path, train=False, download=True)
+mnist_test = datasets.MNIST(data_path, train=False, download=True)
 
-print(len(mnist_train), len(mnist_validation))  # >>> 60000 10000
+print(len(mnist_train), len(mnist_test))  # >>> 60000 10000
 
 fig = plt.figure(figsize=(8, 3))
 num_classes = 10
@@ -37,6 +37,7 @@ print("#" * 50, 2)
 
 from torchvision import transforms
 mnist_train = datasets.MNIST(data_path, train=True, download=False, transform=transforms.ToTensor())
+mnist_train, mnist_validation = random_split(mnist_train, [55_000, 5_000])
 
 img_t, _ = mnist_train[0]
 print(type(img_t))
@@ -58,14 +59,12 @@ print(imgs.view(1, -1).std(dim=-1))
 print("#" * 50, 4)
 
 # >>> 60_000
-mnist_train = datasets.MNIST(data_path, train=True, download=False, transform=transforms.ToTensor())
-mnist_train, mnist_test = random_split(mnist_train, [59_000, 1_000])
-mnist_validation = datasets.MNIST(data_path, train=False, download=False, transform=transforms.ToTensor())
 
 print(len(mnist_train), len(mnist_validation), len(mnist_test))
 
 # input.shape: torch.Size([-1, 1, 28, 28]) --> torch.Size([-1, 784])
 mnist_transforms = nn.Sequential(
+  transforms.ConvertImageDtype(torch.float),
   transforms.Normalize(mean=0.1307, std=0.3081),
   nn.Flatten(),
 )
