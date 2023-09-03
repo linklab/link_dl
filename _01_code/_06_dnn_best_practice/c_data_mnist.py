@@ -72,8 +72,8 @@ mnist_transforms = nn.Sequential(
 
 train_data_loader = DataLoader(dataset=mnist_train, batch_size=32, shuffle=True)
 
-for train_batch in train_data_loader:
+for idx, train_batch in enumerate(train_data_loader):
     input, target = train_batch
-    print(input.shape, " - 1")
-    input = mnist_transforms(input)
-    print(input.shape, " - 2")
+    transformed_input = mnist_transforms(input)
+    if idx == 0:
+        print(input.shape, transformed_input.shape)

@@ -1,6 +1,5 @@
 import torch
 import os
-import wandb
 from torch import nn
 from torchvision import transforms
 from pathlib import Path
@@ -32,8 +31,6 @@ def main():
   test_model = get_model()
   classification_tester = ClassificationTester("cifar10", test_model, test_data_loader, cifar10_transforms)
   classification_tester.test()
-
-  wandb.finish()
 
 
 if __name__ == "__main__":
