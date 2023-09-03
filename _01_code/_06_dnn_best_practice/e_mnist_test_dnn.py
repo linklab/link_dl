@@ -17,6 +17,7 @@ sys.path.append(BASE_PATH)
 from d_mnist_train_dnn import get_model
 from b_tester import ClassificationTester
 
+
 def main():
   mnist_test = torch.load(os.path.join(CURRENT_FILE_PATH, "checkpoints", "mnist_test_dataset.pt"))
   print("Num Test Samples: ", len(mnist_test))
@@ -28,7 +29,7 @@ def main():
     nn.Flatten(),
   )
 
-  test_model, _ = get_model()
+  test_model = get_model()
   classification_tester = ClassificationTester("mnist", test_model, test_data_loader, mnist_transforms)
   classification_tester.test()
 

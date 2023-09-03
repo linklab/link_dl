@@ -17,6 +17,7 @@ sys.path.append(BASE_PATH)
 from g_cifar10_train_dnn import get_model
 from b_tester import ClassificationTester
 
+
 def main():
   cifar10_test = torch.load(os.path.join(CURRENT_FILE_PATH, "checkpoints", "cifar10_test_dataset.pt"))
   print("Num Test Samples: ", len(cifar10_test))
