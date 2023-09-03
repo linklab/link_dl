@@ -2,11 +2,11 @@ import torch
 
 # torch.Tensor class
 t1 = torch.Tensor([1, 2, 3], device='cpu')
-print(t1.dtype)  # >>> torch.float32
+print(t1.dtype)   # >>> torch.float32
 print(t1.device)  # >>> cpu
 print(t1.requires_grad)  # >>> False
 print(t1.size())  # torch.Size([3])
-print(t1.shape)  # torch.Size([3])
+print(t1.shape)   # torch.Size([3])
 
 # if you have gpu device
 # t1_cuda = t1.to(torch.device('cuda'))
