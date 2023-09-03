@@ -16,9 +16,9 @@ t1_cpu = t1.cpu()
 
 print()
 
-# torch.Tensor class
+# torch.tensor function
 t2 = torch.tensor([1, 2, 3], device='cpu')
-print(t2.dtype)  # >>> torch.int32
+print(t2.dtype)  # >>> torch.int64
 print(t2.device)  # >>> cpu
 print(t2.requires_grad)  # >>> False
 print(t2.size())  # torch.Size([3])
