@@ -1,6 +1,7 @@
 import torch
 import os
-import wandb
+
+from matplotlib import pyplot as plt
 from torch import nn
 from torchvision import transforms
 from pathlib import Path
@@ -33,7 +34,15 @@ def main():
   classification_tester = ClassificationTester("mnist", test_model, test_data_loader, mnist_transforms)
   classification_tester.test()
 
-  wandb.finish()
+  print()
+
+  img, label = mnist_test[0]
+  print("    LABEL:", label)
+  plt.imshow(img)
+  plt.show()
+
+  output = classification_tester.test_single(mnist_test[0])
+  print("PREDICTION:", output)
 
 
 if __name__ == "__main__":

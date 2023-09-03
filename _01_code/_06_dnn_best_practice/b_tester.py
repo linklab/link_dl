@@ -39,3 +39,9 @@ class ClassificationTester:
             test_accuracy = 100.0 * num_corrects_test / num_tested_samples
 
         print(f"TEST RESULTS: {test_accuracy:6.3f}%")
+
+    def test_single(self, input_test):
+        with torch.no_grad():
+            input_test = self.transforms(input_test)
+            output_test = self.model(input_test)
+        return output_test
