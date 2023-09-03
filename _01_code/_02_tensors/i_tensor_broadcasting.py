@@ -34,9 +34,9 @@ t7 = torch.tensor([[1, 2], [0, 3]])  # torch.Size([2, 2])
 t8 = torch.tensor([[3, 1]])  # torch.Size([1, 2])
 t9 = torch.tensor([[5], [2]])  # torch.Size([2, 1])
 t10 = torch.tensor([7])  # torch.Size([1])
-print(t7 + t8)  # >>> tensor([[4, 3], [3, 4]])
-print(t7 + t9)  # >>> tensor([[6, 7], [2, 5]])
-print(t8 + t9)  # >>> tensor([[8, 6], [5, 3]])
+print(t7 + t8)   # >>> tensor([[4, 3], [3, 4]])
+print(t7 + t9)   # >>> tensor([[6, 7], [2, 5]])
+print(t8 + t9)   # >>> tensor([[8, 6], [5, 3]])
 print(t7 + t10)  # >>> tensor([[ 8, 9], [ 7, 10]])
 
 print("#" * 50, 5)
@@ -46,15 +46,15 @@ t12 = t11 * torch.rand(3, 2)  # 3rd & 2nd dims identical to t11, dim 0 absent
 print(t12.shape)
 
 t13 = torch.ones(4, 3, 2)
-t14 = t13 * torch.rand(3, 1)  # 3rd dim = 1, dim 1 identical to t13
+t14 = t13 * torch.rand(3, 1)  # 3rd dim = 1, 2nd dim is identical to t13
 print(t14.shape)
 
 t15 = torch.ones(4, 3, 2)
-t16 = t15 * torch.rand(1, 2)  # dim 2 identical to t15, dim 1 = 1
+t16 = t15 * torch.rand(1, 2)  # 3rd dim is identical to t15, 2nd dim is 1
 print(t16.shape)
 
 t17 = torch.ones(5, 3, 4, 1)
-t18 = torch.rand(3, 1, 1)  # dim 1 identical to t17, dim 2 and 3 = 1
+t18 = torch.rand(3, 1, 1)  # 2nd dim is identical to t17, 3rd and 4th dims are 1
 print((t17 + t18).size())
 
 print("#" * 50, 6)
