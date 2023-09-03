@@ -1,7 +1,10 @@
+import numpy as np
 import torch
 import os
+
+from matplotlib import pyplot as plt
 from torch import nn
-from torchvision import transforms
+from torchvision import transforms, datasets
 from pathlib import Path
 
 from torch.utils.data import DataLoader
@@ -17,20 +20,41 @@ from g_cifar10_train_dnn import get_model
 from b_tester import ClassificationTester
 
 
-def main():
-  cifar10_test = torch.load(os.path.join(CURRENT_FILE_PATH, "checkpoints", "cifar10_test_dataset.pt"))
-  print("Num Test Samples: ", len(cifar10_test))
+def get_data():
+  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
 
+  cifar10_test_images = datasets.CIFAR10(data_path, train=True, download=True)
+
+  cifar10_test = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
   test_data_loader = DataLoader(dataset=cifar10_test, batch_size=len(cifar10_test))
 
   cifar10_transforms = nn.Sequential(
-    transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
+    transforms.ConvertImageDtype(torch.float),
+    transforms.Normalize(mean=0.1307, std=0.3081),
     nn.Flatten(),
   )
+
+  return cifar10_test_images, test_data_loader, cifar10_transforms
+
+
+def main():
+  cifar10_test_images, test_data_loader, cifar10_transforms = get_data()
 
   test_model = get_model()
   classification_tester = ClassificationTester("cifar10", test_model, test_data_loader, cifar10_transforms)
   classification_tester.test()
+
+  print()
+
+  img, label = cifar10_test_images[0]
+  print("     LABEL:", label)
+  plt.imshow(img)
+  plt.show()
+
+  output = classification_tester.test_single(
+    torch.tensor(np.array(cifar10_test_images[0][0])).unsqueeze(dim=0)
+  )
+  print("PREDICTION:", output)
 
 
 if __name__ == "__main__":

@@ -46,8 +46,7 @@ def main():
   print()
 
   img, label = mnist_test_images[0]
-  print(type(img))  # >>> <class 'PIL.Image.Image'>
-  print("    LABEL:", label)
+  print("     LABEL:", label)
   plt.imshow(img)
   plt.show()
 

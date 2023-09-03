@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
   parser.add_argument(
     "-b", "--batch_size", type=int, default=2_048,
-    help="Batch size (int, default: 256)"
+    help="Batch size (int, default: 2_048)"
   )
 
   parser.add_argument(
@@ -150,3 +150,4 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   main(args)
+  # python _01_code/_06_dnn_best_practice/d_train_dnn_mnist.py -w 1 -b 2048 -r 1e-3 -v 10
