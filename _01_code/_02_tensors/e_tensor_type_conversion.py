@@ -21,6 +21,9 @@ short_e = torch.ones(10, 2).short()
 double_d = torch.zeros(10, 2).to(torch.double)
 short_e = torch.ones(10, 2).to(dtype=torch.short)
 
+double_d = torch.zeros(10, 2).type(torch.double)
+short_e = torch.ones(10, 2). type(dtype=torch.short)
+
 print(double_d.dtype)
 print(short_e.dtype)
 
