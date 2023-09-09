@@ -8,17 +8,17 @@ from _01_code._99_common_utils.utils import strfdelta
 
 class EarlyStopping:
   """Early stops the training if validation loss doesn't improve after a given patience."""
-  def __init__(self, patience=7, delta=0.001, project_name=None, run_time_str=None):
+  def __init__(self, patience=7, delta=0.001, project_name=None, checkpoint_file_path=None, run_time_str=None):
     self.patience = patience
     self.counter = 0
     self.delta = delta
 
     self.val_loss_min = None
     self.file_path = os.path.join(
-      os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_{run_time_str}.pt"
+      checkpoint_file_path, f"{project_name}_checkpoint_{run_time_str}.pt"
     )
     self.latest_file_path = os.path.join(
-      os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_latest.pt"
+      checkpoint_file_path, f"{project_name}_checkpoint_latest.pt"
     )
 
   def check_and_save(self, new_validation_loss, model):
@@ -52,7 +52,7 @@ class EarlyStopping:
 class ClassificationTrainer:
   def __init__(
     self, project_name, model, optimizer, train_data_loader, validation_data_loader, transforms,
-    run_time_str, wandb, device
+    run_time_str, wandb, device, checkpoint_file_path
   ):
     self.project_name = project_name
     self.model = model
@@ -63,6 +63,7 @@ class ClassificationTrainer:
     self.run_time_str = run_time_str
     self.wandb = wandb
     self.device = device
+    self.checkpoint_file_path = checkpoint_file_path
 
     # Use a built-in loss function
     self.loss_fn = nn.CrossEntropyLoss()
@@ -129,7 +130,8 @@ class ClassificationTrainer:
 
   def train_loop(self):
     early_stopping = EarlyStopping(
-      patience=7, project_name=self.project_name, run_time_str=self.run_time_str
+      patience=7, project_name=self.project_name, checkpoint_file_path=self.checkpoint_file_path,
+      run_time_str=self.run_time_str
     )
     n_epochs = self.wandb.config.epochs
     training_start_time = datetime.now()

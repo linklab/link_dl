@@ -7,7 +7,13 @@ import wandb
 from pathlib import Path
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
+import sys
+sys.path.append(BASE_PATH)
+
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
+if not os.path.isdir(CHECKPOINT_FILE_PATH):
+  os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 import sys
 sys.path.append(BASE_PATH)
@@ -15,11 +21,6 @@ sys.path.append(BASE_PATH)
 from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_data
 from _01_code._06_fcn_best_practice.e_parser import get_parser
-
-
-def get_ready():
-  if not os.path.isdir(os.path.join(CURRENT_FILE_PATH, "checkpoints")):
-    os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 
 def get_cnn_model():
@@ -58,8 +59,6 @@ def get_cnn_model():
 
 
 def main(args):
-  get_ready()
-
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
 
   config = {
@@ -92,7 +91,7 @@ def main(args):
 
   classification_trainer = ClassificationTrainer(
     "mnist", model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
-    run_time_str, wandb, device
+    run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
 

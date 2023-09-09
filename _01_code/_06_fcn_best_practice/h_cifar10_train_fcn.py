@@ -1,4 +1,3 @@
-import argparse
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, random_split
@@ -6,23 +5,20 @@ from torchvision import datasets, transforms
 from datetime import datetime
 import os
 import wandb
-
 from pathlib import Path
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
-CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-
 import sys
 sys.path.append(BASE_PATH)
+
+CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
+if not os.path.isdir(CHECKPOINT_FILE_PATH):
+  os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from c_trainer import ClassificationTrainer
 from _01_code._99_common_utils.utils import is_linux, is_windows, get_num_cpu_cores
 from _01_code._06_fcn_best_practice.e_parser import get_parser
-
-
-def get_ready():
-  if not os.path.isdir(os.path.join(CURRENT_FILE_PATH, "checkpoints")):
-    os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 
 def get_data(flatten=False):
@@ -84,8 +80,6 @@ def get_model():
 
 
 def main(args):
-  get_ready()
-
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
 
   config = {
@@ -118,7 +112,7 @@ def main(args):
 
   classification_trainer = ClassificationTrainer(
     "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
-    run_time_str, wandb, device
+    run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
 
