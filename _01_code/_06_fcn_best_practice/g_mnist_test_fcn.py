@@ -9,8 +9,7 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 
-BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
-print("BASE_PATH", BASE_PATH)
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 import sys
@@ -20,7 +19,7 @@ from f_mnist_train_fcn import get_model
 from d_tester import ClassificationTester
 
 
-def get_data(flatten=False):
+def get_test_data(flatten=False):
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
 
   mnist_test_images = datasets.MNIST(data_path, train=True, download=True)
@@ -42,7 +41,7 @@ def get_data(flatten=False):
 
 
 def main():
-  mnist_test_images, test_data_loader, mnist_transforms = get_data(flatten=True)
+  mnist_test_images, test_data_loader, mnist_transforms = get_test_data(flatten=True)
 
   test_model = get_model()
   classification_tester = ClassificationTester("mnist", test_model, test_data_loader, mnist_transforms)

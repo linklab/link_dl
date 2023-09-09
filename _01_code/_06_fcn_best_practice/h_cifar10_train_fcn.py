@@ -9,15 +9,14 @@ import wandb
 
 from pathlib import Path
 
-BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
-print("BASE_PATH", BASE_PATH)
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 import sys
 sys.path.append(BASE_PATH)
 
 from c_trainer import ClassificationTrainer
-from _01_code._99_common_utils.utils import is_linux, get_num_cpu_cores
+from _01_code._99_common_utils.utils import is_linux, is_windows, get_num_cpu_cores
 from _01_code._06_fcn_best_practice.e_parser import get_parser
 
 
@@ -35,7 +34,7 @@ def get_data(flatten=False):
   print("Num Train Samples: ", len(cifar10_train))
   print("Num Validation Samples: ", len(cifar10_validation))
 
-  num_data_loading_workers = get_num_cpu_cores() if is_linux() else 0
+  num_data_loading_workers = get_num_cpu_cores() if is_linux() or is_windows() else 0
   print("Number of Data Loading Workers:", num_data_loading_workers)
 
   train_data_loader = DataLoader(

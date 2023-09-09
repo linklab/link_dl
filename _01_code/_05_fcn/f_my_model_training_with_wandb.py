@@ -6,8 +6,7 @@ import wandb
 import argparse
 
 from pathlib import Path
-BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
-print("BASE_PATH", BASE_PATH)
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 
 import sys
 sys.path.append(BASE_PATH)

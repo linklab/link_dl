@@ -8,8 +8,7 @@ import os
 import wandb
 from pathlib import Path
 
-BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
-print("BASE_PATH", BASE_PATH)
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 import sys

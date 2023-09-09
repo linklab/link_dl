@@ -6,8 +6,7 @@ import os
 import wandb
 from pathlib import Path
 
-BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)
-print("BASE_PATH", BASE_PATH)
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 import sys
@@ -23,7 +22,7 @@ def get_ready():
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 
-def get_model():
+def get_cnn_model():
   class MyModel(nn.Module):
     def __init__(self, in_channels, n_output):
       super().__init__()
@@ -85,7 +84,7 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, mnist_transforms = get_data(flatten=False)
-  model = get_model()
+  model = get_cnn_model()
   model.to(device)
   wandb.watch(model)
 
