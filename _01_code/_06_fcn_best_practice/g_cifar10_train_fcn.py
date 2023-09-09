@@ -92,9 +92,9 @@ def main(args):
 
   wandb.init(
     mode="online" if args.use_wandb else "disabled",
-    project="dnn_cifar10",
+    project="fcn_cifar10",
     notes="cifar10 experiment",
-    tags=["dnn", "cifar10"],
+    tags=["fcc", "cifar10"],
     name=run_time_str,
     config=config
   )

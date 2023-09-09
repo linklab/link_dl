@@ -16,7 +16,7 @@ CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.append(BASE_PATH)
 
-from e_mnist_train_dnn import get_model
+from e_mnist_train_fcn import get_model
 from d_tester import ClassificationTester
 
 

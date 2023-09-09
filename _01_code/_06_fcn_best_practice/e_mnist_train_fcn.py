@@ -91,9 +91,9 @@ def main(args):
 
   wandb.init(
     mode="online" if args.use_wandb else "disabled",
-    project="dnn_mnist",
+    project="fcn_mnist",
     notes="mnist experiment",
-    tags=["dnn", "mnist"],
+    tags=["fcn", "mnist"],
     name=run_time_str,
     config=config
   )
@@ -149,4 +149,4 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   main(args)
-  # python _01_code/_06_dnn_best_practice/d_train_dnn_mnist.py -w 1 -b 2048 -r 1e-3 -v 10
+  # python _01_code/_06_fcn_best_practice/d_train_fcn_mnist.py -w 1 -b 2048 -r 1e-3 -v 10
