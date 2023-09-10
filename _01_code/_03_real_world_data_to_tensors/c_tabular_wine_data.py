@@ -47,6 +47,7 @@ eye_matrix = torch.eye(10)
 # It can generate the one-hot vectors for each element in the 'target' tensor
 onehot_target = eye_matrix[target]
 
+print(onehot_target.shape)  # >>> torch.Size([4898, 10])
 print(onehot_target[0])
 print(onehot_target[1])
 print(onehot_target[-2])

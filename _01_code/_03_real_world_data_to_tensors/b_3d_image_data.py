@@ -4,9 +4,9 @@ import imageio.v2 as imageio
 
 dir_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "c_volumetric-dicom", "2-LUNG_3.0_B70f-04083")
 vol_array = imageio.volread(dir_path, format='DICOM')
-print(type(vol_array))
-print(vol_array.shape)
-print(vol_array.dtype)
+print(type(vol_array))   # >>> <class 'imageio.core.util.Array'>:  Numpy NDArray
+print(vol_array.shape)   # >>> (99, 512, 512)
+print(vol_array.dtype)   # >>> int16
 print(vol_array[0])
 
 print("#" * 50, 1)

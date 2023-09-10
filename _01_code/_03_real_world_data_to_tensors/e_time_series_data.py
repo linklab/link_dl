@@ -9,7 +9,7 @@ bikes_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "e_time-se
 bikes_numpy = np.loadtxt(
   fname=bikes_path, dtype=np.float32, delimiter=",", skiprows=1,
   converters={
-    1: lambda x: float(x[8:10])  # 2011-01-07 --> 07 --> 7
+    1: lambda x: float(x[8:10])  # 2011-01-07 --> 07 --> 7.0
   }
 )
 bikes = torch.from_numpy(bikes_numpy)
