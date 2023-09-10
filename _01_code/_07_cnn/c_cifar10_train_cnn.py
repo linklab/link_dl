@@ -1,4 +1,3 @@
-import argparse
 import torch
 from torch import nn, optim
 from datetime import datetime
