@@ -15,8 +15,8 @@ CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.append(BASE_PATH)
 
-from h_cifar10_train_fcn import get_model
-from d_tester import ClassificationTester
+from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_model
+from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 
 
 def get_test_data(flatten=False):
