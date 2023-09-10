@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)  # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 
 import sys
 sys.path.append(BASE_PATH)
@@ -22,9 +23,9 @@ from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 def get_test_data(flatten=False):
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
 
-  cifar10_test_images = datasets.CIFAR10(data_path, train=True, download=True)
+  cifar10_test_images = datasets.CIFAR10(data_path, train=False, download=True)
 
-  cifar10_test = datasets.CIFAR10(data_path, train=True, download=False, transform=transforms.ToTensor())
+  cifar10_test = datasets.CIFAR10(data_path, train=False, download=False, transform=transforms.ToTensor())
   test_data_loader = DataLoader(dataset=cifar10_test, batch_size=len(cifar10_test))
 
   cifar10_transforms = nn.Sequential(
@@ -44,7 +45,9 @@ def main():
   cifar10_test_images, test_data_loader, cifar10_transforms = get_test_data(flatten=True)
 
   test_model = get_model()
-  classification_tester = ClassificationTester("cifar10", test_model, test_data_loader, cifar10_transforms)
+  classification_tester = ClassificationTester(
+    "cifar10", test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
+  )
   classification_tester.test()
 
   print()
@@ -54,6 +57,7 @@ def main():
   plt.imshow(img)
   plt.show()
 
+  print(torch.tensor(np.array(cifar10_test_images[0][0])).unsqueeze(dim=0).shape, "@@@@@@@@")
   output = classification_tester.test_single(
     torch.tensor(np.array(cifar10_test_images[0][0])).unsqueeze(dim=0)
   )

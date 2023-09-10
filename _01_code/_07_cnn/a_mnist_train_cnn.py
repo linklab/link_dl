@@ -48,7 +48,7 @@ def get_cnn_model():
 
     def forward(self, x):
       x = self.model(x)
-      # print(x.shape, "!!!")
+      print(x.shape, "!!!")
       return x
 
   # 1 * 28 * 28

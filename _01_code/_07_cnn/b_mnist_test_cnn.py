@@ -33,8 +33,9 @@ def main():
   plt.imshow(img)
   plt.show()
 
+  # torch.tensor(np.array(mnist_test_images[0][0])).unsqueeze(dim=0).unsqueeze(dim=0).shape: (1, 1, 28, 28)
   output = classification_tester.test_single(
-    torch.tensor(np.array(mnist_test_images[0][0])).unsqueeze(dim=0)
+    torch.tensor(np.array(mnist_test_images[0][0])).unsqueeze(dim=0).unsqueeze(dim=0)
   )
   print("PREDICTION:", output)
 
