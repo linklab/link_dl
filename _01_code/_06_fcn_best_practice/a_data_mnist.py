@@ -7,7 +7,7 @@ from torch import nn
 from torch.utils.data import random_split, DataLoader
 from torchvision import datasets
 
-data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_mnist")
+data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "h_mnist")
 mnist_train_images = datasets.MNIST(data_path, train=True, download=True)
 mnist_test_images = datasets.MNIST(data_path, train=False, download=True)
 

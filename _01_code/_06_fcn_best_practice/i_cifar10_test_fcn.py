@@ -21,7 +21,7 @@ from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 
 
 def get_test_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
+  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_cifar10")
 
   cifar10_test_images = datasets.CIFAR10(data_path, train=False, download=True)
 

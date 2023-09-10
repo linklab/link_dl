@@ -22,7 +22,7 @@ from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 
 
 def get_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
+  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_cifar10")
 
   cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=transforms.ToTensor())
   cifar10_train, cifar10_validation = random_split(cifar10_train, [45_000, 5_000])

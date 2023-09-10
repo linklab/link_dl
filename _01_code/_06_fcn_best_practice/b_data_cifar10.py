@@ -7,7 +7,7 @@ from torch import nn
 from torch.utils.data import random_split, DataLoader
 from torchvision import datasets
 
-data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_cifar10")
+data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_cifar10")
 cifar10_train_images = datasets.CIFAR10(data_path, train=True, download=True)
 cifar10_test_images = datasets.CIFAR10(data_path, train=False, download=True)
 
