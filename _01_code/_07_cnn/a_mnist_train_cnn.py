@@ -27,8 +27,6 @@ def get_cnn_model():
     def __init__(self, in_channels, n_output):
       super().__init__()
 
-      self.c1 = nn.Conv2d(in_channels=in_channels, out_channels=6, kernel_size=(5, 5), stride=(1, 1))
-
       self.model = nn.Sequential(
         # 1 x 28 x 28 --> 6 x (28 - 5 + 1) x (28 - 5 + 1) = 6 x 24 x 24
         nn.Conv2d(in_channels=in_channels, out_channels=6, kernel_size=(5, 5), stride=(1, 1)),
@@ -48,7 +46,6 @@ def get_cnn_model():
 
     def forward(self, x):
       x = self.model(x)
-      print(x.shape, "!!!")
       return x
 
   # 1 * 28 * 28
