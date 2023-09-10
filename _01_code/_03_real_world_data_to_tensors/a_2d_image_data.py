@@ -24,6 +24,9 @@ from PIL import Image
 for i, filename in enumerate(filenames):
   image = Image.open(os.path.join(data_dir, filename))
   image.show()
+  img_arr = imageio.imread(os.path.join(data_dir, filename))
+  print(img_arr.shape)
+  print(img_arr.dtype)
 
 batch_size = 3
 batch = torch.zeros(batch_size, 3, 256, 256, dtype=torch.uint8)
