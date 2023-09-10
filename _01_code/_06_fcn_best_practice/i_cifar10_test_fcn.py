@@ -57,7 +57,7 @@ def main():
   plt.imshow(img)
   plt.show()
 
-  print(torch.tensor(np.array(cifar10_test_images[0][0])).permute(2, 0, 1).unsqueeze(dim=0).shape, "@@@@@@@@")
+  # torch.tensor(np.array(cifar10_test_images[0][0])).permute(2, 0, 1).unsqueeze(dim=0).shape: (1, 3, 32, 32)
   output = classification_tester.test_single(
     torch.tensor(np.array(cifar10_test_images[0][0])).permute(2, 0, 1).unsqueeze(dim=0)
   )
