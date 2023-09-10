@@ -3,14 +3,14 @@ import torch
 
 
 class ClassificationTester:
-  def __init__(self, project_name, model, test_data_loader, transforms):
+  def __init__(self, project_name, model, test_data_loader, transforms, checkpoint_file_path):
     self.project_name = project_name
     self.model = model
     self.test_data_loader = test_data_loader
     self.transforms = transforms
 
     self.latest_file_path = os.path.join(
-      os.path.dirname(os.path.abspath(__file__)), "checkpoints", f"{project_name}_checkpoint_latest.pt"
+      checkpoint_file_path, f"{project_name}_checkpoint_latest.pt"
     )
 
     self.model.load_state_dict(torch.load(self.latest_file_path, map_location=torch.device('cpu')))

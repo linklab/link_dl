@@ -7,6 +7,7 @@ from pathlib import Path
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)  # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 
 import sys
 sys.path.append(BASE_PATH)
@@ -20,7 +21,9 @@ def main():
   mnist_test_images, test_data_loader, mnist_transforms = get_test_data(flatten=False)
 
   test_model = get_cnn_model()
-  classification_tester = ClassificationTester("mnist", test_model, test_data_loader, mnist_transforms)
+  classification_tester = ClassificationTester(
+    "mnist", test_model, test_data_loader, mnist_transforms, CHECKPOINT_FILE_PATH
+  )
   classification_tester.test()
 
   print()
