@@ -1,8 +1,10 @@
 import torch
-from _01_code._04_learning_and_autograd.a_single_neuron import model, loss_fn, get_data
+from torch.utils.data import DataLoader
+
+from a_single_neuron import model, loss_fn, SimpleDataset
 
 
-def learn(W, b, X, y):
+def learn(W, b, train_data_loader):
   MAX_EPOCHS = 20_000
   LEARNING_RATE = 0.01
 
@@ -10,8 +12,9 @@ def learn(W, b, X, y):
   optimizer = optim.SGD([W, b], lr=LEARNING_RATE)
 
   for epoch in range(0, MAX_EPOCHS):
-    y_pred = model(X, W, b)
-    loss = loss_fn(y_pred, y)
+    batch = next(iter(train_data_loader))
+    y_pred = model(batch["input"], W, b)
+    loss = loss_fn(y_pred, batch["target"])
 
     loss.backward()
 
@@ -29,9 +32,9 @@ def main():
   W = torch.ones((2,), requires_grad=True)
   b = torch.zeros((1,), requires_grad=True)
 
-  X, y = get_data()
-
-  learn(W, b, X, y)
+  simple_dataset = SimpleDataset()
+  train_data_loader = DataLoader(dataset=simple_dataset, batch_size=len(simple_dataset))
+  learn(W, b, train_data_loader)
 
 
 if __name__ == "__main__":
