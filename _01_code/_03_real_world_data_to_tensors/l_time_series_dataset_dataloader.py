@@ -17,30 +17,27 @@ class BikesDataset(Dataset):
     bikes = torch.from_numpy(bikes_numpy)
 
     daily_bikes = bikes.view(-1, 24, bikes.shape[1])  # daily_bikes.shape: torch.Size([730, 24, 17])
-    daily_bikes_target = daily_bikes[:, :, -1].unsqueeze(dim=-1)
+    self.daily_bikes_target = daily_bikes[:, :, -1].unsqueeze(dim=-1)
 
-    daily_bikes_data = daily_bikes[:, :, :-1]
+    self.daily_bikes_data = daily_bikes[:, :, :-1]
     eye_matrix = torch.eye(4)
 
     day_data_torch_list = []
-    for daily_idx in range(daily_bikes_data.shape[0]):  # range(730)
-      day = daily_bikes_data[daily_idx]  # day.shape: [24, 17]
+    for daily_idx in range(self.daily_bikes_data.shape[0]):  # range(730)
+      day = self.daily_bikes_data[daily_idx]  # day.shape: [24, 17]
       weather_onehot = eye_matrix[day[:, 9].long() - 1]
       day_data_torch = torch.cat(tensors=(day, weather_onehot), dim=1)  # day_torch.shape: [24, 21]
       day_data_torch_list.append(day_data_torch)
 
-    daily_bikes_data = torch.stack(day_data_torch_list, dim=0)
+    self.daily_bikes_data = torch.stack(day_data_torch_list, dim=0)
 
-    daily_bikes_data = torch.cat(
-      [daily_bikes_data[:, :, :9], daily_bikes_data[:, :, 10:]], dim=2
+    self.daily_bikes_data = torch.cat(
+      [self.daily_bikes_data[:, :, :9], self.daily_bikes_data[:, :, 10:]], dim=2
     )
 
-    temperatures = daily_bikes_data[:, :, 9]
-    daily_bikes_data[:, :, 9] = \
-      (daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
-
-    self.daily_bikes_data = daily_bikes_data.transpose(1, 2)
-    self.daily_bikes_target = daily_bikes_target.transpose(1, 2)
+    temperatures = self.daily_bikes_data[:, :, 9]
+    self.daily_bikes_data[:, :, 9] = \
+      (self.daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
 
     assert len(self.daily_bikes_data) == len(self.daily_bikes_target)
 

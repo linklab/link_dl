@@ -49,7 +49,7 @@ day_data_torch_list = []
 for daily_idx in range(daily_bikes_data.shape[0]):  # range(730)
   day = daily_bikes_data[daily_idx]  # day.shape: [24, 17]
   weather_onehot = eye_matrix[day[:, 9].long() - 1]
-  day_data_torch = torch.cat(tensors=(day, weather_onehot), dim=1)  # day_torch.shape: [24, 21]
+  day_data_torch = torch.cat(tensors=(day, weather_onehot), dim=1)  # day_torch.shape: [24, 20]
   day_data_torch_list.append(day_data_torch)
 
 print(len(day_data_torch_list))
@@ -68,5 +68,5 @@ print(daily_bikes_data.shape)
 temperatures = daily_bikes_data[:, :, 9]
 daily_bikes_data[:, :, 9] = (daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
 
-daily_bikes_data = daily_bikes_data.transpose(1, 2)
+# daily_bikes_data = daily_bikes_data.transpose(1, 2)
 print(daily_bikes_data.shape)  # >>> torch.Size([730, 17, 24])
