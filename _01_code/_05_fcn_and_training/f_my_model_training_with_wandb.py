@@ -55,6 +55,7 @@ def get_model_and_optimizer():
 def training_loop(model, optimizer, train_data_loader, validation_data_loader):
   n_epochs = wandb.config.epochs
   loss_fn = nn.MSELoss()  # Use a built-in loss function
+  next_print_epoch = wandb.config.print_epochs
 
   for epoch in range(1, n_epochs + 1):
     loss_train = 0.0
@@ -77,17 +78,19 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
         loss_validation += loss_fn(output_validation, validation_batch['target']).item()
         num_validations += 1
 
-    print(
-      f"Epoch {epoch}, "
-      f"Training loss {loss_train / num_trains:.4f}, "
-      f"Validation loss {loss_validation / num_validations:.4f}"
-    )
-
     wandb.log({
       "Epoch": epoch,
       "Training loss": loss_train / num_trains,
       "Validation loss": loss_validation / num_validations
     })
+
+    if epoch >= next_print_epoch:
+      print(
+        f"Epoch {epoch}, "
+        f"Training loss {loss_train / num_trains:.4f}, "
+        f"Validation loss {loss_validation / num_validations:.4f}"
+      )
+      next_print_epoch += wandb.config.print_epochs
 
 
 def main(args):
@@ -95,6 +98,7 @@ def main(args):
 
   config = {
     'epochs': args.epochs,
+    'print_epochs': args.print_epochs,
     'batch_size': args.batch_size,
     'learning_rate': 1e-3,
     'n_hidden_unit_list': [20, 20],
@@ -142,6 +146,10 @@ if __name__ == "__main__":
 
   parser.add_argument(
     "-e", "--epochs", type=int, default=1_000, help="Number of training epochs (int)"
+  )
+
+  parser.add_argument(
+    "-p", "--print_epochs", type=int, default=100, help="Number of printing epochs interval (int)"
   )
 
   args = parser.parse_args()

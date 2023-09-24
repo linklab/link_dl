@@ -42,10 +42,11 @@ class TitanicTestDataset(Dataset):
     )
     return str
 
-
 def get_preprocessed_dataset():
-    train_data_path = os.path.join("", "train.csv")
-    test_data_path = os.path.join("", "test.csv")
+    CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+    train_data_path = os.path.join(CURRENT_FILE_PATH, "train.csv")
+    test_data_path = os.path.join(CURRENT_FILE_PATH, "test.csv")
 
     train_df = pd.read_csv(train_data_path)
     test_df = pd.read_csv(test_data_path)
@@ -110,10 +111,10 @@ def get_preprocessed_dataset():
     test_X = all_df[all_df["Survived"].isnull()].drop("Survived", axis=1).reset_index(drop=True)
 
     dataset = TitanicDataset(train_X.values, train_y.values)
-    print(dataset)
+    #print(dataset)
     train_dataset, validation_dataset = random_split(dataset, [0.8, 0.2])
     test_dataset = TitanicTestDataset(test_X.values)
-    print(test_dataset)
+    #print(test_dataset)
 
     return train_dataset, validation_dataset, test_dataset
 
