@@ -26,7 +26,7 @@ if __name__ == "__main__":
   print("#" * 50, 1)
 
   my_linear_2 = nn.Linear(in_features=4, out_features=3)
-  output_2 = my_linear(sample_input)
+  output_2 = my_linear_2(sample_input)
   print(output_2)
 
   assert output.equal(output_2)
