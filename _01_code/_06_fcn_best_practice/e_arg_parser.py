@@ -5,23 +5,23 @@ def get_parser():
   parser = argparse.ArgumentParser()
 
   parser.add_argument(
-    "--wandb", default=False, action=argparse.BooleanOptionalAction,
-    help="True or False"
+    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="True or False"
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=10_000,
-    help="Number of training epochs (int, default: 10,000)"
+    "-b", "--batch_size", type=int, default=2_048, help="Batch size (int, default: 2_048)"
   )
 
   parser.add_argument(
-    "-b", "--batch_size", type=int, default=2_048,
-    help="Batch size (int, default: 2,048)"
+    "-e", "--epochs", type=int, default=10_000, help="Number of training epochs (int, default:10_000)"
   )
 
   parser.add_argument(
-    "-r", "--learning_rate", type=float, default=1e-3,
-    help="Learning rate (float, default: 1e-3)"
+    "-p", "--print_epochs", type=int, default=100, help="Number of printing epochs interval (int, default:100)"
+  )
+
+  parser.add_argument(
+    "-r", "--learning_rate", type=float, default=1e-3, help="Learning rate (float, default: 1e-3)"
   )
 
   parser.add_argument(

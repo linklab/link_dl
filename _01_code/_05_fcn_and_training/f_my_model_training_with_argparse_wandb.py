@@ -105,7 +105,7 @@ def main(args):
   }
 
   wandb.init(
-    mode="online" if args.use_wandb else "disabled",
+    mode="online" if args.wandb else "disabled",
     project="my_model_training",
     notes="My first wandb experiment",
     tags=["my_model", "california_housing"],
@@ -137,19 +137,19 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser()
 
   parser.add_argument(
-    "-w", "--use_wandb", type=bool, default=False, help="True or False"
+    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="True or False"
   )
 
   parser.add_argument(
-    "-b", "--batch_size", type=int, default=256, help="Batch size (int)"
+    "-b", "--batch_size", type=int, default=512, help="Batch size (int, default: 512)"
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=1_000, help="Number of training epochs (int)"
+    "-e", "--epochs", type=int, default=1_000, help="Number of training epochs (int, default:1_000)"
   )
 
   parser.add_argument(
-    "-p", "--print_epochs", type=int, default=100, help="Number of printing epochs interval (int)"
+    "-p", "--print_epochs", type=int, default=100, help="Number of printing epochs interval (int, default:100)"
   )
 
   args = parser.parse_args()

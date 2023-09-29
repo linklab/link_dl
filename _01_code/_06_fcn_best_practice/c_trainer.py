@@ -68,7 +68,6 @@ class ClassificationTrainer:
     # Use a built-in loss function
     self.loss_fn = nn.CrossEntropyLoss()
 
-
   def do_train(self):
     loss_train = 0.0
     num_corrects_train = 0
