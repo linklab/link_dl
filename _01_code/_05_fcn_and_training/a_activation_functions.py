@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 
 import torch
-import torch.optim as optim
 import torch.nn as nn
 
 input_t = torch.arange(start=-8, end=8.1, step=0.1)
