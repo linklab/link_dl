@@ -145,16 +145,16 @@ class ClassificationTrainerWithDiverseOptimizers:
         self.wandb.log({
           "Epoch": epoch,
           "Training loss": wandb.plot.line_series(
-            xs=x_series, ys=train_loss_series
+            xs=x_series, xname="Epochs", ys=train_loss_series, keys=self.optimizer_names, title="Training loss"
           ),
           "Training accuracy (%)": wandb.plot.line_series(
-            xs=x_series, ys=train_accuracy_series
+            xs=x_series, xname="Epochs", ys=train_accuracy_series, keys=self.optimizer_names, title="Training accuracy (%)"
           ),
           "Validation loss": wandb.plot.line_series(
-            xs=x_series, ys=validation_loss_series
+            xs=x_series, xname="Epochs", ys=validation_loss_series, keys=self.optimizer_names, title="Validation loss"
           ),
           "Validation accuracy (%)": wandb.plot.line_series(
-            xs=x_series, ys=validation_accuracy_series
+            xs=x_series, xname="Epochs", ys=validation_accuracy_series, keys=self.optimizer_names, title="Validation accuracy (%)"
           ),
           "Training speed (epochs/sec.)": epoch_per_second,
         })
