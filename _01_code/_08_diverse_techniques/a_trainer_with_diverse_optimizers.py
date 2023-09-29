@@ -47,7 +47,6 @@ class ClassificationTrainerWithDiverseOptimizers:
 
       for idx, (model, optimizer) in enumerate(zip(self.models, self.optimizers)):
         output_train = model(input_train)
-        print(output_train.shape, target_train.shape, "!!!!")
         loss = self.loss_fn(output_train, target_train)
         loss_trains[idx] += loss.item()
 
