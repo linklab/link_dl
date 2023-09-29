@@ -92,8 +92,8 @@ def main(args):
   optimizers = [
     optim.SGD(models[0].parameters(), lr=wandb.config.learning_rate),
     optim.SGD(models[1].parameters(), lr=wandb.config.learning_rate, momentum=0.9),
-    optim.RMSprop(models[1].parameters(), lr=wandb.config.learning_rate),
-    optim.Adam(models[1].parameters(), lr=wandb.config.learning_rate)
+    optim.RMSprop(models[2].parameters(), lr=wandb.config.learning_rate),
+    optim.Adam(models[3].parameters(), lr=wandb.config.learning_rate)
   ]
 
   classification_trainer = ClassificationTrainerWithDiverseOptimizers(
