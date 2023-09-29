@@ -19,7 +19,7 @@ sys.path.append(BASE_PATH)
 
 from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_data
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
-from _01_code._08_diverse_techniques.a_trainer import ClassificationTrainerWithDiverseOptimizers
+from _01_code._08_diverse_techniques.a_trainer_with_diverse_optimizers import ClassificationTrainerWithDiverseOptimizers
 
 
 def get_cnn_model():
@@ -61,14 +61,15 @@ def main(args):
     'epochs': args.epochs,
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
-    'learning_rate': args.learning_rate
+    'print_epochs': args.print_epochs,
+    'learning_rate': args.learning_rate,
   }
 
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_mnist",
-    notes="mnist experiment with cnn",
-    tags=["cnn", "mnist"],
+    project="cnn_mnist_with_diverse_optimizers",
+    notes="mnist experiment with cnn and diverse optimziers",
+    tags=["cnn", "mnist", "diverse_optimizers"],
     name=run_time_str,
     config=config
   )
@@ -96,7 +97,7 @@ def main(args):
   ]
 
   classification_trainer = ClassificationTrainerWithDiverseOptimizers(
-    "mnist", models, optimizers, optimizer_names, train_data_loader, validation_data_loader, mnist_transforms,
+    "cnn_mnist_with_diverse_optimizers", models, optimizers, optimizer_names, train_data_loader, validation_data_loader, mnist_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

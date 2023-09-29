@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import torch
+import wandb
 from torch import nn
 
 from _01_code._99_common_utils.utils import strfdelta
@@ -94,6 +95,13 @@ class ClassificationTrainerWithDiverseOptimizers:
     n_epochs = self.wandb.config.epochs
     training_start_time = datetime.now()
 
+    x_series = []
+
+    train_loss_series = [[] for _ in self.models]
+    train_accuracy_series = [[] for _ in self.models]
+    validation_loss_series = [[] for _ in self.models]
+    validation_accuracy_series = [[] for _ in self.models]
+
     for epoch in range(1, n_epochs + 1):
       train_losses, train_accuracies = self.do_train()
 
@@ -126,12 +134,28 @@ class ClassificationTrainerWithDiverseOptimizers:
           f"T_speed: {epoch_per_second:4.2f}"
         )
 
+        x_series.append(epoch)
+
+        for idx in range(len(self.models)):
+          train_loss_series[idx].append(train_losses[idx])
+          train_accuracy_series[idx].append(train_accuracies[idx])
+          validation_loss_series[idx].append(validation_losses[idx])
+          validation_accuracy_series[idx].append(validation_accuracies[idx])
+
         self.wandb.log({
           "Epoch": epoch,
-          "Training loss": train_losses,
-          "Training accuracy (%)": train_accuracies,
-          "Validation loss": validation_losses,
-          "Validation accuracy (%)": validation_accuracies,
+          "Training loss": wandb.plot.line_series(
+            xs=x_series, ys=train_loss_series
+          ),
+          "Training accuracy (%)": wandb.plot.line_series(
+            xs=x_series, ys=train_accuracy_series
+          ),
+          "Validation loss": wandb.plot.line_series(
+            xs=x_series, ys=validation_loss_series
+          ),
+          "Validation accuracy (%)": wandb.plot.line_series(
+            xs=x_series, ys=validation_accuracy_series
+          ),
           "Training speed (epochs/sec.)": epoch_per_second,
         })
 

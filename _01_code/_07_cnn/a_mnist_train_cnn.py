@@ -61,7 +61,8 @@ def main(args):
     'epochs': args.epochs,
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
-    'learning_rate': args.learning_rate
+    'print_epochs': args.print_epochs,
+    'learning_rate': args.learning_rate,
   }
 
   wandb.init(
