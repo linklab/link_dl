@@ -17,7 +17,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_data
+from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_data
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 from _01_code._08_diverse_techniques.a_trainer_with_diverse_optimizers import ClassificationTrainerWithDiverseOptimizers
 
@@ -28,18 +28,18 @@ def get_cnn_model():
       super().__init__()
 
       self.model = nn.Sequential(
-        # 1 x 28 x 28 --> 6 x (28 - 5 + 1) x (28 - 5 + 1) = 6 x 24 x 24
+        # 3 x 32 x 32 --> 6 x (32 - 5 + 1) x (32 - 5 + 1) = 6 x 28 x 28
         nn.Conv2d(in_channels=in_channels, out_channels=6, kernel_size=(5, 5), stride=(1, 1)),
-        # 6 x 24 x 24 --> 6 x 12 x 12
+        # 6 x 28 x 28 --> 6 x 14 x 14
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
-        # 6 x 12 x 12 --> 16 x (12 - 5 + 1) x (12 - 5 + 1) = 16 x 8 x 8
+        # 6 x 14 x 14 --> 16 x (14 - 5 + 1) x (14 - 5 + 1) = 16 x 10 x 10
         nn.Conv2d(in_channels=6, out_channels=16, kernel_size=(5, 5), stride=(1, 1)),
-        # 16 x 8 x 8 --> 16 x 4 x 4
+        # 16 x 10 x 10 --> 16 x 5 x 5
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
         nn.Flatten(),
-        nn.Linear(256, 84),
+        nn.Linear(400, 84),
         nn.ReLU(),
         nn.Linear(84, n_output),
       )
@@ -48,8 +48,8 @@ def get_cnn_model():
       x = self.model(x)
       return x
 
-  # 1 * 28 * 28
-  my_model = MyModel(in_channels=1, n_output=10)
+  # 3 * 32 * 32
+  my_model = MyModel(in_channels=3, n_output=10)
 
   return my_model
 
@@ -67,9 +67,9 @@ def main(args):
 
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_mnist_with_diverse_optimizers",
-    notes="mnist experiment with cnn and diverse optimizers",
-    tags=["cnn", "mnist", "diverse_optimizers"],
+    project="cnn_cifar10_with_diverse_optimizers",
+    notes="cifar10 experiment with cnn and diverse optimizers",
+    tags=["cnn", "cifar10", "diverse_optimizers"],
     name=run_time_str,
     config=config
   )
@@ -79,7 +79,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, mnist_transforms = get_data(flatten=False)
+  train_data_loader, validation_data_loader, cifar10_transforms = get_data(flatten=False)
 
   optimizer_names = ["SGD", "Momentum", "RMSProp", "Adam"]
   models = []
@@ -97,8 +97,8 @@ def main(args):
   ]
 
   classification_trainer = ClassificationTrainerWithDiverseOptimizers(
-    "cnn_mnist_with_diverse_optimizers", models, optimizers, optimizer_names,
-    train_data_loader, validation_data_loader, mnist_transforms,
+    "cnn_cifar10_with_diverse_optimizers", models, optimizers, optimizer_names,
+    train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
