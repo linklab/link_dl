@@ -42,6 +42,9 @@ class ClassificationTrainerWithDiverseOptimizers:
 
       input_train = self.transforms(input_train)
 
+      num_trained_samples += len(input_train)
+      num_trains += 1
+
       for idx, (model, optimizer) in enumerate(zip(self.models, self.optimizers)):
         output_train = model(input_train)
         loss = self.loss_fn(output_train, target_train)
@@ -50,15 +53,12 @@ class ClassificationTrainerWithDiverseOptimizers:
         predicted_train = torch.argmax(output_train, dim=1)
         num_corrects_trains[idx] += torch.sum(torch.eq(predicted_train, target_train)).item()
 
-        num_trained_samples += len(input_train)
-        num_trains += 1
-
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    train_losses = loss_trains / num_trains / len(self.models)
-    train_accuracies = 100.0 * num_corrects_trains / num_trained_samples / len(self.models)
+    train_losses = loss_trains / num_trains
+    train_accuracies = 100.0 * num_corrects_trains / num_trained_samples
 
     return train_losses, train_accuracies
 
@@ -76,6 +76,9 @@ class ClassificationTrainerWithDiverseOptimizers:
 
         input_validation = self.transforms(input_validation)
 
+        num_validated_samples += len(input_validation)
+        num_validations += 1
+
         for idx, (model, optimizer) in enumerate(zip(self.models, self.optimizers)):
           output_validation = model(input_validation)
           loss_validations[idx] += self.loss_fn(output_validation, target_validation).item()
@@ -83,11 +86,8 @@ class ClassificationTrainerWithDiverseOptimizers:
           predicted_validation = torch.argmax(output_validation, dim=1)
           num_corrects_validations[idx] += torch.sum(torch.eq(predicted_validation, target_validation)).item()
 
-          num_validated_samples += len(input_validation)
-          num_validations += 1
-
-    validation_losses = loss_validations / num_validations / len(self.models)
-    validation_accuracies = 100.0 * num_corrects_validations / num_validated_samples / len(self.models)
+    validation_losses = loss_validations / num_validations
+    validation_accuracies = 100.0 * num_corrects_validations / num_validated_samples
 
     return validation_losses, validation_accuracies
 
