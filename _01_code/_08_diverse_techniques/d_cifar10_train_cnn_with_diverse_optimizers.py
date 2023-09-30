@@ -31,20 +31,9 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
-  if args.optimizer == 0:
-    optimizer_name = "SGD"
-  elif args.optimizer == 1:
-    optimizer_name = "Momentum"
-  elif args.optimizer == 2:
-    optimizer_name = "RMSprop"
-  elif args.optimizer == 3:
-    optimizer_name = "Adam"
-  else:
-    raise ValueError()
-
+  optimizer_names = ["SGD", "Momentum", "RMSProp", "Adam"]
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-
-  name = "{0}_{1}".format(optimizer_name, run_time_str)
+  name = "{0}_{1}".format(optimizer_names[args.optimizer], run_time_str)
 
   wandb.init(
     mode="online" if args.wandb else "disabled",
@@ -65,21 +54,18 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  if args.optimizer == 0:
-    optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
-  elif args.optimizer == 1:
-    optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9)
-  elif args.optimizer == 2:
-    optimizer = optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate)
-  elif args.optimizer == 3:
-    optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
-  else:
-    raise ValueError()
+  optimizers = [
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate),
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9),
+    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate),
+    optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  ]
 
-  print("Optimizer:", optimizer)
+  print("Optimizer:", optimizers[args.optimizer])
 
   classification_trainer = ClassificationTrainerNoEarlyStopping(
-    "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    "cifar10", model, optimizers[args.optimizer],
+    train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

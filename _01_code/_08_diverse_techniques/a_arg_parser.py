@@ -13,7 +13,7 @@ def get_parser():
   )
 
   parser.add_argument(
-    "-e", "--epochs", type=int, default=10_000, help="Number of training epochs (int, default:10_000)"
+    "-e", "--epochs", type=int, default=500, help="Number of training epochs (int, default:10_000)"
   )
 
   parser.add_argument(

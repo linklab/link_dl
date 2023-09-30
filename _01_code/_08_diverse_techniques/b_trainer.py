@@ -1,5 +1,4 @@
 from datetime import datetime
-import os
 import torch
 from torch import nn
 
