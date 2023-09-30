@@ -23,8 +23,6 @@ from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 from _01_code._08_diverse_techniques.b_trainer import ClassificationTrainerNoEarlyStopping
 
 def main(args):
-  run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-
   config = {
     'epochs': args.epochs,
     'batch_size': args.batch_size,
@@ -33,12 +31,27 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
+  if args.optimizer == 0:
+    optimizer_name = "SGD"
+  elif args.optimizer == 1:
+    optimizer_name = "Momentum"
+  elif args.optimizer == 2:
+    optimizer_name = "RMSprop"
+  elif args.optimizer == 3:
+    optimizer_name = "Adam"
+  else:
+    raise ValueError()
+
+  run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
+
+  name = "{0}_{1}".format(optimizer_name, run_time_str)
+
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project="cnn_mnist_with_diverse_optimizers",
     notes="mnist experiment with cnn and diverse optimizers",
     tags=["cnn", "mnist" "diverse_optimizers"],
-    name=run_time_str,
+    name=name,
     config=config
   )
   print(args)

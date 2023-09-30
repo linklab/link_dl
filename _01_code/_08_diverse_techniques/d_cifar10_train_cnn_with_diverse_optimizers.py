@@ -26,8 +26,6 @@ from _01_code._08_diverse_techniques.b_trainer import ClassificationTrainerNoEar
 
 
 def main(args):
-  run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-
   config = {
     'epochs': args.epochs,
     'batch_size': args.batch_size,
@@ -36,12 +34,27 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
+  if args.optimizer == 0:
+    optimizer_name = "SGD"
+  elif args.optimizer == 1:
+    optimizer_name = "Momentum"
+  elif args.optimizer == 2:
+    optimizer_name = "RMSprop"
+  elif args.optimizer == 3:
+    optimizer_name = "Adam"
+  else:
+    raise ValueError()
+
+  run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
+
+  name = "{0}_{1}".format(optimizer_name, run_time_str)
+
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project="cnn_cifar10_diverse_optimizers",
     notes="cifar10 experiment with cnn and diverse optimizers",
     tags=["cnn", "cifar10", "diverse_optimizers"],
-    name=run_time_str,
+    name=name,
     config=config
   )
   print(args)
