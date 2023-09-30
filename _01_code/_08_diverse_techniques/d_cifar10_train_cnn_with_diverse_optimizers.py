@@ -1,5 +1,5 @@
 import torch
-from torch import nn, optim
+from torch import optim
 from datetime import datetime
 import os
 import wandb
@@ -17,13 +17,10 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-
 from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_data
 from _01_code._07_cnn.c_cifar10_train_cnn import get_cnn_model
 from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 from _01_code._08_diverse_techniques.b_trainer import ClassificationTrainerNoEarlyStopping
-
-
 
 def main(args):
   config = {
@@ -68,7 +65,18 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
+  if args.optimizer == 0:
+    optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
+  elif args.optimizer == 1:
+    optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9)
+  elif args.optimizer == 2:
+    optimizer = optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate)
+  elif args.optimizer == 3:
+    optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  else:
+    raise ValueError()
+
+  print("Optimizer:", optimizer)
 
   classification_trainer = ClassificationTrainerNoEarlyStopping(
     "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
