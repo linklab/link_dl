@@ -51,7 +51,7 @@ def main(args):
 
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_cifar10_diverse_optimizers",
+    project="cnn_cifar10_with_diverse_optimizers",
     notes="cifar10 experiment with cnn and diverse optimizers",
     tags=["cnn", "cifar10", "diverse_optimizers"],
     name=name,
