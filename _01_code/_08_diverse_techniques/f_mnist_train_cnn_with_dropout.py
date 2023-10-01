@@ -40,10 +40,10 @@ def get_cnn_model_with_dropout():
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
         nn.Flatten(),
-        nn.Dropout(),
+        nn.Dropout(p=0.5),      # p: dropout probability
         nn.Linear(256, 84),
         nn.ReLU(),
-        nn.Dropout(),
+        nn.Dropout(p=0.5),      # p: dropout probability
         nn.Linear(84, n_output),
       )
 
@@ -67,9 +67,11 @@ def main(args):
     'dropout': args.dropout
   }
 
-  optimizer_names = ["SGD", "Momentum", "RMSProp", "Adam"]
+  technique_names = ["Dropout", "No-Dropout"]
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-  name = "{0}_{1}".format(optimizer_names[args.optimizer], run_time_str)
+  name = "{0}_{1}".format(technique_names[args.optimizer], run_time_str)
+
+  print("Dropout:", technique_names[args.dropout])
 
   wandb.init(
     mode="online" if args.wandb else "disabled",
@@ -95,17 +97,10 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizers = [
-    optim.SGD(model.parameters(), lr=wandb.config.learning_rate),
-    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9),
-    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate),
-    optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
-  ]
-
-  print("Optimizer:", optimizers[args.optimizer])
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainerNoEarlyStopping(
-    "mnist", model, optimizers[args.optimizer],
+    "mnist", model, optimizer,
     train_data_loader, validation_data_loader, mnist_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -118,5 +113,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/c_mnist_train_cnn_with_diverse_optimizers.py --wandb -o 2 -v 1
-  # python _01_code/_08_diverse_techniques/c_mnist_train_cnn_with_diverse_optimizers.py --no-wandb -o 2 -v 1
+  # python _01_code/_08_diverse_techniques/f_mnist_train_cnn_with_dropout.py --dropout --wandb -o 3 -v 1
+  # python _01_code/_08_diverse_techniques/f_mnist_train_cnn_with_dropout.py --no-dropout --wandb -o 3 -v 1
