@@ -25,6 +25,8 @@ class ClassificationTrainerNoEarlyStopping:
     self.loss_fn = nn.CrossEntropyLoss()
 
   def do_train(self):
+    self.model.train()
+
     loss_train = 0.0
     num_corrects_train = 0
     num_trained_samples = 0
@@ -57,6 +59,8 @@ class ClassificationTrainerNoEarlyStopping:
     return train_loss, train_accuracy
 
   def do_validation(self):
+    self.model.eval()
+
     loss_validation = 0.0
     num_corrects_validation = 0
     num_validated_samples = 0

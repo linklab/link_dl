@@ -5,7 +5,7 @@ def get_parser():
   parser = argparse.ArgumentParser()
 
   parser.add_argument(
-    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="True or False"
+    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="Wandb: True or False"
   )
 
   parser.add_argument(
@@ -32,6 +32,15 @@ def get_parser():
   parser.add_argument(
     "-o", "--optimizer", type=int, default=0,
     help="Optimizers (0: SGD, 1: Momentum, 2: RMSProp, 4: Adam, default: 0)"
+  )
+
+  parser.add_argument(
+    "--dropout", action=argparse.BooleanOptionalAction, default=False, help="Dropout: True or False"
+  )
+
+  parser.add_argument(
+    "-n", "--normalization", type=int, default=0,
+    help="Normalization (0: SGD, 1: BatchNorm, 2: LayerNorm, default: 0)"
   )
 
   return parser
