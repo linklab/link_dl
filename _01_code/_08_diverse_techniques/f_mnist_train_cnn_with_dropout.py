@@ -113,5 +113,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/f_mnist_train_cnn_with_dropout.py --dropout --wandb -o 3 -v 1
-  # python _01_code/_08_diverse_techniques/f_mnist_train_cnn_with_dropout.py --no-dropout --wandb -o 3 -v 1
+  # python _01_code/_08_diverse_techniques/f_mnist_train_cnn_with_dropout.py --dropout --wandb -o 3 -v 1 -e 300
+  # python _01_code/_08_diverse_techniques/f_mnist_train_cnn_with_dropout.py --no-dropout --wandb -o 3 -v 1 -e 300
