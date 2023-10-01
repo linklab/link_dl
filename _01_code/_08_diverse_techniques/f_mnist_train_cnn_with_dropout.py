@@ -67,11 +67,11 @@ def main(args):
     'dropout': args.dropout
   }
 
-  technique_names = ["Dropout", "No-Dropout"]
+  technique_name = "Dropout" if args.dropout else "No-Dropout"
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-  name = "{0}_{1}".format(technique_names[args.optimizer], run_time_str)
+  name = "{0}_{1}".format(technique_name, run_time_str)
 
-  print("Dropout:", technique_names[args.dropout])
+  print("Dropout:", technique_name)
 
   wandb.init(
     mode="online" if args.wandb else "disabled",
