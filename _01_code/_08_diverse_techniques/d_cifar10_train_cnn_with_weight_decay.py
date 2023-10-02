@@ -33,7 +33,7 @@ def main(args):
     'weight_decay': args.weight_decay
   }
 
-  technique_name = "weight_decay_{0:.3f}_".format(args.weight_decay)
+  technique_name = "weight_decay_{0:.3f}".format(args.weight_decay)
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
   name = "{0}_{1}".format(technique_name, run_time_str)
 
