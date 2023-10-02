@@ -65,6 +65,7 @@ def main(args):
     'validation_intervals': args.validation_intervals,
     'print_epochs': args.print_epochs,
     'learning_rate': args.learning_rate,
+    'weight_decay': args.weight_decay,
     'dropout': args.dropout
   }
 
@@ -74,9 +75,10 @@ def main(args):
 
   print("Dropout:", technique_name)
 
+  project_name = "cnn_cifar10_with_dropout"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_cifar10_with_dropout",
+    project=project_name,
     notes="cifar10 experiment with cnn and dropout",
     tags=["cnn", "cifar10", "dropout"],
     name=name,
@@ -98,10 +100,10 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
   classification_trainer = ClassificationTrainerNoEarlyStopping(
-    "cifar10", model, optimizer,
+    project_name, model, optimizer,
     train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -114,5 +116,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_dropout.py --dropout --wandb -o 3 -v 1
-  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_dropout.py --no-dropout --wandb -o 3 -v 1
+  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_dropout.py --dropout --wandb -v 1 -w 0.01
+  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_dropout.py --no-dropout --wandb -v 1 -w 0.01
