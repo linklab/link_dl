@@ -41,7 +41,7 @@ def get_cnn_model():
         nn.Flatten(),
         nn.Linear(400, 128),
         nn.ReLU(),
-        nn.Linear(84, n_output),
+        nn.Linear(128, n_output),
       )
 
     def forward(self, x):
