@@ -39,7 +39,7 @@ def get_cnn_model():
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
         nn.Flatten(),
-        nn.Linear(256, 84),
+        nn.Linear(256, 128),
         nn.ReLU(),
         nn.Linear(84, n_output),
       )

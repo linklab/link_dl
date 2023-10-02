@@ -45,8 +45,10 @@ def main():
   cifar10_test_images, test_data_loader, cifar10_transforms = get_test_data(flatten=True)
 
   test_model = get_model()
+
+  project_name = "fcn_cifar10"
   classification_tester = ClassificationTester(
-    "cifar10", test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
+    project_name, test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
   )
   classification_tester.test()
 

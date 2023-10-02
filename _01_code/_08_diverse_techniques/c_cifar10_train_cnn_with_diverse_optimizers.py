@@ -35,9 +35,10 @@ def main(args):
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
   name = "{0}_{1}".format(optimizer_names[args.optimizer], run_time_str)
 
+  project_name = "cnn_cifar10_with_diverse_optimizers"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_cifar10_with_diverse_optimizers",
+    project=project_name,
     notes="cifar10 experiment with cnn and diverse optimizers",
     tags=["cnn", "cifar10", "diverse_optimizers"],
     name=name,
@@ -64,7 +65,7 @@ def main(args):
   print("Optimizer:", optimizers[args.optimizer])
 
   classification_trainer = ClassificationTrainerNoEarlyStopping(
-    "cifar10", model, optimizers[args.optimizer],
+    project_name, model, optimizers[args.optimizer],
     train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )

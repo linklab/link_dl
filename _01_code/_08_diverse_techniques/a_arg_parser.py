@@ -35,12 +35,16 @@ def get_parser():
   )
 
   parser.add_argument(
+    "-w", "--weight_decay", type=float, default=0.0, help="Weight decay (float, default: 0.0)"
+  )
+
+  parser.add_argument(
     "--dropout", action=argparse.BooleanOptionalAction, default=False, help="Dropout: True or False"
   )
 
   parser.add_argument(
     "-n", "--normalization", type=int, default=0,
-    help="Normalization (0: SGD, 1: BatchNorm, 2: LayerNorm, default: 0)"
+    help="Normalization (0: No Normalization, 1: BatchNorm, 2: LayerNorm, default: 0)"
   )
 
   return parser

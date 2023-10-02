@@ -90,9 +90,10 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
+  project_name = "fcn_cifar10"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="fcn_cifar10",
+    project=project_name,
     notes="cifar10 experiment with fcn",
     tags=["fcc", "cifar10"],
     name=run_time_str,
@@ -112,7 +113,7 @@ def main(args):
   optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

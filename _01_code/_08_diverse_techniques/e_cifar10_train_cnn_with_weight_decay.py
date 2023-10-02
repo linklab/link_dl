@@ -1,5 +1,5 @@
 import torch
-from torch import optim
+from torch import optim, nn
 from datetime import datetime
 import os
 import wandb
@@ -17,8 +17,8 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_data
-from _01_code._07_cnn.a_mnist_train_cnn import get_cnn_model
+from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_data
+from _01_code._07_cnn.c_cifar10_train_cnn import get_cnn_model
 from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 from _01_code._08_diverse_techniques.b_trainer import ClassificationTrainerNoEarlyStopping
 
@@ -30,17 +30,21 @@ def main(args):
     'validation_intervals': args.validation_intervals,
     'print_epochs': args.print_epochs,
     'learning_rate': args.learning_rate,
+    'weight_decay': args.weight_decay
   }
 
-  optimizer_names = ["SGD", "Momentum", "RMSProp", "Adam"]
+  technique_name = "weight_decay_{0:2f}_".format(args.weight_decay)
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-  name = "{0}_{1}".format(optimizer_names[args.optimizer], run_time_str)
+  name = "{0}_{1}".format(technique_name, run_time_str)
 
+  print(technique_name)
+
+  project_name = "cnn_cifar10_with_weight_decay"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_mnist_with_diverse_optimizers",
-    notes="mnist experiment with cnn and diverse optimizers",
-    tags=["cnn", "mnist" "diverse_optimizers"],
+    project=project_name,
+    notes="cifar10 experiment with cnn and weight_decay",
+    tags=["cnn", "cifar10", "weight_decay"],
     name=name,
     config=config
   )
@@ -50,23 +54,16 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, mnist_transforms = get_data(flatten=False)
+  train_data_loader, validation_data_loader, cifar10_transforms = get_data(flatten=False)
   model = get_cnn_model()
   model.to(device)
   wandb.watch(model)
 
-  optimizers = [
-    optim.SGD(model.parameters(), lr=wandb.config.learning_rate),
-    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9),
-    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate),
-    optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
-  ]
-
-  print("Optimizer:", optimizers[args.optimizer])
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
   classification_trainer = ClassificationTrainerNoEarlyStopping(
-    "mnist", model, optimizers[args.optimizer],
-    train_data_loader, validation_data_loader, mnist_transforms,
+    project_name, model, optimizer,
+    train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
@@ -78,5 +75,7 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/c_mnist_train_cnn_with_diverse_optimizers.py --wandb -o 2 -v 1
-  # python _01_code/_08_diverse_techniques/c_mnist_train_cnn_with_diverse_optimizers.py --no-wandb -o 2 -v 1
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_dropout.py --wandb -v 1 -w 0.0
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_dropout.py --wandb -v 1 -w 0.001
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_dropout.py --wandb -v 1 -w 0.002
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_dropout.py --wandb -v 1 -w 0.005

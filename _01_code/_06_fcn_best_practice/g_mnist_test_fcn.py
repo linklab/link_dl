@@ -45,8 +45,10 @@ def main():
   mnist_test_images, test_data_loader, mnist_transforms = get_test_data(flatten=True)
 
   test_model = get_model()
+
+  project_name = "fcn_mnist"
   classification_tester = ClassificationTester(
-    "mnist", test_model, test_data_loader, mnist_transforms, CHECKPOINT_FILE_PATH
+    project_name, test_model, test_data_loader, mnist_transforms, CHECKPOINT_FILE_PATH
   )
   classification_tester.test()
 

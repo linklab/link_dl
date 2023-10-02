@@ -10,10 +10,17 @@ class MyLinearWithActivationAndDropout(nn.Module):
     self.activation = nn.Sigmoid()
     self.drop_prob = 0.3
 
-  def forward(self, input):
+  def forward(self, input, is_train):
     z = input @ self.weight.t() + self.bias
     a = self.activation(z)
 
+    if is_train:  # dropout only if model is trained
+      a_masked, a_masked_and_scaled = self.dropout(a)
+      return a_masked, a_masked_and_scaled
+    else:
+      return a
+
+  def dropout(self, a):
     # Step 1: initialize matrix r, where its shape is same as the above a tensor
     r = torch.rand_like(a)
 
@@ -22,19 +29,19 @@ class MyLinearWithActivationAndDropout(nn.Module):
     print(mask, "!!!")
 
     # Step 3: shut down some neurons of A1
-    a1 = mask * a
+    a_masked = mask * a
 
     # Step 4: scale the value of neurons that haven't been shut down
-    a2 = a1 / (1 - self.drop_prob)
+    a_masked_and_scaled = a_masked / (1 - self.drop_prob)  # It is called 'Inverted Dropout'
 
-    return a1, a2
+    return a_masked, a_masked_and_scaled
 
 
 if __name__ == "__main__":
   my_linear = MyLinearWithActivationAndDropout(in_features=4, out_features=7)
 
   batch_input = torch.randn(3, 4)
-  batch_output, batch_input_scaled = my_linear(batch_input)
+  batch_output, batch_input_scaled = my_linear(batch_input, is_train=True)
 
   print("input.shape:", batch_input.shape)
   print("output.shape:", batch_output.shape)
