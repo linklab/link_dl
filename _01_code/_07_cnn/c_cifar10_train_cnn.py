@@ -28,14 +28,14 @@ def get_cnn_model():
       super().__init__()
 
       self.model = nn.Sequential(
-        # 3 x 32 x 32 --> 6 x (32 - 5 + 1) x (32 - 5 + 1) = 6 x 28 x 28
+        # B x 3 x 32 x 32 --> B x 6 x (32 - 5 + 1) x (32 - 5 + 1) = B x 6 x 28 x 28
         nn.Conv2d(in_channels=in_channels, out_channels=6, kernel_size=(5, 5), stride=(1, 1)),
-        # 6 x 28 x 28 --> 6 x 14 x 14
+        # B x 6 x 28 x 28 --> B x 6 x 14 x 14
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
-        # 6 x 14 x 14 --> 16 x (14 - 5 + 1) x (14 - 5 + 1) = 16 x 10 x 10
+        # B x 6 x 14 x 14 --> B x 16 x (14 - 5 + 1) x (14 - 5 + 1) = B x 16 x 10 x 10
         nn.Conv2d(in_channels=6, out_channels=16, kernel_size=(5, 5), stride=(1, 1)),
-        # 16 x 10 x 10 --> 16 x 5 x 5
+        # B x 16 x 10 x 10 --> B x 16 x 5 x 5
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
         nn.Flatten(),
@@ -66,9 +66,10 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
+  project_name = "cnn_cifar10"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_cifar10",
+    project=project_name,
     notes="cifar10 experiment with cnn",
     tags=["cnn", "cifar10"],
     name=run_time_str,
@@ -88,7 +89,7 @@ def main(args):
   optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    "cifar10", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

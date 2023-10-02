@@ -28,14 +28,14 @@ def get_cnn_model():
       super().__init__()
 
       self.model = nn.Sequential(
-        # 1 x 28 x 28 --> 6 x (28 - 5 + 1) x (28 - 5 + 1) = 6 x 24 x 24
+        # B x 1 x 28 x 28 --> B x 6 x (28 - 5 + 1) x (28 - 5 + 1) = B x 6 x 24 x 24
         nn.Conv2d(in_channels=in_channels, out_channels=6, kernel_size=(5, 5), stride=(1, 1)),
-        # 6 x 24 x 24 --> 6 x 12 x 12
+        # B x 6 x 24 x 24 --> B x 6 x 12 x 12
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
-        # 6 x 12 x 12 --> 16 x (12 - 5 + 1) x (12 - 5 + 1) = 16 x 8 x 8
+        # B x 6 x 12 x 12 --> B x 16 x (12 - 5 + 1) x (12 - 5 + 1) = B x 16 x 8 x 8
         nn.Conv2d(in_channels=6, out_channels=16, kernel_size=(5, 5), stride=(1, 1)),
-        # 16 x 8 x 8 --> 16 x 4 x 4
+        # B x 16 x 8 x 8 --> B x 16 x 4 x 4
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
         nn.Flatten(),
@@ -65,9 +65,10 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
+  project_name = "cnn_mnist"
   wandb.init(
     mode="online" if args.wandb else "disabled",
-    project="cnn_mnist",
+    project=project_name,
     notes="mnist experiment with cnn",
     tags=["cnn", "mnist"],
     name=run_time_str,
@@ -87,7 +88,7 @@ def main(args):
   optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    "mnist", model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
+    project_name, model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
