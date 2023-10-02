@@ -44,7 +44,7 @@ def get_cnn_model_with_dropout():
         nn.Linear(400, 128),
         nn.ReLU(),
         nn.Dropout(p=0.5),      # p: dropout probability
-        nn.Linear(84, n_output),
+        nn.Linear(128, n_output),
       )
 
     def forward(self, x):
