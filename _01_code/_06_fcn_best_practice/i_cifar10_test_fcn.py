@@ -20,7 +20,7 @@ from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_model
 from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 
 
-def get_test_data(flatten=False):
+def get_cifar10_test_data(flatten=False):
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "i_cifar10")
 
   cifar10_test_images = datasets.CIFAR10(data_path, train=False, download=True)
@@ -42,7 +42,7 @@ def get_test_data(flatten=False):
 
 
 def main():
-  cifar10_test_images, test_data_loader, cifar10_transforms = get_test_data(flatten=True)
+  cifar10_test_images, test_data_loader, cifar10_transforms = get_cifar10_test_data(flatten=True)
 
   test_model = get_model()
 

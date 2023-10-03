@@ -14,11 +14,11 @@ sys.path.append(BASE_PATH)
 
 from _01_code._07_cnn.a_mnist_train_cnn import get_cnn_model
 from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
-from _01_code._06_fcn_best_practice.g_mnist_test_fcn import get_test_data
+from _01_code._06_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
 
 
 def main():
-  mnist_test_images, test_data_loader, mnist_transforms = get_test_data(flatten=False)
+  mnist_test_images, test_data_loader, mnist_transforms = get_mnist_test_data(flatten=False)
 
   test_model = get_cnn_model()
   classification_tester = ClassificationTester(

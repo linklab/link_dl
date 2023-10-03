@@ -69,6 +69,8 @@ class ClassificationTrainer:
     self.loss_fn = nn.CrossEntropyLoss()
 
   def do_train(self):
+    self.model.train()  # Explained at 'Diverse Techniques' section
+
     loss_train = 0.0
     num_corrects_train = 0
     num_trained_samples = 0
@@ -101,6 +103,8 @@ class ClassificationTrainer:
     return train_loss, train_accuracy
 
   def do_validation(self):
+    self.model.eval()   # Explained at 'Diverse Techniques' section
+
     loss_validation = 0.0
     num_corrects_validation = 0
     num_validated_samples = 0

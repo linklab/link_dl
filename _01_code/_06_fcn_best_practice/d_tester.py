@@ -15,6 +15,8 @@ class ClassificationTester:
     self.model.load_state_dict(torch.load(self.latest_file_path, map_location=torch.device('cpu')))
 
   def test(self):
+    self.model.eval()    # Explained at 'Diverse Techniques' section
+
     num_corrects_test = 0
     num_tested_samples = 0
 
@@ -36,6 +38,8 @@ class ClassificationTester:
     print(f"TEST RESULTS: {test_accuracy:6.3f}%")
 
   def test_single(self, input_test):
+    self.model.eval()    # Explained at 'Diverse Techniques' section
+
     with torch.no_grad():
       input_test = self.transforms(input_test)
       output_test = self.model(input_test)

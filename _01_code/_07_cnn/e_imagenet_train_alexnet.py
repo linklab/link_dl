@@ -26,12 +26,12 @@ from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 
 
-def get_data():
+def get_imagenet_data():
   """
   Before using this function, it is required to download ImageNet 2012 dataset and place
   the files 'ILSVRC2012_devkit_t12.tar.gz' and 'ILSVRC2012_img_train.tar' or 'ILSVRC2012_img_val.tar'
   based on split in the root directory.
-  Refer to https://seongkyun.github.io/others/2019/03/06/imagenet_dn/
+  Refer to https://image-net.org/download-images and https://on-ai.tistory.com/8
   """
   data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "j_imagenet")
 
@@ -66,7 +66,7 @@ def get_data():
   return train_data_loader, validation_data_loader, mnist_transforms
 
 
-def get_cnn_model():
+def get_alexnet_model():
   class AlexNet(nn.Module):
     def __init__(self, num_classes=1000):
         """
@@ -77,42 +77,42 @@ def get_cnn_model():
         """
         super().__init__()
         # The image in the original paper states that width and height are 224 pixels, but
-        # the correct input size should be : (B x 3 x 227 x 227)
+        # the correct input size should be: B x 3 x 227 x 227
         self.cnn = nn.Sequential(
-            # (B x 3 x 277 x 277) --> (B x 96 x 55 x 55)
+            # B x 3 x 227 x 227 --> B x 96 x ((227 - 11) / 4 + 1) x ((227 - 11) / 4 + 1) = B x 96 x 55 x 55
             nn.Conv2d(in_channels=3, out_channels=96, kernel_size=(11, 11), stride=(4, 4)),
             nn.ReLU(),
             nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75, k=2),
-            # (B x 96 x 55 x 55) --> (B x 96 x 27 x 27)
+            # B x 96 x 55 x 55 --> B x 96 x ((55 - 3) / 2 + 1) x ((30 - 2) / 2 + 1) = B x 96 x 27 x 27
             nn.MaxPool2d(kernel_size=3, stride=2),
 
-            # (B x 96 x 27 x 27) --> (B x 256 x 27 x 27)
+            # B x 96 x 27 x 27 --> B x 256 x ((27 - 5 + 4) / 1 + 1) x ((27 - 5 + 4) / 1 + 1) = B x 256 x 27 x 27
             nn.Conv2d(96, 256, (5, 5), (1, 1), padding=2),
             nn.ReLU(),
             nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75, k=2),
-            # (B x 256 x 27 x 27) --> (B x 256 x 13 x 13)
+            # B x 256 x 27 x 27 --> B x 256 x ((27 - 3) / 2 + 1) x ((27 - 3) / 2 + 1) = B x 256 x 13 x 13
             nn.MaxPool2d(kernel_size=3, stride=2),
 
-            # (B x 256 x 13 x 13) --> (B x 384 x 13 x 13)
+            # B x 256 x 13 x 13 --> B x 384 x ((13 - 3 + 2) / 1 + 1) x ((13 - 3 + 2) / 1 + 1) = B x 384 x 13 x 13
             nn.Conv2d(256, 384, (3, 3), (1, 1), padding=1),
             nn.ReLU(),
 
-            # (B x 256 x 13 x 13) --> (B x 384 x 13 x 13)
+            # B x 384 x 13 x 13 --> B x 384 x ((13 - 3 + 2) / 1 + 1) x ((13 - 3 + 2) / 1 + 1) = B x 384 x 13 x 13
             nn.Conv2d(384, 384, (3, 3), (1, 1), padding=1),
             nn.ReLU(),
 
-            # (B x 384 x 13 x 13) --> (B x 256 x 13 x 13)
+            # B x 384 x 13 x 13 --> B x 256 x ((13 - 3 + 2) / 1 + 1) x ((13 - 3 + 2) / 1 + 1) = B x 256 x 13 x 13
             nn.Conv2d(384, 256, (3, 3), (1, 1), padding=1),
             nn.ReLU(),
-            # (B x 256 x 13 x 13) --> (B x 256 x 6 x 6)
+            # B x 256 x 13 x 13 --> B x 256 x ((13 - 3) / 2 + 1) x ((13 - 3) / 2 + 1) = B x 256 x 6 x 6)
             nn.MaxPool2d(kernel_size=3, stride=2),
         )
         # classifier is just a name for linear layers
         self.fcn = nn.Sequential(
-            nn.Dropout(p=0.5, inplace=True),
-            nn.Linear(in_features=(256 * 6 * 6), out_features=4096),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features=256 * 6 * 6, out_features=4096),
             nn.ReLU(),
-            nn.Dropout(p=0.5, inplace=True),
+            nn.Dropout(p=0.5),
             nn.Linear(in_features=4096, out_features=4096),
             nn.ReLU(),
             nn.Linear(in_features=4096, out_features=num_classes),
@@ -121,12 +121,6 @@ def get_cnn_model():
     def forward(self, x):
         """
         Pass the input through the net.
-
-        Args:
-            x (Tensor): input tensor
-
-        Returns:
-            output (Tensor): output tensor
         """
         x = self.cnn(x)
         x = x.view(-1, 256 * 6 * 6)  # reduce the dimensions for linear layer input
@@ -163,8 +157,8 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, mnist_transforms = get_data()
-  model = get_cnn_model()
+  train_data_loader, validation_data_loader, mnist_transforms = get_imagenet_data()
+  model = get_alexnet_model()
   model.to(device)
   wandb.watch(model)
 
