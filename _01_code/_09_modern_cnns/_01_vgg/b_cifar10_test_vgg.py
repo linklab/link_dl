@@ -5,7 +5,7 @@ import os
 from matplotlib import pyplot as plt
 from pathlib import Path
 
-BASE_PATH = str(Path(__file__).resolve().parent.parent.parent)  # BASE_PATH: /Users/yhhan/git/link_dl
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent.parent)  # BASE_PATH: /Users/yhhan/git/link_dl
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 
