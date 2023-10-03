@@ -24,19 +24,16 @@ from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 
 def get_alexnet_model():
   class AlexNet(nn.Module):
-    def __init__(self, num_classes=10):
+    def __init__(self, in_channels=3, n_output=10):
         """
         Define and allocate layers for this neural net.
-
-        Args:
-            num_classes (int): number of classes to predict with this model
         """
         super().__init__()
         # The image in the original paper states that width and height are 224 pixels, but
         # the correct input size should be : (B x 3 x 227 x 227)
         self.cnn = nn.Sequential(
             # B x 3 x 32 x 32 --> B x 64 x (32 - 3 + 1) x (32 - 3 + 1) = B x 64 x 30 x 30
-            nn.Conv2d(in_channels=3, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
             nn.ReLU(),
             nn.LocalResponseNorm(size=3, alpha=0.0001, beta=0.75, k=2),
             # B x 64 x 30 x 30 --> B x 64 x ((30 - 2) / 2 + 1) x ((30 - 2) / 2 + 1) = B x 64 x 15 x 15
@@ -71,7 +68,7 @@ def get_alexnet_model():
             nn.Dropout(p=0.5),
             nn.Linear(in_features=512, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=512, out_features=num_classes),
+            nn.Linear(in_features=512, out_features=n_output),
         )
 
     def forward(self, x):
@@ -82,7 +79,7 @@ def get_alexnet_model():
         x = x.view(-1, 192 * 3 * 3)  # reduce the dimensions for linear layer input
         return self.fcn(x)
 
-  my_model = AlexNet()
+  my_model = AlexNet(in_channels=3, n_output=10)
 
   return my_model
 
@@ -98,7 +95,7 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
-  project_name = "alexnet_imagenet"
+  project_name = "alexnet_cifar10"
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,

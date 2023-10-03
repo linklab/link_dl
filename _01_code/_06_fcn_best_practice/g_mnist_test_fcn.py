@@ -21,7 +21,7 @@ from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 
 
 def get_mnist_test_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "h_mnist")
+  data_path = os.path.join(BASE_PATH, "_00_data", "h_mnist")
 
   mnist_test_images = datasets.MNIST(data_path, train=False, download=True)
 

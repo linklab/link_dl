@@ -22,7 +22,7 @@ from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 
 
 def get_mnist_data(flatten=False):
-  data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "h_mnist")
+  data_path = os.path.join(BASE_PATH, "_00_data", "h_mnist")
 
   mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transforms.ToTensor())
   mnist_train, mnist_validation = random_split(mnist_train, [55_000, 5_000])

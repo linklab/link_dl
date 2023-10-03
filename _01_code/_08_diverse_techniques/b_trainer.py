@@ -103,10 +103,10 @@ class ClassificationTrainerNoEarlyStopping:
 
         print(
           f"[Epoch {epoch:>3}] "
-          f"T_loss: {train_loss:6.3f}, "
-          f"T_accuracy: {train_accuracy:6.3f} | "
-          f"V_loss: {validation_loss:6.3f}, "
-          f"V_accuracy: {validation_accuracy:6.3f} | "
+          f"T_loss: {train_loss:6.4f}, "
+          f"T_accuracy: {train_accuracy:6.4f} | "
+          f"V_loss: {validation_loss:6.4f}, "
+          f"V_accuracy: {validation_accuracy:6.4f} | "
           f"T_time: {strfdelta(elapsed_time, '%H:%M:%S')}, "
           f"T_speed: {epoch_per_second:4.2f}"
         )

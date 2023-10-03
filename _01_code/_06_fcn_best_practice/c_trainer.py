@@ -8,7 +8,7 @@ from _01_code._99_common_utils.utils import strfdelta
 
 class EarlyStopping:
   """Early stops the training if validation loss doesn't improve after a given patience."""
-  def __init__(self, patience=7, delta=0.001, project_name=None, checkpoint_file_path=None, run_time_str=None):
+  def __init__(self, patience=10, delta=0.0001, project_name=None, checkpoint_file_path=None, run_time_str=None):
     self.patience = patience
     self.counter = 0
     self.delta = delta
@@ -23,7 +23,6 @@ class EarlyStopping:
 
   def check_and_save(self, new_validation_loss, model):
     early_stop = False
-    message = None
 
     if self.val_loss_min is None:
       self.val_loss_min = new_validation_loss
@@ -153,13 +152,13 @@ class ClassificationTrainer:
 
         print(
           f"[Epoch {epoch:>3}] "
-          f"T_loss: {train_loss:6.3f}, "
-          f"T_accuracy: {train_accuracy:6.3f} | "
-          f"V_loss: {validation_loss:6.3f}, "
-          f"V_accuracy: {validation_accuracy:6.3f} | "
+          f"T_loss: {train_loss:6.4f}, "
+          f"T_accuracy: {train_accuracy:6.4f} | "
+          f"V_loss: {validation_loss:6.4f}, "
+          f"V_accuracy: {validation_accuracy:6.4f} | "
           f"{message} | "
           f"T_time: {strfdelta(elapsed_time, '%H:%M:%S')}, "
-          f"T_speed: {epoch_per_second:4.2f}"
+          f"T_speed: {epoch_per_second:4.3f}"
         )
 
         self.wandb.log({
