@@ -111,4 +111,4 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnns/_01_vgg/a_cifar10_train_vgg.py --wandb --dropout -v 1 -w 0.002 -n 1
+  # python _01_code/_09_modern_cnns/_02_nin/a_cifar10_train_nin.py --wandb -v 1 -w 0.002
