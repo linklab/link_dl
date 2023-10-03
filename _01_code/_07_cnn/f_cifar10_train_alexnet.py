@@ -115,6 +115,12 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
+  from torchinfo import summary
+  summary(
+    model=model, input_size=(1, 3, 32, 32),
+    col_names=["kernel_size", "input_size", "output_size", "num_params", "mult_adds"]
+  )
+
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(

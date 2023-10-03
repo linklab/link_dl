@@ -26,6 +26,7 @@ git clone git@github.com:linklab/link_dl.git
 - pip install graphviz 
 - pip install torchviz
 - pip install wandb
+- pip install torchinfo
 '''
 
 # Graphviz

@@ -22,37 +22,30 @@ from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 
 
-def get_vgg_model():
-  def vgg_block(num_conv_layers, out_channels):
-    layers = []
-
-    for _ in range(num_conv_layers):
-      layers.append(nn.LazyConv2d(out_channels=out_channels, kernel_size=3, padding=1))
-      layers.append(nn.ReLU())
-
-    layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
-
-    block = nn.Sequential(*layers)
+def get_nin_model():
+  def nin_block(out_channels, kernel_size, strides, padding):
+    block = nn.Sequential(
+      nn.LazyConv2d(out_channels, kernel_size, strides, padding), nn.ReLU(),
+      nn.LazyConv2d(out_channels, kernel_size=1), nn.ReLU(),
+      nn.LazyConv2d(out_channels, kernel_size=1), nn.ReLU()
+    )
     return block
 
-  class VGG(nn.Module):
-    def __init__(self, block_info, n_output=10):
+  class NiN(nn.Module):
+    def __init__(self, n_output=10):
       super().__init__()
 
-      conv_blocks = []
-      for (num_conv_layers, out_channels) in block_info:
-        conv_blocks.append(vgg_block(num_conv_layers, out_channels))
-
       self.model = nn.Sequential(
-        *conv_blocks,
-        nn.Flatten(),
-        nn.LazyLinear(out_features=4096),
-        nn.ReLU(),
+        nin_block(out_channels=96, kernel_size=3, strides=1, padding=1),
+        nn.MaxPool2d(kernel_size=2, stride=2),
+        nin_block(out_channels=256, kernel_size=3, strides=1, padding=1),
+        nn.MaxPool2d(kernel_size=2, stride=2),
+        nin_block(out_channels=384, kernel_size=3, strides=1, padding=1),
+        nn.MaxPool2d(kernel_size=2, stride=2),
         nn.Dropout(0.5),
-        nn.LazyLinear(out_features=4096),
-        nn.ReLU(),
-        nn.Dropout(0.5),
-        nn.LazyLinear(n_output)
+        nin_block(out_channels=n_output, kernel_size=3, strides=1, padding=1),
+        nn.AdaptiveAvgPool2d((1, 1)),
+        nn.Flatten()
       )
 
     def forward(self, x):
@@ -60,10 +53,7 @@ def get_vgg_model():
       return x
 
   # 3 * 32 * 32
-  my_model = VGG(
-    block_info=((1, 64), (1, 128), (2, 256), (2, 512), (2, 512)),
-    n_output=10
-  )
+  my_model = NiN(n_output=10)
 
   return my_model
 
@@ -80,12 +70,12 @@ def main(args):
   }
 
   project_name = "modern_cifar10"
-  name = "vgg_{0}".format(run_time_str)
+  name = "nin_{0}".format(run_time_str)
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
-    notes="cifar10 experiment with vgg",
-    tags=["vgg", "cifar10"],
+    notes="cifar10 experiment with nin",
+    tags=["nin", "cifar10"],
     name=name,
     config=config
   )
@@ -96,11 +86,17 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_vgg_model()
+  model = get_nin_model()
   model.to(device)
   #wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  from torchinfo import summary
+  summary(
+    model=model, input_size=(1, 3, 32, 32),
+    col_names=["kernel_size", "input_size", "output_size", "num_params", "mult_adds"]
+  )
+
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
   classification_trainer = ClassificationTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,

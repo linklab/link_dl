@@ -46,10 +46,10 @@ def get_vgg_model():
       self.model = nn.Sequential(
         *conv_blocks,
         nn.Flatten(),
-        nn.LazyLinear(out_features=4096),
+        nn.LazyLinear(out_features=512),
         nn.ReLU(),
         nn.Dropout(0.5),
-        nn.LazyLinear(out_features=4096),
+        nn.LazyLinear(out_features=512),
         nn.ReLU(),
         nn.Dropout(0.5),
         nn.LazyLinear(n_output)
@@ -100,7 +100,13 @@ def main(args):
   model.to(device)
   #wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  from torchinfo import summary
+  summary(
+    model=model, input_size=(1, 3, 32, 32),
+    col_names=["kernel_size", "input_size", "output_size", "num_params", "mult_adds"]
+  )
+
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
   classification_trainer = ClassificationTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,

@@ -86,6 +86,9 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
+  from torchinfo import summary
+  summary(model=model, input_size=(1, 3, 32, 32))
+
   optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
