@@ -20,8 +20,10 @@ def main():
   cifar10_test_images, test_data_loader, cifar10_transforms = get_cifar10_test_data(flatten=False)
 
   test_model = get_alexnet_model()
+
+  project_name = "alexnet_cifar10"
   classification_tester = ClassificationTester(
-    "cifar10_test", test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
+    project_name, test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
   )
   classification_tester.test()
 
