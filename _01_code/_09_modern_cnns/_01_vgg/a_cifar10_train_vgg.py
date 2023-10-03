@@ -98,7 +98,7 @@ def main(args):
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
   model = get_vgg_model()
   model.to(device)
-  wandb.watch(model)
+  #wandb.watch(model)
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
@@ -115,4 +115,4 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnn/_01_vgg/a_cifar10_train_vgg.py --wandb --dropout -v 1 -w 0.002 -n 1
+  # python _01_code/_09_modern_cnns/_01_vgg/a_cifar10_train_vgg.py --wandb --dropout -v 1 -w 0.002 -n 1
