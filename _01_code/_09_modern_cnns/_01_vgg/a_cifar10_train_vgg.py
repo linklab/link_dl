@@ -19,7 +19,7 @@ sys.path.append(BASE_PATH)
 
 from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
+from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 
 
 def get_vgg_model():
@@ -115,5 +115,4 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_07_cnn/c_cifar10_train_cnn.py --wandb -b 2048 -r 1e-3 -v 10
-  # python _01_code/_07_cnn/c_cifar10_train_cnn.py --no-wandb -b 2048 -r 1e-3 -v 10
+  # python _01_code/_09_modern_cnn/_01_vgg/a_cifar10_train_vgg.py --wandb --dropout -v 1 -w 0.002 -n 1
