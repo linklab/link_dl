@@ -159,7 +159,7 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb --dropout -v 1 -w 0.002 -e 1000 -n 0
-  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb --dropout -v 1 -w 0.002 -e 1000 -n 1
-  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb --dropout -v 1 -w 0.002 -e 1000 -n 2
+  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb --dropout -v 1 -w 0.002 -n 0
+  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb --dropout -v 1 -w 0.002 -n 1
+  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb --dropout -v 1 -w 0.002 -n 2
 
