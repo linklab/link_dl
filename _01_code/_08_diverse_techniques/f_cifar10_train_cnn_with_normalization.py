@@ -102,7 +102,6 @@ def main(args):
     'epochs': args.epochs,
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
-    'print_epochs': args.print_epochs,
     'learning_rate': args.learning_rate,
     'weight_decay': args.weight_decay,
     'dropout': args.dropout,

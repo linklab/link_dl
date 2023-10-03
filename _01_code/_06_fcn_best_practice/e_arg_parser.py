@@ -17,10 +17,6 @@ def get_parser():
   )
 
   parser.add_argument(
-    "-p", "--print_epochs", type=int, default=100, help="Number of printing epochs interval (int, default:100)"
-  )
-
-  parser.add_argument(
     "-r", "--learning_rate", type=float, default=1e-3, help="Learning rate (float, default: 1e-3)"
   )
 
