@@ -1,5 +1,5 @@
 import torch
-from torch import optim, nn
+from torch import optim
 from datetime import datetime
 import os
 import wandb
@@ -30,21 +30,18 @@ def main(args):
     'validation_intervals': args.validation_intervals,
     'print_epochs': args.print_epochs,
     'learning_rate': args.learning_rate,
-    'weight_decay': args.weight_decay
   }
 
-  technique_name = "weight_decay_{0:.3f}".format(args.weight_decay)
+  optimizer_names = ["SGD", "Momentum", "RMSProp", "Adam"]
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-  name = "{0}_{1}".format(technique_name, run_time_str)
+  name = "{0}_{1}".format(optimizer_names[args.optimizer], run_time_str)
 
-  print(technique_name)
-
-  project_name = "cnn_cifar10_with_weight_decay"
+  project_name = "cnn_cifar10_with_diverse_optimizers"
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
-    notes="cifar10 experiment with cnn and weight_decay",
-    tags=["cnn", "cifar10", "weight_decay"],
+    notes="cifar10 experiment with cnn and diverse optimizers",
+    tags=["cnn", "cifar10", "diverse_optimizers"],
     name=name,
     config=config
   )
@@ -59,10 +56,17 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  optimizers = [
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate),
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9),
+    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate),
+    optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  ]
+
+  print("Optimizer:", optimizers[args.optimizer])
 
   classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer,
+    project_name, model, optimizers[args.optimizer],
     train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -75,7 +79,7 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/d_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -w 0.0
-  # python _01_code/_08_diverse_techniques/d_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -w 0.001
-  # python _01_code/_08_diverse_techniques/d_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -w 0.002
-  # python _01_code/_08_diverse_techniques/d_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -w 0.005
+  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 0 -v 1
+  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 1 -v 1
+  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 2 -v 1
+  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 3 -v 1
