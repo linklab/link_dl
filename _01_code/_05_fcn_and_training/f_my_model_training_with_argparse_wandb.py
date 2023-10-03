@@ -75,7 +75,8 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     with torch.no_grad():
       for validation_batch in validation_data_loader:
         output_validation = model(validation_batch['input'])
-        loss_validation += loss_fn(output_validation, validation_batch['target']).item()
+        loss = loss_fn(output_validation, validation_batch['target'])
+        loss_validation += loss.item()
         num_validations += 1
 
     wandb.log({
