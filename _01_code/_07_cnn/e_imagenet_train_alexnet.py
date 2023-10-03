@@ -162,7 +162,7 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,

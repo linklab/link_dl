@@ -79,5 +79,7 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_07_cnn/c_cifar10_train_cnn.py --wandb -b 2048 -r 1e-3 -v 10
-  # python _01_code/_07_cnn/c_cifar10_train_cnn.py --no-wandb -b 2048 -r 1e-3 -v 10
+  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 0 -v 1
+  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 1 -v 1
+  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 2 -v 1
+  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 3 -v 1
