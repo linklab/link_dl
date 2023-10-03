@@ -98,7 +98,7 @@ def main(args):
     'learning_rate': args.learning_rate,
   }
 
-  project_name = "alexnet_imagenet"
+  project_name = "alexnet_cifar10"
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
