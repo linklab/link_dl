@@ -12,15 +12,15 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._07_cnn.c_cifar10_train_cnn import get_cnn_model
 from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 from _01_code._06_fcn_best_practice.i_cifar10_test_fcn import get_cifar10_test_data
+from _01_code._09_modern_cnns._01_vgg.a_cifar10_train_vgg import get_vgg_model
 
 
 def main():
   cifar10_test_images, test_data_loader, cifar10_transforms = get_cifar10_test_data(flatten=False)
 
-  test_model = get_cnn_model()
+  test_model = get_vgg_model()
 
   project_name = "modern_cifar10"
   classification_tester = ClassificationTester(
