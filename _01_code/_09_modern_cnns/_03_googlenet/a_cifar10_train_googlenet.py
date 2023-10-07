@@ -22,44 +22,84 @@ from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 
 
-class Inception(nn.Module):
-  # c1--c4 are the number of output channels for each branch
-  def __init__(self, c1, c2, c3, c4, **kwargs):
-    super(Inception, self).__init__(**kwargs)
-    # Branch 1
-    self.b1_1 = nn.LazyConv2d(c1, kernel_size=1)
-    # Branch 2
-    self.b2_1 = nn.LazyConv2d(c2[0], kernel_size=1)
-    self.b2_2 = nn.LazyConv2d(c2[1], kernel_size=3, padding=1)
-    # Branch 3
-    self.b3_1 = nn.LazyConv2d(c3[0], kernel_size=1)
-    self.b3_2 = nn.LazyConv2d(c3[1], kernel_size=5, padding=2)
-    # Branch 4
-    self.b4_1 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-    self.b4_2 = nn.LazyConv2d(c4, kernel_size=1)
-
-  def forward(self, x):
-    b1 = torch.relu(self.b1_1(x))
-    b2 = torch.relu(self.b2_2(torch.relu(self.b2_1(x))))
-    b3 = torch.relu(self.b3_2(torch.relu(self.b3_1(x))))
-    b4 = torch.relu(self.b4_2(self.b4_1(x)))
-    return torch.cat((b1, b2, b3, b4), dim=1)
-
-
-class GoogleNet(nn.Module):
-  def __init__(self):
-    super().__init__()
-
-  def b1(self):
-    return nn.Sequential(
-      nn.LazyConv2d(64, kernel_size=7, stride=2, padding=3),
-      nn.ReLU(), nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
-
 def get_googlenet_model():
+  class Inception(nn.Module):
+    # c1--c4 are the number of output channels for each branch
+    def __init__(self, c1, c2, c3, c4, **kwargs):
+      super(Inception, self).__init__(**kwargs)
+      # Branch 1
+      self.b1_1 = nn.LazyConv2d(out_channels=c1, kernel_size=1)
+      # Branch 2
+      self.b2_1 = nn.LazyConv2d(out_channels=c2[0], kernel_size=1)
+      self.b2_2 = nn.LazyConv2d(out_channels=c2[1], kernel_size=3, padding=1)
+      # Branch 3
+      self.b3_1 = nn.LazyConv2d(out_channels=c3[0], kernel_size=1)
+      self.b3_2 = nn.LazyConv2d(out_channels=c3[1], kernel_size=5, padding=2)
+      # Branch 4
+      self.b4_1 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+      self.b4_2 = nn.LazyConv2d(out_channels=c4, kernel_size=1)
+
+    def forward(self, x):
+      b1 = torch.relu(self.b1_1(x))
+      b2 = torch.relu(self.b2_2(torch.relu(self.b2_1(x))))
+      b3 = torch.relu(self.b3_2(torch.relu(self.b3_1(x))))
+      b4 = torch.relu(self.b4_2(self.b4_1(x)))
+      return torch.cat((b1, b2, b3, b4), dim=1)
 
 
-  # 3 * 32 * 32
-  my_model = NiN(n_output=10)
+  class GoogleNet(nn.Module):
+    def __init__(self, lr=0.1, num_classes=10):
+      super(GoogleNet, self).__init__()
+      self.model = nn.Sequential(
+        self.b1(), self.b2(), self.b3(), self.b4(), self.b5(), nn.LazyLinear(num_classes)
+      )
+
+    def b1(self):
+      return nn.Sequential(
+        nn.LazyConv2d(out_channels=64, kernel_size=7, stride=2, padding=3),
+        nn.ReLU(),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+      )
+
+    def b2(self):
+      return nn.Sequential(
+        nn.LazyConv2d(out_channels=64, kernel_size=1),
+        nn.ReLU(),
+        nn.LazyConv2d(out_channels=192, kernel_size=3, padding=1),
+        nn.ReLU(),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+      )
+
+    def b3(self):
+      return nn.Sequential(
+        Inception(c1=64, c2=(96, 128), c3=(16, 32), c4=32),
+        Inception(c1=128, c2=(128, 192), c3=(32, 96), c4=64),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+      )
+
+    def b4(self):
+      return nn.Sequential(
+        Inception(c1=192, c2=(96, 208), c3=(16, 48), c4=64),
+        Inception(c1=160, c2=(112, 224), c3=(24, 64), c4=64),
+        Inception(c1=128, c2=(128, 256), c3=(24, 64), c4=64),
+        Inception(c1=112, c2=(144, 288), c3=(32, 64), c4=64),
+        Inception(c1=256, c2=(160, 320), c3=(32, 128), c4=128),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+      )
+
+    def b5(self):
+      return nn.Sequential(
+        Inception(c1=256, c2=(160, 320), c3=(32, 128), c4=128),
+        Inception(c1=384, c2=(192, 384), c3=(48, 128), c4=128),
+        nn.AdaptiveAvgPool2d((1, 1)),
+        nn.Flatten()
+      )
+
+    def forward(self, x):
+      x = self.model(x)
+      return x
+
+  my_model = GoogleNet()
 
   return my_model
 

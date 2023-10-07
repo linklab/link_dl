@@ -14,16 +14,16 @@ sys.path.append(BASE_PATH)
 
 from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 from _01_code._06_fcn_best_practice.i_cifar10_test_fcn import get_cifar10_test_data
-from _01_code._09_modern_cnns._03_googlenet.a_cifar10_train_googlenet import get_googlenet_model
+from _01_code._09_modern_cnns._04_resnet.a_cifar10_train_resnet import get_resnet_model
 
 def main():
   cifar10_test_images, test_data_loader, cifar10_transforms = get_cifar10_test_data(flatten=False)
 
-  test_model = get_googlenet_model()
+  test_model = get_resnet_model()
 
   project_name = "modern_cifar10"
   classification_tester = ClassificationTester(
-    project_name + "_googlenet", test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
+    project_name + "_resnet", test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
   )
   classification_tester.test()
 
