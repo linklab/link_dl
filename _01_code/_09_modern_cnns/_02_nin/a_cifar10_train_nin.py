@@ -25,9 +25,12 @@ from _01_code._09_modern_cnns.a_arg_parser import get_parser
 def get_nin_model():
   def nin_block(out_channels, kernel_size, strides, padding):
     block = nn.Sequential(
-      nn.LazyConv2d(out_channels, kernel_size, strides, padding), nn.ReLU(),
-      nn.LazyConv2d(out_channels, kernel_size=1), nn.ReLU(),
-      nn.LazyConv2d(out_channels, kernel_size=1), nn.ReLU()
+      nn.LazyConv2d(out_channels=out_channels, kernel_size=kernel_size, stride=strides, padding=padding),
+      nn.ReLU(),
+      nn.LazyConv2d(out_channels=out_channels, kernel_size=1),
+      nn.ReLU(),
+      nn.LazyConv2d(out_channels=out_channels, kernel_size=1),
+      nn.ReLU()
     )
     return block
 
@@ -37,11 +40,11 @@ def get_nin_model():
 
       self.model = nn.Sequential(
         nin_block(out_channels=96, kernel_size=3, strides=1, padding=1),
-        nn.MaxPool2d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=3, stride=2),
         nin_block(out_channels=256, kernel_size=3, strides=1, padding=1),
-        nn.MaxPool2d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=3, stride=2),
         nin_block(out_channels=384, kernel_size=3, strides=1, padding=1),
-        nn.MaxPool2d(kernel_size=2, stride=2),
+        nn.MaxPool2d(kernel_size=3, stride=2),
         nn.Dropout(0.5),
         nin_block(out_channels=n_output, kernel_size=3, strides=1, padding=1),
         nn.AdaptiveAvgPool2d((1, 1)),
@@ -52,7 +55,6 @@ def get_nin_model():
       x = self.model(x)
       return x
 
-  # 3 * 32 * 32
   my_model = NiN(n_output=10)
 
   return my_model
@@ -84,14 +86,16 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
+  train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(
+    flatten=False, resize_like_imagenet=True
+  )
   model = get_nin_model()
   model.to(device)
   #wandb.watch(model)
 
   from torchinfo import summary
   summary(
-    model=model, input_size=(1, 3, 32, 32),
+    model=model, input_size=(1, 3, 224, 224),
     col_names=["kernel_size", "input_size", "output_size", "num_params", "mult_adds"]
   )
 
