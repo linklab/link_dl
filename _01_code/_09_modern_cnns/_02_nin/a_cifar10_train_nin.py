@@ -19,7 +19,7 @@ sys.path.append(BASE_PATH)
 
 from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._08_diverse_techniques.a_arg_parser import get_parser
+from _01_code._09_modern_cnns.a_arg_parser import get_parser
 
 
 def get_nin_model():
@@ -95,7 +95,7 @@ def main(args):
     col_names=["kernel_size", "input_size", "output_size", "num_params", "mult_adds"]
   )
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
     project_name + "_nin", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,

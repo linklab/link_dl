@@ -19,7 +19,7 @@ sys.path.append(BASE_PATH)
 
 from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._08_diverse_techniques.a_arg_parser import get_parser
+from _01_code._09_modern_cnns.a_arg_parser import get_parser
 
 
 def get_googlenet_model():
@@ -48,10 +48,10 @@ def get_googlenet_model():
 
 
   class GoogleNet(nn.Module):
-    def __init__(self, lr=0.1, num_classes=10):
+    def __init__(self, n_outputs=10):
       super(GoogleNet, self).__init__()
       self.model = nn.Sequential(
-        self.b1(), self.b2(), self.b3(), self.b4(), self.b5(), nn.LazyLinear(num_classes)
+        self.b1(), self.b2(), self.b3(), self.b4(), self.b5(), nn.LazyLinear(n_outputs)
       )
 
     def b1(self):
@@ -128,7 +128,7 @@ def main(args):
   print(wandb.config)
 
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-  print(f"Traigooglenetg on device {device}.")
+  print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
   model = get_googlenet_model()
@@ -141,7 +141,7 @@ def main(args):
     col_names=["kernel_size", "input_size", "output_size", "num_params", "mult_adds"]
   )
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
     project_name + "_googlenet", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
