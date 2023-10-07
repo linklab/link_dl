@@ -99,10 +99,17 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  optimizers = [
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay),
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9, weight_decay=args.weight_decay),
+    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay),
+    optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  ]
+
+  print("Optimizer:", optimizers[args.optimizer])
 
   classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer,
+    project_name, model, optimizers[args.optimizer],
     train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -115,5 +122,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --dropout --wandb -v 1 -w 0.002
-  # python _01_code/_08_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --no-dropout --wandb -v 1 -w 0.002
+  # python _01_code/_08_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --wandb -v 1 -o 3 -w 0.002 --dropout
+  # python _01_code/_08_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --wandb -v 1 -o 3 -w 0.002 --no-dropout

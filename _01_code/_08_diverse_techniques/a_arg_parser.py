@@ -27,7 +27,7 @@ def get_parser():
 
   parser.add_argument(
     "-o", "--optimizer", type=int, default=0,
-    help="Optimizers (0: SGD, 1: Momentum, 2: RMSProp, 4: Adam, default: 0)"
+    help="Optimizers (0: SGD, 1: Momentum, 2: RMSProp, 3: Adam, default: 0)"
   )
 
   parser.add_argument(
