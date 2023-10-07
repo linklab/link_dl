@@ -21,18 +21,12 @@ from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 
 
-def get_cifar10_data(flatten=False, resize_like_imagenet=False):
+def get_cifar10_data(flatten=False):
   data_path = os.path.join(BASE_PATH, "_00_data", "i_cifar10")
 
   print("DATA PATH: {0}".format(data_path))
 
-  if resize_like_imagenet:
-    cifar10_train = datasets.CIFAR10(
-      data_path, train=True, download=True,
-      transform=transforms.Compose([transforms.ToTensor(), transforms.Resize(224, antialias=True)])
-    )
-  else:
-    cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=transforms.ToTensor())
+  cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=transforms.ToTensor())
 
   cifar10_train, cifar10_validation = random_split(cifar10_train, [45_000, 5_000])
 
