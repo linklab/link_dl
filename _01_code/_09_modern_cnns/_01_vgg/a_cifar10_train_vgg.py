@@ -108,7 +108,7 @@ def main(args):
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
   classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name + "_vgg", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()

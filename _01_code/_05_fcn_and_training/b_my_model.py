@@ -78,6 +78,7 @@ if __name__ == "__main__":
   print("#" * 50, 2)
 
   my_third_model = MyThirdModel(n_input=10, n_hidden_unit=20, n_output=3)
+
   for name, param in my_third_model.named_parameters():
     print(name, param.shape)
 

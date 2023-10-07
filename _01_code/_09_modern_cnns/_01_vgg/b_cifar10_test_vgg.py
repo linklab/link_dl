@@ -24,7 +24,7 @@ def main():
 
   project_name = "modern_cifar10"
   classification_tester = ClassificationTester(
-    project_name, test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
+    project_name + "_vgg", test_model, test_data_loader, cifar10_transforms, CHECKPOINT_FILE_PATH
   )
   classification_tester.test()
 
