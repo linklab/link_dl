@@ -98,7 +98,7 @@ def main(args):
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
   classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name + "_nin", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
@@ -110,4 +110,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnns/_02_nin/a_cifar10_train_nin.py --wandb -v 1 -w 0.002
+  # python _01_code/_09_modern_cnns/_02_nin/a_cifar10_train_nin.py --wandb -v 10
+
