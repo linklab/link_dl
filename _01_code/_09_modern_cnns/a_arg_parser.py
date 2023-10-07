@@ -9,7 +9,7 @@ def get_parser():
   )
 
   parser.add_argument(
-    "-b", "--batch_size", type=int, default=1_024, help="Batch size (int, default: 2_048)"
+    "-b", "--batch_size", type=int, default=2_048, help="Batch size (int, default: 2_048)"
   )
 
   parser.add_argument(
