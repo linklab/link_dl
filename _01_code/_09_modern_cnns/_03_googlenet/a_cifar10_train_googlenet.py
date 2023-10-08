@@ -17,9 +17,9 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 from _01_code._09_modern_cnns.a_arg_parser import get_parser
+from _01_code._09_modern_cnns._03_googlenet.b_googlenet_trainer import GoogLeNetClassificationTrainer
 
 
 def get_googlenet_model():
@@ -46,22 +46,48 @@ def get_googlenet_model():
       b4 = torch.relu(self.b4_2(self.b4_1(x)))
       return torch.cat((b1, b2, b3, b4), dim=1)
 
+  class InceptionAux(nn.Module):
+    def __init__(self, n_outputs, **kwargs):
+      super(InceptionAux, self).__init__(**kwargs)
+
+      self.conv = nn.Sequential(
+        #nn.AvgPool2d(kernel_size=5, stride=3),
+        nn.LazyConv2d(out_channels=128, kernel_size=1),
+      )
+
+      self.fc = nn.Sequential(
+        nn.LazyLinear(out_features=1024),
+        nn.ReLU(),
+        nn.Dropout(),
+        nn.LazyLinear(out_features=n_outputs),
+      )
+
+    def forward(self, x):
+      x = self.conv(x)
+      x = x.view(x.shape[0], -1)
+      x = self.fc(x)
+      return x
 
   class GoogleNet(nn.Module):
     def __init__(self, n_outputs=10):
       super(GoogleNet, self).__init__()
-      self.model = nn.Sequential(
-        self.b1(), self.b2(), self.b3(), self.b4(), self.b5(), nn.LazyLinear(n_outputs)
-      )
+      self.conv_block = nn.Sequential(self.conv_blk_1(), self.conv_blk_2())
+      self.inception_block_1 = self.inception_blk_1()
+      self.inception_block_2 = self.inception_blk_2()
+      self.inception_block_3 = self.inception_blk_3()
+      self.aux_1 = InceptionAux(n_outputs)
+      self.aux_2 = InceptionAux(n_outputs)
 
-    def b1(self):
+    def conv_blk_1(self):
+      # LocalRespNorm is ignored
       return nn.Sequential(
         nn.LazyConv2d(out_channels=64, kernel_size=7, stride=2, padding=3),
         nn.ReLU(),
         nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
       )
 
-    def b2(self):
+    def conv_blk_2(self):
+      # LocalRespNorm is ignored
       return nn.Sequential(
         nn.LazyConv2d(out_channels=64, kernel_size=1),
         nn.ReLU(),
@@ -70,25 +96,25 @@ def get_googlenet_model():
         nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
       )
 
-    def b3(self):
+    def inception_blk_1(self):
       return nn.Sequential(
         Inception(c1=64, c2=(96, 128), c3=(16, 32), c4=32),
         Inception(c1=128, c2=(128, 192), c3=(32, 96), c4=64),
-        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+        Inception(c1=192, c2=(96, 208), c3=(16, 48), c4=64),
       )
 
-    def b4(self):
+    def inception_blk_2(self):
       return nn.Sequential(
-        Inception(c1=192, c2=(96, 208), c3=(16, 48), c4=64),
         Inception(c1=160, c2=(112, 224), c3=(24, 64), c4=64),
         Inception(c1=128, c2=(128, 256), c3=(24, 64), c4=64),
         Inception(c1=112, c2=(144, 288), c3=(32, 64), c4=64),
-        Inception(c1=256, c2=(160, 320), c3=(32, 128), c4=128),
-        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
       )
 
-    def b5(self):
+    def inception_blk_3(self):
       return nn.Sequential(
+        Inception(c1=256, c2=(160, 320), c3=(32, 128), c4=128),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         Inception(c1=256, c2=(160, 320), c3=(32, 128), c4=128),
         Inception(c1=384, c2=(192, 384), c3=(48, 128), c4=128),
         nn.AdaptiveAvgPool2d((1, 1)),
@@ -96,8 +122,13 @@ def get_googlenet_model():
       )
 
     def forward(self, x):
-      x = self.model(x)
-      return x
+      x = self.conv_block(x)
+      inception_out_1 = self.inception_block_1(x)
+      aux_out_1 = self.aux_1(inception_out_1)
+      inception_out_2 = self.inception_block_2(inception_out_1)
+      aux_out_2 = self.aux_2(inception_out_2)
+      inception_out_3 = self.inception_block_3(inception_out_2)
+      return inception_out_3, aux_out_1, aux_out_2
 
   my_model = GoogleNet()
 
@@ -143,7 +174,7 @@ def main(args):
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
-  classification_trainer = ClassificationTrainer(
+  classification_trainer = GoogLeNetClassificationTrainer(
     project_name + "_googlenet", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
