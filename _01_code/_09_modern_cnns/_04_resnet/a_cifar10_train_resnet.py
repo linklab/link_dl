@@ -23,14 +23,14 @@ from _01_code._09_modern_cnns.a_arg_parser import get_parser
 
 
 def get_resnet_model():
-  class Residual(nn.Module):  #@save
+  class Residual(nn.Module):
     """The Residual block of ResNet models."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
-        self.conv1 = nn.LazyConv2d(num_channels, kernel_size=3, padding=1, stride=strides)
-        self.conv2 = nn.LazyConv2d(num_channels, kernel_size=3, padding=1)
+        self.conv1 = nn.LazyConv2d(out_channels=num_channels, kernel_size=3, padding=1, stride=strides)
+        self.conv2 = nn.LazyConv2d(out_channels=num_channels, kernel_size=3, padding=1)
         if use_1x1conv:
-            self.conv3 = nn.LazyConv2d(num_channels, kernel_size=1, stride=strides)
+            self.conv3 = nn.LazyConv2d(out_channels=num_channels, kernel_size=1, stride=strides)
         else:
             self.conv3 = None
         self.bn1 = nn.LazyBatchNorm2d()
@@ -46,9 +46,16 @@ def get_resnet_model():
 
 
   class ResNet(nn.Module):
-    def __init__(self, arch, num_classes=10):
+    def __init__(self, arch, n_outputs=10):
       super(ResNet, self).__init__()
-      self.model = nn.Sequential(self.b1())
+      self.model = nn.Sequential(
+        nn.Sequential(
+          nn.LazyConv2d(out_channels=64, kernel_size=7, stride=2, padding=3),
+          nn.LazyBatchNorm2d(),
+          nn.ReLU(),
+          nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        )
+      )
 
       for i, b in enumerate(arch):
         self.model.add_module(
@@ -58,32 +65,26 @@ def get_resnet_model():
       self.model.add_module(
         name='last',
         module=nn.Sequential(
-          nn.AdaptiveAvgPool2d((1, 1)), nn.Flatten(),
-          nn.LazyLinear(num_classes)
+          nn.AdaptiveAvgPool2d((1, 1)),
+          nn.Flatten(),
+          nn.LazyLinear(n_outputs)
         )
-      )
-
-    def b1(self):
-      return nn.Sequential(
-        nn.LazyConv2d(64, kernel_size=7, stride=2, padding=3),
-        nn.LazyBatchNorm2d(), nn.ReLU(),
-        nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
       )
 
     def block(self, num_residuals, num_channels, first_block=False):
       blk = []
       for i in range(num_residuals):
         if i == 0 and not first_block:
-          blk.append(Residual(num_channels, use_1x1conv=True, strides=2))
+          blk.append(Residual(num_channels=num_channels, use_1x1conv=True, strides=2))
         else:
-          blk.append(Residual(num_channels))
+          blk.append(Residual(num_channels=num_channels))
       return nn.Sequential(*blk)
 
     def forward(self, x):
       x = self.model(x)
       return x
 
-  my_model = ResNet(arch=((2, 64), (2, 128), (2, 256), (2, 512)), num_classes=10)
+  my_model = ResNet(arch=((2, 64), (2, 128), (2, 256), (2, 512)), n_outputs=10)
 
   return my_model
 

@@ -25,4 +25,9 @@ def get_parser():
     help="Number of training epochs between validations (int, default: 10)"
   )
 
+  parser.add_argument(
+    "-p", "--early_stop_patience", type=int, default=10,
+    help="Number of early stop patience (int, default: 10)"
+  )
+
   return parser

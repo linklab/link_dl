@@ -133,7 +133,9 @@ class ClassificationTrainer:
 
   def train_loop(self):
     early_stopping = EarlyStopping(
-      patience=10, project_name=self.project_name, checkpoint_file_path=self.checkpoint_file_path,
+      patience=self.wandb.config.early_stop_patience,
+      project_name=self.project_name,
+      checkpoint_file_path=self.checkpoint_file_path,
       run_time_str=self.run_time_str
     )
     n_epochs = self.wandb.config.epochs
