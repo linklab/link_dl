@@ -29,7 +29,8 @@ def main(args):
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
     'learning_rate': args.learning_rate,
-    'weight_decay': args.weight_decay
+    'early_stop_patience': args.early_stop_patience,
+    'weight_decay': args.weight_decay,
   }
 
   technique_name = "weight_decay_{0:.3f}".format(args.weight_decay)

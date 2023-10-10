@@ -26,6 +26,11 @@ def get_parser():
   )
 
   parser.add_argument(
+    "-p", "--early_stop_patience", type=int, default=10,
+    help="Number of early stop patience (int, default: 10)"
+  )
+
+  parser.add_argument(
     "-o", "--optimizer", type=int, default=0,
     help="Optimizers (0: SGD, 1: Momentum, 2: RMSProp, 3: Adam, default: 0)"
   )

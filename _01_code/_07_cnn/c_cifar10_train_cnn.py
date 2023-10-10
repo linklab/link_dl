@@ -63,6 +63,7 @@ def main(args):
     'batch_size': args.batch_size,
     'validation_intervals': args.validation_intervals,
     'learning_rate': args.learning_rate,
+    'early_stop_patience': args.early_stop_patience
   }
 
   project_name = "cnn_cifar10"
