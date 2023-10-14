@@ -2,15 +2,24 @@ import torch
 from torch import nn
 
 rnn_cell = nn.RNNCell(input_size=3, hidden_size=4)
-# sequence: 6, input: 3
+
+for name, parameter in rnn_cell.named_parameters():
+  print(name, parameter.shape)
+
+print("#" * 100)
+
+# sequence size (L): 6, input size (F): 3
 input = torch.randn(6, 3)
 
-# hidden: 4
+# hidden size: 4
 hx = torch.randn(4)
-output_seq = []
-for i in range(6):
+output = []
+for i in range(6):  # sequence size (L): 6
   hx = rnn_cell(input[i], hx)
-  output_seq.append(hx)
+  output.append(hx)
 
-for idx, output in enumerate(output_seq):
-  print(idx, output)
+for idx, out in enumerate(output):
+  print(idx, out)
+
+
+

@@ -1,12 +1,18 @@
 import os
+from pathlib import Path
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 
+BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
+import sys
+sys.path.append(BASE_PATH)
+
 
 class BikesDataset(Dataset):
   def __init__(self):
-    bikes_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "e_time-series-bike-sharing-dataset", "hour-fixed.csv")
+    bikes_path = os.path.join(BASE_PATH, "_00_data", "e_time-series-bike-sharing-dataset", "hour-fixed.csv")
 
     bikes_numpy = np.loadtxt(
       fname=bikes_path, dtype=np.float32, delimiter=",", skiprows=1,

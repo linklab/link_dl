@@ -2,7 +2,7 @@ import os
 import torch
 
 
-class ClassificationTester:
+class CustomRegressionTester:
   def __init__(self, project_name, model, test_data_loader, transforms, checkpoint_file_path):
     self.project_name = project_name
     self.model = model
@@ -25,28 +25,16 @@ class ClassificationTester:
 
     with torch.no_grad():
       for test_batch in self.test_data_loader:
-        input_test, target_test = test_batch
+        input_test = test_batch['input']
+        target_test = test_batch['target']
 
-        input_test = self.transforms(input_test)
+        if self.transforms:
+          input_test = self.transforms(input_test)
 
         output_test = self.model(input_test)
 
-        predicted_test = torch.argmax(output_test, dim=1)
-        num_corrects_test += torch.sum(torch.eq(predicted_test, target_test))
-
-        num_tested_samples += len(input_test)
-
-      test_accuracy = 100.0 * num_corrects_test / num_tested_samples
-
-    print(f"TEST RESULTS: {test_accuracy:6.3f}%")
-
-  def test_single(self, input_test):
-    self.model.eval()    # Explained at 'Diverse Techniques' section
-
-    with torch.no_grad():
-      input_test = self.transforms(input_test)
-
-      output_test = self.model(input_test)
-      predicted_test = torch.argmax(output_test, dim=1)
-
-    return predicted_test.item()
+        for output_daily, target_daily in zip(output_test, target_test):
+          for date, (output, target) in enumerate(zip(output_daily, target_daily)):
+            print("{0:2}: {1:6.2f} {2:6.2f} (Loss: {3:6.2f})".format(
+              date, output.item(), target.item(), (target.item() - output.item())
+            ))
