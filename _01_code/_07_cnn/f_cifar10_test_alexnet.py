@@ -14,7 +14,7 @@ sys.path.append(BASE_PATH)
 
 from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
 from _01_code._06_fcn_best_practice.i_cifar10_test_fcn import get_cifar10_test_data
-from _01_code._07_cnn.f_cifar10_train_alexnet import get_alexnet_model
+from _01_code._07_cnn.e_cifar10_train_alexnet import get_alexnet_model
 
 
 def main():
