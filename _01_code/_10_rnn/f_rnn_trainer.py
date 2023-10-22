@@ -29,8 +29,6 @@ class CustomRegressionTrainer:
     self.model.train()  # Explained at 'Diverse Techniques' section
 
     loss_train = 0.0
-    num_corrects_train = 0
-    num_trained_samples = 0
     num_trains = 0
 
     for train_batch in self.train_data_loader:
@@ -59,8 +57,6 @@ class CustomRegressionTrainer:
     self.model.eval()   # Explained at 'Diverse Techniques' section
 
     loss_validation = 0.0
-    num_corrects_validation = 0
-    num_validated_samples = 0
     num_validations = 0
 
     with torch.no_grad():

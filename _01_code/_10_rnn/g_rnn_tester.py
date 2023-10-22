@@ -1,7 +1,6 @@
 import os
 import torch
 
-
 class CustomRegressionTester:
   def __init__(self, project_name, model, test_data_loader, transforms, checkpoint_file_path):
     self.project_name = project_name
@@ -19,9 +18,6 @@ class CustomRegressionTester:
 
   def test(self):
     self.model.eval()    # Explained at 'Diverse Techniques' section
-
-    num_corrects_test = 0
-    num_tested_samples = 0
 
     with torch.no_grad():
       for test_batch in self.test_data_loader:
