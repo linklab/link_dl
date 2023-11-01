@@ -79,7 +79,7 @@ def main(args):
   print(args)
   print(wandb.config)
 
-  train_data_loader, validation_data_loader, test_data_loader = get_bikes_data(flatten=True)
+  train_data_loader, validation_data_loader, test_data_loader = get_bikes_data()
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 

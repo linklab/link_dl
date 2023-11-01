@@ -1,23 +1,13 @@
 import torch
 
-a = torch.tensor(3)
-b = torch.tensor([
-    [[3],
-     [4],
-     [5]]
-])
-c = torch.tensor([
-    [[[1], [3]]],
-    [[[4], [5]]]
-])
+x = torch.ones(3, requires_grad=True)
+y = x.clone()
+loss_1 = x - 2
+loss_2 = y - 2
+loss = loss_1 + loss_2
+loss_sum = loss.sum()
+loss_sum.backward()
+print(x.grad)
 
-print(a.shape, a.ndim)
-
-print(b.shape, b.ndim)
-
-print(c.shape, c.ndim)
-
-rnn_cell = torch.nn.RNNCell(input_size=3, hidden_size=4)
-input_data = torch.randn(size=(10, 3))
-ret = rnn_cell(input_data)
-print(ret.shape, "!!!")
+from torchviz import make_dot
+make_dot(loss_sum).render("torchviz_1", format="png")
