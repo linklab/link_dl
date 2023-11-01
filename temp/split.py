@@ -1,11 +1,16 @@
 import torch
-from torch.utils.data import random_split
+from torch import nn
 
-generator1 = torch.Generator().manual_seed(42)
-generator2 = torch.Generator().manual_seed(21)
+# Define the ReLU activation function
+relu = nn.ReLU()
 
-train_data, test_data = random_split(range(10), [7, 3], generator=generator1)
-print(list(train_data), list(test_data))
+# Initialize a weight that will cause the "Dying ReLU" problem
+weights = torch.tensor([-2.0, 0.5])  # Negative weights will lead to the problem
 
-train_data, validation_data, test_data = random_split(range(30), [0.7, 0.2, 0.1], generator=generator2)
-print(len(train_data), len(validation_data), len(test_data))
+# Define an input example
+input_data = torch.tensor([1.0, 1.0])
+
+# Calculate the output of the ReLU neuron
+output = relu(input_data * weights)
+
+print("Output of the ReLU neuron:", output)
