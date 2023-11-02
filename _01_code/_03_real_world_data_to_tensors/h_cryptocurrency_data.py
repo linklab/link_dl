@@ -1,93 +1,123 @@
-# https://towardsdatascience.com/cryptocurrency-price-prediction-using-deep-learning-70cfca50dd3a
-import json
-import requests
-import matplotlib.pyplot as plt
+# https://finance.yahoo.com/quote/BTC-KRW/history/
 import pandas as pd
-
-import os
 from pathlib import Path
-
+import os
 import numpy as np
+import torch
+import matplotlib.pyplot as plt
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
 sys.path.append(BASE_PATH)
 
 
-def get_hist():
-  endpoint = 'https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&limit=500'
-  res = requests.get(endpoint)
-  hist = pd.DataFrame(json.loads(res.content)['Data'])
-  columns = hist.columns
-  print([column for column in columns])
+btc_krw_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "k_cryptocurrency", "BTC_KRW.csv")
+df = pd.read_csv(btc_krw_path)
+print(df)
 
-  hist = hist.drop(columns=['conversionType', 'conversionSymbol'])
+row_size = len(df)
+print("row_size:", row_size)
 
-  hist = hist.set_index('time')
-  hist.index = pd.to_datetime(hist.index, unit='s')
-  return hist
+columns = df.columns  #['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+print([column for column in columns])
+date_list = df['Date']
+print(date_list)
+df = df.drop(columns=['Date'])
 
+print("#" * 100, 0)
 
-def split_df(df, validation_size=50, test_size=1):
-  validation_split_row_idx = len(df) - (validation_size + test_size)
-  test_split_row_idx = len(df) - test_size
+#################################################################################################
 
-  train_data = df.iloc[:validation_split_row_idx]
-  validation_data = df.iloc[validation_split_row_idx:test_split_row_idx]
-  test_data = df.iloc[test_split_row_idx:]
+sequence_size = 10
+validation_size = 100
+test_size = 10
 
-  return train_data, validation_data, test_data
+data_size = row_size - sequence_size
+print("data_size: {0}".format(data_size))
+train_size = data_size - (validation_size + test_size)
+print("train_size: {0}, validation_size: {1}, test_size: {2}".format(train_size, validation_size, test_size))
 
+print("#" * 100, 1)
 
-def line_plot(line1, line2, line3, label1=None, label2=None, label3=None, title='', lw=2):
-  fig, ax = plt.subplots(1, figsize=(13, 7))
-  ax.plot(line1, label=label1, linewidth=lw)
-  ax.plot(line2, label=label2, linewidth=lw)
-  ax.plot(line3, label=label3, linewidth=lw)
-  ax.set_ylabel('Bitcoin [USD]', fontsize=14)
-  ax.set_title(title, fontsize=16)
-  ax.legend(loc='best', fontsize=16)
-  plt.show()
+#################################################################################################
 
+row_cursor = 0
+y_normalizer = 1.0e7
 
-def normalise_min_max(df):
-  return (df - df.min()) / (df.max() - df.min())
+X_train_list = []
+y_train_list = []
+y_train_date = []
+for idx in range(0, train_size):
+  sequence_data = df.iloc[idx: idx + sequence_size].values
+  sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+  X_train_list.append(torch.from_numpy(sequence_data))
+  y_train_list.append(df.iloc[idx + sequence_size]["Close"])
+  y_train_date.append(date_list[idx + sequence_size])
+  row_cursor += 1
 
+X_train = torch.stack(X_train_list, dim=0)
+y_train = torch.Tensor(y_train_list) / y_normalizer
+m = X_train.mean(dim=0, keepdim=True)
+s = X_train.std(dim=0, unbiased=False, keepdim=True)
+X_train -= m
+X_train /= s
+print(X_train.shape, y_train.shape)
+print("Label - Start Date: {0} ~ End Date: {1}".format(y_train_date[0], y_train_date[-1]))
 
-def extract_window_data(df, window_len=5):
-  window_data = []
-  for idx in range(len(df) - window_len):
-    tmp = df[idx: (idx + window_len)].copy().to_numpy()
-    tmp = normalise_min_max(tmp)
-    window_data.append(tmp)
-  return np.array(window_data)
+print("#" * 100, 2)
 
+#################################################################################################
 
-def prepare_data(train_data, validation_data, test_data, target_col, window_len=10):
-  X_train = extract_window_data(train_data, window_len)
-  X_validation = extract_window_data(validation_data, window_len)
-  X_test = extract_window_data(test_data, window_len)
+X_validation_list = []
+y_validation_list = []
+y_validation_date = []
+for idx in range(row_cursor, row_cursor + validation_size):
+  sequence_data = df.iloc[idx: idx + sequence_size].values
+  sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+  X_validation_list.append(torch.from_numpy(sequence_data))
+  y_validation_list.append(df.iloc[idx + sequence_size]["Close"])
+  y_validation_date.append(date_list[idx + sequence_size])
+  row_cursor += 1
 
-  y_train = train_data[target_col][window_len:]
-  y_validation = validation_data[target_col][window_len]
-  y_test = test_data[target_col][window_len:]
+X_validation = torch.stack(X_validation_list, dim=0)
+y_validation = torch.Tensor(y_validation_list) / y_normalizer
+X_validation -= m
+X_validation /= s
+print(X_validation.shape, y_validation.shape)
+print("Label - Start Date: {0} ~ End Date: {1}".format(y_validation_date[0], y_validation_date[-1]))
 
-  print(X_train.shape, X_validation.shape, X_test.shape, "!!!")
-  print(y_train.shape, y_validation.shape, y_test.shape, "!!!")
-  return X_train, X_validation, X_test, y_train, y_validation, y_test
+print("#" * 100, 3)
 
+#################################################################################################
 
-if __name__ == "__main__":
-  target_col = 'close'
-  crypto_currency_df = get_hist()
-  print(len(crypto_currency_df))
+X_test_list = []
+y_test_list = []
+y_test_date = []
+for idx in range(row_cursor, row_cursor + test_size):
+  sequence_data = df.iloc[idx: idx + sequence_size].values
+  sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+  X_test_list.append(torch.from_numpy(sequence_data))
+  y_test_list.append(df.iloc[idx + sequence_size]["Close"])
+  y_test_date.append(date_list[idx + sequence_size])
+  row_cursor += 1
 
-  train_data, validation_data, test_data = split_df(crypto_currency_df, validation_size=50, test_size=1)
-  print(len(train_data), len(validation_data), len(test_data))
-  line_plot(
-    train_data[target_col], validation_data[target_col], test_data[target_col], 'train', 'validation', 'test', title=''
-  )
+X_test = torch.stack(X_test_list, dim=0)
+y_test = torch.Tensor(y_test_list) / y_normalizer
+X_test -= m
+X_test /= s
+print(X_test.shape, y_test.shape)
+print("Label - Start Date: {0} ~ End Date: {1}".format(y_test_date[0], y_test_date[-1]))
 
-  X_train, X_validation, X_test, y_train, y_validation, y_test = prepare_data(
-    train_data=train_data, validation_data=validation_data, test_data=test_data, target_col="close", window_len=10
-  )
+#######################################################################################
+
+fig, ax = plt.subplots(1, figsize=(13, 7))
+ax.plot(y_train_date, y_train * y_normalizer, label="y_train", linewidth=2)
+ax.plot(y_validation_date, y_validation * y_normalizer, label="y_validation", linewidth=2)
+ax.plot(y_test_date, y_test * y_normalizer, label="y_test", linewidth=2)
+ax.set_ylabel('Bitcoin [KRW]', fontsize=14)
+ax.set_xticks(ax.get_xticks()[::200])
+plt.ticklabel_format(style='plain', axis='y')
+plt.xticks(rotation=25)
+ax.legend(loc='upper left', fontsize=16)
+plt.show()
+

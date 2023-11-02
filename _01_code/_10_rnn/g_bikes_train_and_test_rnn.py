@@ -18,7 +18,6 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 from _01_code._03_real_world_data_to_tensors.m_time_series_dataset_dataloader import BikesDataset
 from _01_code._10_rnn.f_rnn_trainer import CustomRegressionTrainer
-from _01_code._10_rnn.g_rnn_tester import CustomRegressionTester
 
 
 def get_bikes_data():
@@ -103,10 +102,26 @@ def main(args):
 def test(project_name, test_data_loader):
   test_model = get_model()
 
-  classification_tester = CustomRegressionTester(
-    project_name, test_model, test_data_loader, None, CHECKPOINT_FILE_PATH
+  latest_file_path = os.path.join(
+    CHECKPOINT_FILE_PATH, f"{project_name}_checkpoint_latest.pt"
   )
-  classification_tester.test()
+  print("MODEL FILE: {0}".format(latest_file_path))
+  test_model.load_state_dict(torch.load(latest_file_path, map_location=torch.device('cpu')))
+
+  test_model.eval()
+
+  with torch.no_grad():
+    for test_batch in test_data_loader:
+      input_test = test_batch['input']
+      target_test = test_batch['target']
+
+      output_test = test_model(input_test)
+
+      for output_daily, target_daily in zip(output_test, target_test):
+        for date, (output, target) in enumerate(zip(output_daily, target_daily)):
+          print("{0:2}: {1:6.2f} <--> {2:6.2f} (Loss: {3:6.2f})".format(
+            date, output.item(), target.item(), (target.item() - output.item())
+          ))
 
 
 if __name__ == "__main__":
