@@ -1,7 +1,7 @@
 import torch
 from torch import nn, optim
 from torch.utils.data import random_split, DataLoader
-from _01_code._03_real_world_data_to_tensors.h_linear_regression_dataset_dataloader import LinearRegressionDataset
+from _01_code._03_real_world_data_to_tensors.i_linear_regression_dataset_dataloader import LinearRegressionDataset
 
 
 def get_data():

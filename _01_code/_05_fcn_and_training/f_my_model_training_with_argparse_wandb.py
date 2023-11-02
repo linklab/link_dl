@@ -11,7 +11,7 @@ BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Use
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._03_real_world_data_to_tensors.k_california_housing_dataset_dataloader \
+from _01_code._03_real_world_data_to_tensors.l_california_housing_dataset_dataloader \
   import CaliforniaHousingDataset
 
 

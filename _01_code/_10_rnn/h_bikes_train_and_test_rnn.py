@@ -16,7 +16,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
-from _01_code._03_real_world_data_to_tensors.l_time_series_dataset_dataloader import BikesDataset
+from _01_code._03_real_world_data_to_tensors.m_time_series_dataset_dataloader import BikesDataset
 from _01_code._10_rnn.f_rnn_trainer import CustomRegressionTrainer
 from _01_code._10_rnn.g_rnn_tester import CustomRegressionTester
 
