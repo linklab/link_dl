@@ -32,13 +32,14 @@ class CustomRegressionTrainer:
     num_trains = 0
 
     for train_batch in self.train_data_loader:
-      input_train = train_batch['input'].to(device=self.device)
-      target_train = train_batch['target'].to(device=self.device)
+      input_train, target_train = train_batch
+      input_train = input_train.to(device=self.device)
+      target_train = target_train.to(device=self.device)
 
       if self.transforms:
         input_train = self.transforms(input_train)
 
-      output_train = self.model(input_train)
+      output_train = self.model(input_train).squeeze(dim=-1)
 
       loss = self.loss_fn(output_train, target_train)
       loss_train += loss.item()
@@ -61,13 +62,14 @@ class CustomRegressionTrainer:
 
     with torch.no_grad():
       for validation_batch in self.validation_data_loader:
-        input_validation = validation_batch['input'].to(device=self.device)
-        target_validation = validation_batch['target'].to(device=self.device)
+        input_validation, target_validation = validation_batch
+        input_validation = input_validation.to(device=self.device)
+        target_validation = target_validation.to(device=self.device)
 
         if self.transforms:
           input_validation = self.transforms(input_validation)
 
-        output_validation = self.model(input_validation)
+        output_validation = self.model(input_validation).squeeze(dim=-1)
         loss_validation += self.loss_fn(output_validation, target_validation).item()
 
         num_validations += 1

@@ -80,9 +80,11 @@ class ClassificationTrainer:
       input_train = input_train.to(device=self.device)
       target_train = target_train.to(device=self.device)
 
-      input_train = self.transforms(input_train)
+      if self.transforms:
+        input_train = self.transforms(input_train)
 
       output_train = self.model(input_train)
+
       loss = self.loss_fn(output_train, target_train)
       loss_train += loss.item()
 
@@ -115,7 +117,8 @@ class ClassificationTrainer:
         input_validation = input_validation.to(device=self.device)
         target_validation = target_validation.to(device=self.device)
 
-        input_validation = self.transforms(input_validation)
+        if self.transforms:
+          input_validation = self.transforms(input_validation)
 
         output_validation = self.model(input_validation)
         loss_validation += self.loss_fn(output_validation, target_validation).item()
@@ -148,7 +151,7 @@ class ClassificationTrainer:
         validation_loss, validation_accuracy = self.do_validation()
 
         elapsed_time = datetime.now() - training_start_time
-        epoch_per_second = epoch / elapsed_time.seconds
+        epoch_per_second = 0 if elapsed_time.seconds == 0 else epoch / elapsed_time.seconds
 
         message, early_stop = early_stopping.check_and_save(validation_loss, self.model)
 

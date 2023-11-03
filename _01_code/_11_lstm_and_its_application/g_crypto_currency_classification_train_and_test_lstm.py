@@ -1,11 +1,11 @@
 import torch
 from torch import nn, optim
-from torch.utils.data import DataLoader
 from datetime import datetime
 import os
 import wandb
 from pathlib import Path
 
+from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
@@ -18,32 +18,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
-from _01_code._10_rnn.f_rnn_trainer import CustomRegressionTrainer
-from _01_code._03_real_world_data_to_tensors.n_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
-  CryptoCurrencyDataset
-
-
-def get_btc_krw_data():
-  X_train, X_validation, X_test, y_train, y_validation, y_test, y_train_date, y_validation_date, y_test_date \
-    = get_cryptocurrency_data(
-      sequence_size=10, validation_size=100, test_size=10, target_column='Close', y_normalizer=1.0e6
-  )
-
-  train_crypto_currency_dataset = CryptoCurrencyDataset(X=X_train, y=y_train)
-  validation_crypto_currency_dataset = CryptoCurrencyDataset(X=X_validation, y=y_validation)
-  test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)
-
-  train_data_loader = DataLoader(
-    dataset=train_crypto_currency_dataset, batch_size=32, shuffle=True, drop_last=True
-  )
-  validation_data_loader = DataLoader(
-    dataset=validation_crypto_currency_dataset, batch_size=32, shuffle=True, drop_last=True
-  )
-  test_data_loader = DataLoader(
-    dataset=test_crypto_currency_dataset, batch_size=len(test_crypto_currency_dataset), shuffle=True, drop_last=True
-  )
-
-  return train_data_loader, validation_data_loader, test_data_loader
+from _01_code._11_lstm_and_its_application.f_crypto_currency_regression_train_and_test_lstm import get_btc_krw_data
 
 
 def get_model():
@@ -60,7 +35,7 @@ def get_model():
       x = self.fcn(x)
       return x
 
-  my_model = MyModel(n_input=5, n_output=1)
+  my_model = MyModel(n_input=5, n_output=2)
 
   return my_model
 
@@ -76,19 +51,19 @@ def main(args):
     'early_stop_patience': args.early_stop_patience
   }
 
-  project_name = "lstm_btc_krw"
+  project_name = "lstm_classification_btc_krw"
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
     notes="btc_krw experiment with lstm",
-    tags=["lstm", "btc_krw"],
+    tags=["lstm", "classification", "btc_krw"],
     name=run_time_str,
     config=config
   )
   print(args)
   print(wandb.config)
 
-  train_data_loader, validation_data_loader, test_data_loader = get_btc_krw_data()
+  train_data_loader, validation_data_loader, test_data_loader = get_btc_krw_data(is_regression=False)
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
@@ -98,7 +73,7 @@ def main(args):
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
-  classification_trainer = CustomRegressionTrainer(
+  classification_trainer = ClassificationTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, None,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -120,21 +95,31 @@ def test(project_name, test_data_loader, y_normalizer=1.0e6):
 
   test_model.eval()
 
+  num_corrects_test = 0
+  num_tested_samples = 0
+
+  loss_fn = nn.CrossEntropyLoss()
+
+  print("[TEST DATA]")
   with torch.no_grad():
     for test_batch in test_data_loader:
-      input_test = test_batch['input']
-      target_test = test_batch['target']
+      input_test, target_test = test_batch
 
       output_test = test_model(input_test)
 
-      for predicted, real in zip(output_test, target_test):
-        for date, (output, target) in enumerate(zip(predicted, real)):
-          print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:6,.2f})".format(
-            date,
-            output.item() * y_normalizer,
-            target.item() * y_normalizer,
-            (target.item() - output.item()) * y_normalizer
-          ))
+      predicted_test = torch.argmax(output_test, dim=1)
+      num_corrects_test += torch.sum(torch.eq(predicted_test, target_test))
+
+      num_tested_samples += len(input_test)
+
+    test_accuracy = 100.0 * num_corrects_test / num_tested_samples
+
+    print(f"TEST RESULTS: {test_accuracy:6.3f}%")
+
+    for idx, (output, target) in enumerate(zip(output_test, target_test)):
+      print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:>13,.2f})".format(
+        idx, torch.argmax(output).item(), target.item(), loss_fn(output, target).item()
+      ))
 
 
 def only_test():
@@ -149,4 +134,4 @@ if __name__ == "__main__":
 
   # only_test()
 
-  # python _01_code/_11_lstm_and_its_application/f_crypto_currency_train_and_test_lstm.py -v 100
+  # python _01_code/_11_lstm_and_its_application/f_crypto_currency_classification_train_and_test_lstm.py --wandb -p 100 -r 0.00001
