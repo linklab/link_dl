@@ -5,8 +5,6 @@ import os
 import wandb
 from pathlib import Path
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
-
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
 sys.path.append(BASE_PATH)
@@ -17,6 +15,7 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
+from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
 from _01_code._11_lstm_and_its_application.f_crypto_currency_regression_train_and_test_lstm import get_btc_krw_data
 
@@ -134,4 +133,4 @@ if __name__ == "__main__":
 
   # only_test()
 
-  # python _01_code/_11_lstm_and_its_application/f_crypto_currency_classification_train_and_test_lstm.py --wandb -p 100 -r 0.00001
+  # python _01_code/_11_lstm_and_its_application/g_crypto_currency_classification_train_and_test_lstm.py --wandb -p 100 -r 0.00001
