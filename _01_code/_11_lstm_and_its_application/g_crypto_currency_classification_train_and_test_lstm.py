@@ -116,8 +116,8 @@ def test(project_name, test_data_loader, y_normalizer=1.0e6):
     print(f"TEST RESULTS: {test_accuracy:6.3f}%")
 
     for idx, (output, target) in enumerate(zip(output_test, target_test)):
-      print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:>13,.2f})".format(
-        idx, torch.argmax(output).item(), target.item(), loss_fn(output, target).item()
+      print("{0:2}: {1:6,.2f} <--> {2:6,.2f}".format(
+        idx, torch.argmax(output).item(), target.item()
       ))
 
 
