@@ -55,8 +55,7 @@ def get_augmented_cifar10_data():
   cifar10_transforms = nn.Sequential(
     transforms.ConvertImageDtype(torch.float),
     transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomRotation(10),
+    transforms.RandomCrop(32, padding=[0, 1, 2, 3, 4]),
     transforms.RandomAffine(0, shear=10, scale=(0.8, 1.2)),
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
     transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
