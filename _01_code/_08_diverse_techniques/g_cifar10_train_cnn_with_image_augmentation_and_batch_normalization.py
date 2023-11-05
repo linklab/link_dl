@@ -5,8 +5,10 @@ import os
 import wandb
 from pathlib import Path
 
-from torch.utils.data import random_split, DataLoader
+from torch.utils.data import random_split, DataLoader, TensorDataset, Dataset, ConcatDataset, IterableDataset
 from torchvision import datasets, transforms
+
+from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
@@ -36,6 +38,24 @@ def get_augmented_cifar10_data():
 
   cifar10_train, cifar10_validation = random_split(cifar10_train, [45_000, 5_000])
 
+  cifar10_train_transforms = nn.Sequential(
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomAffine(0, shear=10, scale=(0.8, 1.2)),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+  )
+
+  transformed_train_data = []
+  for image, label in cifar10_train:
+    transformed_image = cifar10_train_transforms(image)
+    transformed_train_data.append((transformed_image, label))
+
+  cifar10_train = ConcatDataset([cifar10_train, transformed_train_data])
+
+  for idx, data in enumerate(cifar10_train):
+    if idx % 100 == 0:
+      print(idx, data[0].shape, data[1])
+
   print("Num Train Samples: ", len(cifar10_train))
   print("Num Validation Samples: ", len(cifar10_validation))
 
@@ -57,14 +77,7 @@ def get_augmented_cifar10_data():
     transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
   )
 
-  cifar10_train_transforms = nn.Sequential(
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomAffine(0, shear=10, scale=(0.8, 1.2)),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
-  )
-
-  return train_data_loader, validation_data_loader, cifar10_transforms, cifar10_train_transforms
+  return train_data_loader, validation_data_loader, cifar10_transforms
 
 
 def main(args):
@@ -96,7 +109,7 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, cifar10_transforms, cifar10_transforms_train = get_augmented_cifar10_data()
+  train_data_loader, validation_data_loader, cifar10_transforms = get_augmented_cifar10_data()
 
   model = get_cnn_model_with_dropout_and_batch_normalization()
 
@@ -105,9 +118,9 @@ def main(args):
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
 
-  classification_trainer = ClassificationTrainerWithImageAugmentation(
+  classification_trainer = ClassificationTrainer(
     project_name, model, optimizer,
-    train_data_loader, validation_data_loader, cifar10_transforms, cifar10_transforms_train,
+    train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
