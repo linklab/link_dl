@@ -8,8 +8,6 @@ from pathlib import Path
 from torch.utils.data import random_split, DataLoader
 from torchvision import datasets, transforms
 
-from _01_code._08_diverse_techniques.h_trainer_with_image_augmentation import ClassificationTrainerWithImageAugmentation
-
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
 sys.path.append(BASE_PATH)
@@ -26,6 +24,7 @@ from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 from _01_code._08_diverse_techniques.f_cifar10_train_cnn_with_normalization import \
   get_cnn_model_with_dropout_and_batch_normalization
 from _01_code._99_common_utils.utils import get_num_cpu_cores, is_linux, is_windows
+from _01_code._08_diverse_techniques.h_trainer_with_image_augmentation import ClassificationTrainerWithImageAugmentation
 
 
 def get_augmented_cifar10_data():
