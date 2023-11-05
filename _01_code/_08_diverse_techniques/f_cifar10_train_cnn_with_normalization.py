@@ -44,7 +44,6 @@ def get_cnn_model_with_dropout_and_batch_normalization():
         nn.Flatten(),
         nn.Dropout(p=0.5),      # p: dropout probability
         nn.Linear(400, 128),
-        nn.BatchNorm1d(num_features=128),
         nn.ReLU(),
         nn.Dropout(p=0.5),      # p: dropout probability
         nn.Linear(128, n_output),
