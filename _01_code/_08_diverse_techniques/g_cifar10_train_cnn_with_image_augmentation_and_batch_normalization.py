@@ -54,7 +54,8 @@ def get_augmented_cifar10_data():
 
   cifar10_transforms = nn.Sequential(
     transforms.ConvertImageDtype(torch.float),
-    transforms.RandomHorizontalFlip(),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomCrop(32, padding=4),
     transforms.RandomRotation(10),
     transforms.RandomAffine(0, shear=10, scale=(0.8, 1.2)),
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
@@ -116,6 +117,6 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout -v 1
-  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --no-wandb --dropout -v 1
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout -w 0.002 -v 1
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --no-wandb --dropout -w 0.002 -v 1
 
