@@ -39,8 +39,7 @@ def get_augmented_cifar10_data():
 
   cifar10_train_transforms = nn.Sequential(
     transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomAffine(0, shear=10, scale=(0.8, 1.2)),
+    transforms.RandomCrop([32, 32], padding=4),
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
   )
 
@@ -50,10 +49,6 @@ def get_augmented_cifar10_data():
     transformed_train_data.append((transformed_image, label))
 
   cifar10_train = ConcatDataset([cifar10_train, transformed_train_data])
-
-  for idx, data in enumerate(cifar10_train):
-    if idx % 100 == 0:
-      print(idx, data[0].shape, data[1])
 
   print("Num Train Samples: ", len(cifar10_train))
   print("Num Validation Samples: ", len(cifar10_validation))
