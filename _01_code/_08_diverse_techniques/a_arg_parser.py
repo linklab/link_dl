@@ -48,4 +48,8 @@ def get_parser():
     help="Normalization (0: No Normalization, 1: BatchNorm, 2: LayerNorm, default: 0)"
   )
 
+  parser.add_argument(
+    "--augment", action=argparse.BooleanOptionalAction, default=False, help="Image Augment: True or False"
+  )
+
   return parser

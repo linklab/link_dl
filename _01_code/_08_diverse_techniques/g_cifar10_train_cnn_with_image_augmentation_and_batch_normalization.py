@@ -8,7 +8,6 @@ from pathlib import Path
 from torch.utils.data import random_split, DataLoader, ConcatDataset
 from torchvision import datasets, transforms
 
-
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
 sys.path.append(BASE_PATH)
@@ -23,9 +22,11 @@ sys.path.append(BASE_PATH)
 
 from _01_code._08_diverse_techniques.a_arg_parser import get_parser
 from _01_code._08_diverse_techniques.f_cifar10_train_cnn_with_normalization import \
-  get_cnn_model_with_dropout_and_batch_normalization
+  get_cnn_model_with_dropout_and_batch_normalization, get_cnn_model_with_dropout_and_layer_normalization
 from _01_code._99_common_utils.utils import get_num_cpu_cores, is_linux, is_windows
 from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
+from _01_code._08_diverse_techniques.e_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
 
 
 def get_augmented_cifar10_data():
@@ -82,18 +83,22 @@ def main(args):
     'learning_rate': args.learning_rate,
     'early_stop_patience': args.early_stop_patience,
     'weight_decay': args.weight_decay,
-    'dropout': args.dropout
+    'dropout': args.dropout,
+    'normalization': args.normalization,
+    'augment': args.augment,
   }
 
+  normalization_names = ["no_normalization", "batch_norm", "layer_norm"]
+  technique_name = "{0}".format(normalization_names[args.normalization])
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-  name = "image_augment_and_batch_norm_{0}".format(run_time_str)
+  name = "{0}_{1}".format(technique_name, run_time_str)
 
-  project_name = "cnn_cifar10_with_image_augment_and_batch_norm"
+  project_name = "cnn_cifar10_with_image_augment"
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
-    notes="cifar10 experiment with cnn, image_augment, and batch_norm",
-    tags=["cnn", "cifar10", "image_augment", "batch_norm"],
+    notes="cifar10 experiment with image_augment",
+    tags=["cnn", "cifar10", "image_augment"],
     name=name,
     config=config
   )
@@ -103,17 +108,34 @@ def main(args):
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, cifar10_transforms = get_augmented_cifar10_data()
+  if wandb.config.augment:
+    train_data_loader, validation_data_loader, cifar10_transforms = get_augmented_cifar10_data()
+  else:
+    train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
 
-  model = get_cnn_model_with_dropout_and_batch_normalization()
+  if args.normalization == 0:
+    model = get_cnn_model_with_dropout()
+  elif args.normalization == 1:
+    model = get_cnn_model_with_dropout_and_batch_normalization()
+  elif args.normalization == 2:
+    model = get_cnn_model_with_dropout_and_layer_normalization()
+  else:
+    raise ValueError()
 
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  optimizers = [
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay),
+    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9, weight_decay=args.weight_decay),
+    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay),
+    optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay)
+  ]
+
+  print("Optimizer:", optimizers[args.optimizer])
 
   classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer,
+    project_name, model, optimizers[args.optimizer],
     train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -126,6 +148,6 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout -w 0.002 -v 1
-  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --no-wandb --dropout -w 0.002 -v 1
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout --augment -v 1 -o 3 -w 0.002 -n 1
+  # python _01_code/_08_diverse_techniques/g_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout --no-augment -v 1 -o 3 -w 0.002 -n 1
 
