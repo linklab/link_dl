@@ -33,7 +33,7 @@ class DogCat2DImageDataset(Dataset):
     return len(self.images)
 
   def __getitem__(self, idx):
-    return {'input': self.images[idx], 'target': self.image_labels[idx]}
+    return self.images[idx], self.image_labels[idx]
 
   def __str__(self):
     str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
@@ -50,7 +50,8 @@ if __name__ == "__main__":
   print("#" * 50, 1)
 
   for idx, sample in enumerate(dog_cat_2d_image_dataset):
-    print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target']))
+    input, target = sample
+    print("{0} - {1}: {2}".format(idx, input.shape, target))
 
   train_dataset, test_dataset = random_split(dog_cat_2d_image_dataset, [0.7, 0.3])
 
@@ -67,4 +68,5 @@ if __name__ == "__main__":
   )
 
   for idx, batch in enumerate(train_data_loader):
-    print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target']))
+    input, target = batch
+    print("{0} - {1}: {2}".format(idx, input.shape, target))

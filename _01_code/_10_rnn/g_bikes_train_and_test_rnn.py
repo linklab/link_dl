@@ -112,8 +112,7 @@ def test(project_name, test_data_loader):
 
   with torch.no_grad():
     for test_batch in test_data_loader:
-      input_test = test_batch['input']
-      target_test = test_batch['target']
+      input_test, target_test = test_batch
 
       output_test = test_model(input_test)
 

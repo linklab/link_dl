@@ -61,8 +61,9 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     loss_train = 0.0
     num_trains = 0
     for train_batch in train_data_loader:
-      output_train = model(train_batch['input'])
-      loss = loss_fn(output_train, train_batch['target'])
+      input, target = train_batch
+      output_train = model(input)
+      loss = loss_fn(output_train, target)
       loss_train += loss.item()
       num_trains += 1
 
@@ -74,8 +75,9 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     num_validations = 0
     with torch.no_grad():
       for validation_batch in validation_data_loader:
-        output_validation = model(validation_batch['input'])
-        loss = loss_fn(output_validation, validation_batch['target'])
+        input, target = validation_batch
+        output_validation = model(input)
+        loss = loss_fn(output_validation, target)
         loss_validation += loss.item()
         num_validations += 1
 

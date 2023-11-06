@@ -39,7 +39,7 @@ class CustomRegressionTrainer:
       if self.transforms:
         input_train = self.transforms(input_train)
 
-      output_train = self.model(input_train).squeeze(dim=-1)
+      output_train = self.model(input_train)
 
       loss = self.loss_fn(output_train, target_train)
       loss_train += loss.item()
@@ -69,7 +69,8 @@ class CustomRegressionTrainer:
         if self.transforms:
           input_validation = self.transforms(input_validation)
 
-        output_validation = self.model(input_validation).squeeze(dim=-1)
+        output_validation = self.model(input_validation)
+
         loss_validation += self.loss_fn(output_validation, target_validation).item()
 
         num_validations += 1

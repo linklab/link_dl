@@ -19,7 +19,7 @@ class LinearRegressionDataset(Dataset):
     return len(self.x)
 
   def __getitem__(self, idx):
-    return {'input': self.x[idx], 'target': self.y[idx]}
+    return self.x[idx], self.y[idx]
 
   def __str__(self):
     str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
@@ -36,7 +36,8 @@ if __name__ == "__main__":
   print("#" * 50, 1)
 
   for idx, sample in enumerate(linear_regression_dataset):
-    print("{0} - {1}: {2}".format(idx, sample['input'], sample['target']))
+    input, target = sample
+    print("{0} - {1}: {2}".format(idx, input, target))
 
   train_dataset, validation_dataset, test_dataset = random_split(linear_regression_dataset, [0.7, 0.2, 0.1])
 
@@ -53,4 +54,5 @@ if __name__ == "__main__":
   )
 
   for idx, batch in enumerate(train_data_loader):
-    print("{0} - {1}: {2}".format(idx, batch['input'], batch['target']))
+    input, target = batch
+    print("{0} - {1}: {2}".format(idx, input, target))

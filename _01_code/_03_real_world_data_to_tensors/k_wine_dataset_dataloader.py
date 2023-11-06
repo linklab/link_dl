@@ -27,7 +27,7 @@ class WineDataset(Dataset):
   def __getitem__(self, idx):
     wine_feature = self.data[idx]
     wine_target = self.target[idx]
-    return {'input': wine_feature, 'target': wine_target}
+    return wine_feature, wine_target
 
   def __str__(self):
     str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
@@ -44,7 +44,8 @@ if __name__ == "__main__":
   print("#" * 50, 1)
 
   for idx, sample in enumerate(wine_dataset):
-    print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target'].shape))
+    input, target = sample
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
 
   train_dataset, validation_dataset, test_dataset = random_split(wine_dataset, [0.7, 0.2, 0.1])
 
@@ -62,4 +63,5 @@ if __name__ == "__main__":
   )
 
   for idx, batch in enumerate(train_data_loader):
-    print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))
+    input, target = batch
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))

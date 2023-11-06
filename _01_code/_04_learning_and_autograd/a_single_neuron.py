@@ -25,7 +25,7 @@ class SimpleDataset(Dataset):
     return len(self.X)
 
   def __getitem__(self, idx):
-    return {'input': self.X[idx], 'target': self.y[idx]}
+    return self.X[idx], self.y[idx]
 
   def __str__(self):
     str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
@@ -77,10 +77,11 @@ def learn(W, b, train_data_loader):
 
   for epoch in range(0, MAX_EPOCHS):
     batch = next(iter(train_data_loader))
-    y_pred = model(batch["input"], W, b)
-    loss = loss_fn(y_pred, batch["target"])
+    input, target = batch
+    y_pred = model(input, W, b)
+    loss = loss_fn(y_pred, target)
 
-    W_grad, b_grad = gradient(W, b, batch["input"], batch["target"])
+    W_grad, b_grad = gradient(W, b, input, target)
 
     if epoch % 100 == 0:
       print("[Epoch:{0:6,}] loss:{1:8.5f}, w0:{2:6.3f}, w1:{3:6.3f}, b:{4:6.3f}".format(
@@ -100,11 +101,13 @@ def main():
   train_data_loader = DataLoader(dataset=simple_dataset, batch_size=len(simple_dataset))
   batch = next(iter(train_data_loader))
 
-  y_pred = model(batch["input"], W, b)
+  input, target = batch
+
+  y_pred = model(input, W, b)
   print(y_pred.shape)
   print(y_pred)
 
-  loss = loss_fn(y_pred, batch["target"])
+  loss = loss_fn(y_pred, target)
   print(loss)
 
   learn(W, b, train_data_loader)

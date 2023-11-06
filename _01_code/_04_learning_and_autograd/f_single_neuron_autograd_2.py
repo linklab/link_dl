@@ -13,8 +13,11 @@ def learn(W, b, train_data_loader):
 
   for epoch in range(0, MAX_EPOCHS):
     batch = next(iter(train_data_loader))
-    y_pred = model(batch["input"], W, b)
-    loss = loss_fn(y_pred, batch["target"])
+
+    input, target = batch
+
+    y_pred = model(input, W, b)
+    loss = loss_fn(y_pred, target)
 
     loss.backward()
 

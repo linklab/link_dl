@@ -53,7 +53,7 @@ class BikesDataset(Dataset):
   def __getitem__(self, idx):
     bike_feature = self.daily_bikes_data[idx]
     bike_target = self.daily_bikes_target[idx]
-    return {'input': bike_feature, 'target': bike_target}
+    return bike_feature, bike_target
 
   def __str__(self):
     str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
@@ -69,7 +69,8 @@ if __name__ == "__main__":
   print("#" * 50, 1)
 
   for idx, sample in enumerate(bikes_dataset):
-    print("{0} - {1}: {2}".format(idx, sample['input'].shape, sample['target'].shape))
+    input, target = sample
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
 
   train_dataset, validation_dataset, test_dataset = random_split(bikes_dataset, [0.7, 0.2, 0.1])
 
@@ -87,4 +88,5 @@ if __name__ == "__main__":
   )
 
   for idx, batch in enumerate(train_data_loader):
-    print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))
+    input, target = batch
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
