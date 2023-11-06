@@ -88,7 +88,7 @@ def main(args):
     'augment': args.augment,
   }
 
-  if wandb.config.augment:
+  if args.augment:
     augment_name = "image_augment"
   else:
     augment_name = "no_image_augment"
