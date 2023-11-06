@@ -88,10 +88,13 @@ def main(args):
     'augment': args.augment,
   }
 
-  normalization_names = ["no_normalization", "batch_norm", "layer_norm"]
-  technique_name = "{0}".format(normalization_names[args.normalization])
+  if wandb.config.augment:
+    augment_name = "image_augment"
+  else:
+    augment_name = "no_image_augment"
+
   run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
-  name = "{0}_{1}".format(technique_name, run_time_str)
+  name = "{0}_{1}".format(augment_name, run_time_str)
 
   project_name = "cnn_cifar10_with_image_augment"
   wandb.init(
