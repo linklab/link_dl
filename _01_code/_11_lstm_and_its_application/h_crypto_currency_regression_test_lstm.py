@@ -28,7 +28,7 @@ def test_main(test_model):
   test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)
 
   test_data_loader = DataLoader(
-    dataset=test_crypto_currency_dataset, batch_size=len(test_crypto_currency_dataset), shuffle=True
+    dataset=test_crypto_currency_dataset, batch_size=len(test_crypto_currency_dataset)
   )
 
   test_model.eval()
@@ -44,9 +44,7 @@ def test_main(test_model):
       input_test, target_test = test_batch
 
       output_test = test_model(input_test)
-      loss_test += loss_fn(output_test.squeeze(dim=-1), target_test).item()
 
-    print("Test Loss: {0:>13,.2f}".format(loss_test * y_normalizer))
     for idx, (output, target) in enumerate(zip(output_test, target_test)):
       print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:>13,.2f})".format(
         idx,

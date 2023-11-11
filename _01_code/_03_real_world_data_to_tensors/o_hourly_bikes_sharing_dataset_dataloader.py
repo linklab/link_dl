@@ -33,7 +33,6 @@ class HourlyBikesDataset(Dataset):
 
 
 def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_normalizer=100):
-
   bikes_path = os.path.join(BASE_PATH, "_00_data", "e_time-series-bike-sharing-dataset", "hour-fixed.csv")
 
   bikes_numpy = np.loadtxt(
@@ -42,8 +41,7 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
       1: lambda x: float(x[8:10])  # 2011-01-07 --> 07 --> 7
     }
   )
-  bikes_data = torch.from_numpy(bikes_numpy).to(torch.float)
-  print(bikes_data.shape, "!!!")  # >>> torch.Size([17520, 17])
+  bikes_data = torch.from_numpy(bikes_numpy).to(torch.float) # >>> torch.Size([17520, 17])
   bikes_target = bikes_data[:, -1].unsqueeze(dim=-1)  # 'cnt'
   bikes_data = bikes_data[:, :-1]  # >>> torch.Size([17520, 16])
 
@@ -58,6 +56,7 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
 
   bikes_data = torch.stack(data_torch_list, dim=0)
   bikes_data = torch.cat([bikes_data[:, 1:9], bikes_data[:, 10:]], dim=-1)
+  print(bikes_data.shape, "!!!")  # >>> torch.Size([17520, 18])
 
   data_size = len(bikes_data) - sequence_size
   train_size = data_size - (validation_size + test_size)
@@ -126,6 +125,8 @@ if __name__ == "__main__":
     sequence_size=24, validation_size=96, test_size=24, y_normalizer=100
   )
 
+  print("Train: {0}, Validation: {1}, Test: {2}".format(len(X_train), len(X_validation), len(X_test)))
+
   train_hourly_bikes_dataset = HourlyBikesDataset(X=X_train, y=y_train)
   validation_hourly_bikes_dataset = HourlyBikesDataset(X=X_validation, y=y_validation)
   test_houly_bikes_dataset = HourlyBikesDataset(X=X_test, y=y_test)
@@ -134,6 +135,6 @@ if __name__ == "__main__":
     dataset=train_hourly_bikes_dataset, batch_size=32, shuffle=True, drop_last=True
   )
 
-  for idx, batch in enumerate(train_data_loader):
-    input, target = batch
-    print("{0} - {1}: {2}, {3}".format(idx, input.shape, target.shape, target))
+  # for idx, batch in enumerate(train_data_loader):
+  #   input, target = batch
+  #   print("{0} - {1}: {2}, {3}".format(idx, input.shape, target.shape, target))

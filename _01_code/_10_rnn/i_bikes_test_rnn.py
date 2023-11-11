@@ -15,7 +15,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from _01_code._03_real_world_data_to_tensors.o_hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, HourlyBikesDataset
-from _01_code._10_rnn.h_bikes_train_rnn import get_model, get_train_bikes_data
+from _01_code._10_rnn.h_bikes_train_rnn import get_model
 
 
 def test_main(test_model):
@@ -26,14 +26,11 @@ def test_main(test_model):
   test_hourly_bikes_dataset = HourlyBikesDataset(X=X_test, y=y_test)
 
   test_data_loader = DataLoader(
-    dataset=test_hourly_bikes_dataset, batch_size=len(test_hourly_bikes_dataset), shuffle=True
+    dataset=test_hourly_bikes_dataset, batch_size=len(test_hourly_bikes_dataset)
   )
 
   test_model.eval()
 
-  loss_fn = nn.MSELoss()
-
-  loss_test = 0.0
   y_normalizer = 100
 
   print("[TEST DATA]")
@@ -42,15 +39,13 @@ def test_main(test_model):
       input_test, target_test = test_batch
 
       output_test = test_model(input_test)
-      loss_test += loss_fn(output_test.squeeze(dim=-1), target_test).item()
 
-    print("Test Loss: {0:>13,.2f}".format(loss_test * y_normalizer))
     for idx, (output, target) in enumerate(zip(output_test, target_test)):
       print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:>13,.2f})".format(
         idx,
-        output.item() * y_normalizer,
+        round(output.item() * y_normalizer),
         target.item() * y_normalizer,
-        abs(output.squeeze(dim=-1).item() - target.item()) * y_normalizer
+        abs(round(output.item() * y_normalizer) - target.item() * y_normalizer)
       ))
 
 
@@ -84,7 +79,7 @@ def predict_all(test_model):
 
       X.append(num)
       TARGET_Y.append(target.item() * y_normalizer)
-      PREDICTION_Y.append(prediction.item() * y_normalizer)
+      PREDICTION_Y.append(round(prediction.item() * y_normalizer))
 
       num += 1
 

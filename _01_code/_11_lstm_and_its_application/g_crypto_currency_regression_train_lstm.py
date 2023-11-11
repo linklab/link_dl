@@ -108,53 +108,9 @@ def main(args):
 
   wandb.finish()
 
-  test(project_name, test_data_loader)
-
-
-def test(project_name, test_data_loader):
-  test_model = get_model()
-
-  latest_file_path = os.path.join(
-    CHECKPOINT_FILE_PATH, f"{project_name}_checkpoint_latest.pt"
-  )
-  print("MODEL FILE: {0}".format(latest_file_path))
-  test_model.load_state_dict(torch.load(latest_file_path, map_location=torch.device('cpu')))
-
-  test_model.eval()
-
-  loss_fn = nn.MSELoss()
-
-  loss_test = 0.0
-  y_normalizer = 1.0e7
-
-  print("[TEST DATA]")
-  with torch.no_grad():
-    for test_batch in test_data_loader:
-      input_test, target_test = test_batch
-
-      output_test = test_model(input_test).squeeze(dim=-1)
-      loss_test += loss_fn(output_test, target_test).item()
-
-    print("Test Loss: {0:>13,.2f}".format(loss_test * y_normalizer))
-    for idx, (output, target) in enumerate(zip(output_test, target_test)):
-      print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:>13,.2f})".format(
-        idx,
-        output.item() * y_normalizer,
-        target.item() * y_normalizer,
-        loss_fn(output, target).item() * y_normalizer
-      ))
-
-
-def only_test():
-  _, _, test_data_loader = get_btc_krw_data()
-  test(project_name="lstm_btc_krw", test_data_loader=test_data_loader)
-
-
 if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
 
-  # only_test()
-
-  # python _01_code/_11_lstm_and_its_application/f_crypto_currency_regression_train_and_test_lstm.py --wandb -p 100 -r 0.00001
+  # python _01_code/_11_lstm_and_its_application/f_crypto_currency_regression_train_lstm.py --wandb

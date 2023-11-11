@@ -21,21 +21,6 @@ from _01_code._10_rnn.f_arg_parser import get_parser
 
 
 def get_train_bikes_data():
-  bikes_dataset = HourlyBikesDataset()
-  print(bikes_dataset)
-
-  bikes_train, bikes_validation = random_split(bikes_dataset, [0.8, 0.2])
-
-  print("Num Train Samples: ", len(bikes_train))
-  print("Num Validation Samples: ", len(bikes_validation))
-
-  train_data_loader = DataLoader(dataset=bikes_train, batch_size=wandb.config.batch_size, shuffle=True)
-  validation_data_loader = DataLoader(dataset=bikes_validation, batch_size=wandb.config.batch_size)
-
-  return train_data_loader, validation_data_loader
-
-
-def get_train_bikes_data():
   X_train, X_validation, X_test, y_train, y_validation, y_test = get_hourly_bikes_data(
       sequence_size=24, validation_size=96, test_size=24, y_normalizer=100
   )
@@ -51,6 +36,7 @@ def get_train_bikes_data():
   )
 
   return train_data_loader, validation_data_loader
+
 
 def get_model():
   class MyModel(nn.Module):
@@ -119,4 +105,4 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_10_rnn/h_bikes_train_and_test_rnn.py -v 100
+  # python _01_code/_10_rnn/h_bikes_train_rnn.py -v 100
