@@ -16,7 +16,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 
 from _01_code._03_real_world_data_to_tensors.o_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
   CryptoCurrencyDataset
-from _01_code._11_lstm_and_its_application.h_crypto_currency_classification_train_lstm import get_model
+from _01_code._11_lstm_and_its_application.i_crypto_currency_classification_train_lstm import get_model
 
 
 def test_main(test_model):

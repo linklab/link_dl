@@ -17,7 +17,7 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
-from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
+from _01_code._11_lstm_and_its_application.f_arg_parser import get_parser
 from _01_code._10_rnn.g_rnn_trainer import RegressionTrainer
 from _01_code._03_real_world_data_to_tensors.o_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
   CryptoCurrencyDataset
