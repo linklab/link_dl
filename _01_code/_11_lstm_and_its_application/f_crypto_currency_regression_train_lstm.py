@@ -18,8 +18,8 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
-from _01_code._10_rnn.f_rnn_trainer import CustomRegressionTrainer
-from _01_code._03_real_world_data_to_tensors.n_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
+from _01_code._10_rnn.g_rnn_trainer import RegressionTrainer
+from _01_code._03_real_world_data_to_tensors.o_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
   CryptoCurrencyDataset
 
 
@@ -99,7 +99,7 @@ def main(args):
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
-  regression_trainer = CustomRegressionTrainer(
+  regression_trainer = RegressionTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, None,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
@@ -107,10 +107,10 @@ def main(args):
 
   wandb.finish()
 
-  test(project_name, test_data_loader, device=device)
+  test(project_name, test_data_loader)
 
 
-def test(project_name, test_data_loader, y_normalizer=1.0e6):
+def test(project_name, test_data_loader):
   test_model = get_model()
 
   latest_file_path = os.path.join(
@@ -124,6 +124,7 @@ def test(project_name, test_data_loader, y_normalizer=1.0e6):
   loss_fn = nn.MSELoss()
 
   loss_test = 0.0
+  y_normalizer = 1.0e6
 
   print("[TEST DATA]")
   with torch.no_grad():

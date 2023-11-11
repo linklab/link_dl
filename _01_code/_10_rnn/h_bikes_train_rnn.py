@@ -15,27 +15,42 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
-from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
-from _01_code._03_real_world_data_to_tensors.m_time_series_dataset_dataloader import BikesDataset
-from _01_code._10_rnn.f_rnn_trainer import CustomRegressionTrainer
+from _01_code._03_real_world_data_to_tensors.n_bikes_dataset_dataloader import get_hourly_bikes_data, HourlyBikesDataset
+from _01_code._10_rnn.g_rnn_trainer import RegressionTrainer
+from _01_code._10_rnn.f_arg_parser import get_parser
 
 
-def get_bikes_data():
-  bikes_dataset = BikesDataset()
+def get_train_bikes_data():
+  bikes_dataset = HourlyBikesDataset()
   print(bikes_dataset)
 
-  bikes_train, bikes_validation, bikes_test = random_split(bikes_dataset, [0.7, 0.2, 0.1])
+  bikes_train, bikes_validation = random_split(bikes_dataset, [0.8, 0.2])
 
   print("Num Train Samples: ", len(bikes_train))
   print("Num Validation Samples: ", len(bikes_validation))
-  print("Num Test Samples: ", len(bikes_test))
 
   train_data_loader = DataLoader(dataset=bikes_train, batch_size=wandb.config.batch_size, shuffle=True)
   validation_data_loader = DataLoader(dataset=bikes_validation, batch_size=wandb.config.batch_size)
-  test_data_loader = DataLoader(dataset=bikes_test, batch_size=wandb.config.batch_size)
 
-  return train_data_loader, validation_data_loader, test_data_loader
+  return train_data_loader, validation_data_loader
 
+
+def get_train_bikes_data():
+  X_train, X_validation, X_test, y_train, y_validation, y_test = get_hourly_bikes_data(
+      sequence_size=24, validation_size=96, test_size=24, y_normalizer=100
+  )
+
+  train_hourly_bikes_dataset = HourlyBikesDataset(X=X_train, y=y_train)
+  validation_hourly_bikes_dataset = HourlyBikesDataset(X=X_validation, y=y_validation)
+
+  train_data_loader = DataLoader(
+    dataset=train_hourly_bikes_dataset, batch_size=wandb.config.batch_size, shuffle=True
+  )
+  validation_data_loader = DataLoader(
+    dataset=validation_hourly_bikes_dataset, batch_size=wandb.config.batch_size, shuffle=True
+  )
+
+  return train_data_loader, validation_data_loader
 
 def get_model():
   class MyModel(nn.Module):
@@ -47,10 +62,11 @@ def get_model():
 
     def forward(self, x):
       x, hidden = self.rnn(x)
+      x = x[:, -1, :]  # x.shape: [32, 128]
       x = self.fcn(x)
       return x
 
-  my_model = MyModel(n_input=19, n_output=1)
+  my_model = MyModel(n_input=20, n_output=1)
 
   return my_model
 
@@ -78,7 +94,8 @@ def main(args):
   print(args)
   print(wandb.config)
 
-  train_data_loader, validation_data_loader, test_data_loader = get_bikes_data()
+  train_data_loader, validation_data_loader = get_train_bikes_data()
+
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
@@ -88,39 +105,13 @@ def main(args):
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
-  classification_trainer = CustomRegressionTrainer(
+  classification_trainer = RegressionTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, None,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
 
   wandb.finish()
-
-  test(project_name, test_data_loader)
-
-
-def test(project_name, test_data_loader):
-  test_model = get_model()
-
-  latest_file_path = os.path.join(
-    CHECKPOINT_FILE_PATH, f"{project_name}_checkpoint_latest.pt"
-  )
-  print("MODEL FILE: {0}".format(latest_file_path))
-  test_model.load_state_dict(torch.load(latest_file_path, map_location=torch.device('cpu')))
-
-  test_model.eval()
-
-  with torch.no_grad():
-    for test_batch in test_data_loader:
-      input_test, target_test = test_batch
-
-      output_test = test_model(input_test)
-
-      for output_daily, target_daily in zip(output_test, target_test):
-        for date, (output, target) in enumerate(zip(output_daily, target_daily)):
-          print("{0:2}: {1:6.2f} <--> {2:6.2f} (Loss: {3:6.2f})".format(
-            date, output.item(), target.item(), (target.item() - output.item())
-          ))
 
 
 if __name__ == "__main__":

@@ -11,7 +11,10 @@ sys.path.append(BASE_PATH)
 
 
 class BikesDataset(Dataset):
-  def __init__(self):
+  def __init__(self, train=True, test_days=1):
+    self.train = train
+    self.test_days = test_days
+
     bikes_path = os.path.join(BASE_PATH, "_00_data", "e_time-series-bike-sharing-dataset", "hour-fixed.csv")
 
     bikes_numpy = np.loadtxt(
@@ -41,52 +44,89 @@ class BikesDataset(Dataset):
       [self.daily_bikes_data[:, :, :9], self.daily_bikes_data[:, :, 10:]], dim=2
     )
 
-    temperatures = self.daily_bikes_data[:, :, 9]
-    self.daily_bikes_data[:, :, 9] = \
-      (self.daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
+    total_length = len(self.daily_bikes_data)
+    self.train_bikes_data = self.daily_bikes_data[:total_length - test_days]
+    self.train_bikes_targets = self.daily_bikes_target[:total_length - test_days]
+    train_temperatures = self.train_bikes_data[:, :, 9]
+    train_temperatures_mean = torch.mean(train_temperatures)
+    train_temperatures_std = torch.std(train_temperatures)
+    self.train_bikes_data[:, :, 9] = \
+      (self.train_bikes_data[:, :, 9] - torch.mean(train_temperatures_mean)) / torch.std(train_temperatures_std)
 
-    assert len(self.daily_bikes_data) == len(self.daily_bikes_target)
+    assert len(self.train_bikes_data) == len(self.train_bikes_targets)
+
+    self.test_bikes_data = self.daily_bikes_data[-test_days:]
+    self.test_bikes_targets = self.daily_bikes_target[-test_days:]
+
+    self.test_bikes_data[:, :, 9] = \
+      (self.test_bikes_data[:, :, 9] - torch.mean(train_temperatures_mean)) / torch.std(train_temperatures_std)
+
+    assert len(self.test_bikes_data) == len(self.test_bikes_targets)
 
   def __len__(self):
-    return len(self.daily_bikes_data)
+    return len(self.train_bikes_data) if self.train is True else len(self.test_bikes_data)
 
   def __getitem__(self, idx):
-    bike_feature = self.daily_bikes_data[idx]
-    bike_target = self.daily_bikes_target[idx]
+    bike_feature = self.train_bikes_data[idx] if self.train is True else self.test_bikes_data[idx]
+    bike_target = self.train_bikes_targets[idx] if self.train is True else self.test_bikes_targets[idx]
     return bike_feature, bike_target
 
   def __str__(self):
-    str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
-      len(self.daily_bikes_data), self.daily_bikes_data.shape, self.daily_bikes_target.shape
-    )
+    if self.train is True:
+      str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
+        len(self.train_bikes_data), self.train_bikes_data.shape, self.train_bikes_targets.shape
+      )
+    else:
+      str = "Data Size: {0}, Input Shape: {1}, Target Shape: {2}".format(
+        len(self.test_bikes_data), self.test_bikes_data.shape, self.test_bikes_targets.shape
+      )
     return str
 
 
 if __name__ == "__main__":
-  bikes_dataset = BikesDataset()
-  print(bikes_dataset)
+  train_bikes_dataset = BikesDataset(train=True, test_days=1)
+  print(train_bikes_dataset)
 
   print("#" * 50, 1)
 
-  for idx, sample in enumerate(bikes_dataset):
+  train_dataset, validation_dataset = random_split(train_bikes_dataset, [0.8, 0.2])
+
+  print("[TRAIN]")
+  for idx, sample in enumerate(train_dataset):
     input, target = sample
     print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
 
-  train_dataset, validation_dataset, test_dataset = random_split(bikes_dataset, [0.7, 0.2, 0.1])
+  train_data_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=True, drop_last=True)
+
+  for idx, batch in enumerate(train_data_loader):
+    input, target = batch
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
 
   print("#" * 50, 2)
 
-  print(len(train_dataset), len(validation_dataset), len(test_dataset))
+  print("[VALIDATION]")
+  for idx, sample in enumerate(validation_dataset):
+    input, target = sample
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
+
+  validation_data_loader = DataLoader(dataset=validation_dataset, batch_size=32)
+
+  for idx, batch in enumerate(validation_data_loader):
+    input, target = batch
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
 
   print("#" * 50, 3)
 
-  train_data_loader = DataLoader(
-    dataset=train_dataset,
-    batch_size=32,
-    shuffle=True,
-    drop_last=True
-  )
+  test_dataset = BikesDataset(train=False, test_days=1)
+  print(test_dataset)
 
-  for idx, batch in enumerate(train_data_loader):
+  print("[TEST]")
+  for idx, sample in enumerate(test_dataset):
+    input, target = sample
+    print("{0} - {1}: {2}".format(idx, input.shape, target.shape))
+
+  test_data_loader = DataLoader(dataset=test_dataset, batch_size=len(test_dataset))
+
+  for idx, batch in enumerate(test_data_loader):
     input, target = batch
     print("{0} - {1}: {2}".format(idx, input.shape, target.shape))

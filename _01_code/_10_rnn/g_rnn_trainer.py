@@ -6,7 +6,7 @@ from _01_code._06_fcn_best_practice.c_trainer import EarlyStopping
 from _01_code._99_common_utils.utils import strfdelta
 
 
-class CustomRegressionTrainer:
+class RegressionTrainer:
   def __init__(
     self, project_name, model, optimizer, train_data_loader, validation_data_loader, transforms,
     run_time_str, wandb, device, checkpoint_file_path
@@ -41,7 +41,8 @@ class CustomRegressionTrainer:
 
       output_train = self.model(input_train)
 
-      loss = self.loss_fn(output_train, target_train)
+      loss = self.loss_fn(output_train.squeeze(dim=-1), target_train)
+
       loss_train += loss.item()
 
       num_trains += 1
@@ -71,7 +72,7 @@ class CustomRegressionTrainer:
 
         output_validation = self.model(input_validation)
 
-        loss_validation += self.loss_fn(output_validation, target_validation).item()
+        loss_validation += self.loss_fn(output_validation.squeeze(dim=-1), target_validation).item()
 
         num_validations += 1
 
