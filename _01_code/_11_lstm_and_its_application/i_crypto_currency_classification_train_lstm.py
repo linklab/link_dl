@@ -25,8 +25,8 @@ def get_model():
     def __init__(self, n_input, n_output):
       super().__init__()
 
-      self.lstm = nn.LSTM(input_size=n_input, hidden_size=128, num_layers=2, batch_first=True)
-      self.fcn = nn.Linear(in_features=128, out_features=n_output)
+      self.lstm = nn.LSTM(input_size=n_input, hidden_size=256, num_layers=3, batch_first=True)
+      self.fcn = nn.Linear(in_features=256, out_features=n_output)
 
     def forward(self, x):
       x, hidden = self.lstm(x)
