@@ -21,8 +21,7 @@ from _01_code._11_lstm_and_its_application.i_crypto_currency_classification_trai
 
 def test_main(test_model):
   _, _, X_test, _, _, y_test, _, _, y_test_date = get_cryptocurrency_data(
-    sequence_size=20, validation_size=150, test_size=20,
-    target_column='Close', y_normalizer=1.0e6, is_regression=False
+    target_column='Close', y_normalizer=1.0e7, is_regression=False
   )
 
   test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)

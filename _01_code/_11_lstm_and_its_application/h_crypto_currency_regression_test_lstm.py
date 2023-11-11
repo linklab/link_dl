@@ -22,7 +22,7 @@ from _01_code._11_lstm_and_its_application.g_crypto_currency_regression_train_ls
 def test_main(test_model):
   _, _, X_test, _, _, y_test, _, _, y_test_date = get_cryptocurrency_data(
     sequence_size=10, validation_size=100, test_size=10,
-    target_column='Close', y_normalizer=1.0e6, is_regression=True
+    target_column='Close', y_normalizer=1.0e7, is_regression=True
   )
 
   test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)
@@ -62,7 +62,7 @@ def predict_all(test_model):
   X_train, X_validation, X_test, y_train, y_validation, y_test, y_train_date, y_validation_date, y_test_date \
     = get_cryptocurrency_data(
       sequence_size=10, validation_size=100, test_size=10,
-      target_column='Close', y_normalizer=1.0e6, is_regression=True
+      target_column='Close', y_normalizer=1.0e7, is_regression=True
   )
 
   train_crypto_currency_dataset = CryptoCurrencyDataset(X=X_train, y=y_train)

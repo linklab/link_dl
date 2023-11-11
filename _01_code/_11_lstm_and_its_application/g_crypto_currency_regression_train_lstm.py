@@ -27,7 +27,7 @@ def get_btc_krw_data(sequence_size=10, validation_size=100, test_size=10, is_reg
   X_train, X_validation, X_test, y_train, y_validation, y_test, y_train_date, y_validation_date, y_test_date \
     = get_cryptocurrency_data(
       sequence_size=sequence_size, validation_size=validation_size, test_size=test_size,
-      target_column='Close', y_normalizer=1.0e6, is_regression=is_regression
+      target_column='Close', y_normalizer=1.0e7, is_regression=is_regression
   )
 
   train_crypto_currency_dataset = CryptoCurrencyDataset(X=X_train, y=y_train)
@@ -125,7 +125,7 @@ def test(project_name, test_data_loader):
   loss_fn = nn.MSELoss()
 
   loss_test = 0.0
-  y_normalizer = 1.0e6
+  y_normalizer = 1.0e7
 
   print("[TEST DATA]")
   with torch.no_grad():
