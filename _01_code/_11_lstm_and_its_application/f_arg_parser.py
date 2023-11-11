@@ -26,7 +26,7 @@ def get_parser():
   )
 
   parser.add_argument(
-    "-p", "--early_stop_patience", type=int, default=10,
+    "-p", "--early_stop_patience", type=int, default=30,
     help="Number of early stop patience (int, default: 10)"
   )
 
