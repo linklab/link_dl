@@ -23,10 +23,10 @@ from _01_code._03_real_world_data_to_tensors.o_cryptocurrency_dataset_dataloader
   CryptoCurrencyDataset
 
 
-def get_btc_krw_data(is_regression=True):
+def get_btc_krw_data(sequence_size=10, validation_size=100, test_size=10, is_regression=True):
   X_train, X_validation, X_test, y_train, y_validation, y_test, y_train_date, y_validation_date, y_test_date \
     = get_cryptocurrency_data(
-      sequence_size=10, validation_size=100, test_size=10,
+      sequence_size=sequence_size, validation_size=validation_size, test_size=test_size,
       target_column='Close', y_normalizer=1.0e6, is_regression=is_regression
   )
 

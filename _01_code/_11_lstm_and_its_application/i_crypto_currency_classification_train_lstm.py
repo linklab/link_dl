@@ -63,7 +63,9 @@ def main(args):
   print(args)
   print(wandb.config)
 
-  train_data_loader, validation_data_loader, test_data_loader = get_btc_krw_data(is_regression=False)
+  train_data_loader, validation_data_loader, test_data_loader = get_btc_krw_data(
+    sequence_size=20, validation_size=150, test_size=20, is_regression=False
+  )
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 
