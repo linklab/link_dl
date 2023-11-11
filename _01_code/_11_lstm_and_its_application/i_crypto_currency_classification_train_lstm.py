@@ -85,4 +85,4 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_11_lstm_and_its_application/g_crypto_currency_classification_train_and_test_lstm.py --wandb -p 100 -r 0.00001
+  # python _01_code/_11_lstm_and_its_application/i_crypto_currency_classification_train_lstm.py -p 100 -r 0.00001
