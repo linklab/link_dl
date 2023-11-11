@@ -30,4 +30,9 @@ def get_parser():
     help="Number of early stop patience (int, default: 10)"
   )
 
+  parser.add_argument(
+    "-d", "--early_stop_delta", type=float, default=0.000001,
+    help="Delta value of early stop (float, default: 0.000001)"
+  )
+
   return parser

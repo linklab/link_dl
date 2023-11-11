@@ -31,6 +31,11 @@ def get_parser():
   )
 
   parser.add_argument(
+    "-d", "--early_stop_delta", type=float, default=0.00001,
+    help="Delta value of early stop (float, default: 0.00001)"
+  )
+
+  parser.add_argument(
     "-o", "--optimizer", type=int, default=0,
     help="Optimizers (0: SGD, 1: Momentum, 2: RMSProp, 3: Adam, default: 0)"
   )

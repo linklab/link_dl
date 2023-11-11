@@ -83,6 +83,7 @@ class RegressionTrainer:
   def train_loop(self):
     early_stopping = EarlyStopping(
       patience=self.wandb.config.early_stop_patience,
+      delta=self.wandb.config.early_stop_delta,
       project_name=self.project_name,
       checkpoint_file_path=self.checkpoint_file_path,
       run_time_str=self.run_time_str
