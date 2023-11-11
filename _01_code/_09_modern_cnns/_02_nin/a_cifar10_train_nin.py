@@ -69,6 +69,7 @@ def main(args):
     'validation_intervals': args.validation_intervals,
     'learning_rate': args.learning_rate,
     'early_stop_patience': args.early_stop_patience,
+    'early_stop_delta': args.early_stop_delta
   }
 
   project_name = "modern_cifar10"
