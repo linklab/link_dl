@@ -2,7 +2,6 @@
 import pandas as pd
 from pathlib import Path
 import os
-import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
@@ -21,9 +20,9 @@ print("row_size:", row_size)
 columns = df.columns  #['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
 print([column for column in columns])
 date_list = df['Date']
-print(date_list)
 df = df.drop(columns=['Date'])
 
+print(df)
 print("#" * 100, 0)
 
 #################################################################################################
@@ -49,8 +48,7 @@ y_train_regression_list = []
 y_train_classification_list = []
 y_train_date = []
 for idx in range(0, train_size):
-  sequence_data = df.iloc[idx: idx + sequence_size].values
-  sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+  sequence_data = df.iloc[idx: idx + sequence_size].values  # sequence_data.shape: (sequence_size, 5)
   X_train_list.append(torch.from_numpy(sequence_data))
   y_train_regression_list.append(df.iloc[idx + sequence_size]["Close"])
   y_train_classification_list.append(
@@ -59,7 +57,7 @@ for idx in range(0, train_size):
   y_train_date.append(date_list[idx + sequence_size])
   row_cursor += 1
 
-X_train = torch.stack(X_train_list, dim=0)
+X_train = torch.stack(X_train_list, dim=0).to(torch.float)
 y_train_regression = torch.tensor(y_train_regression_list, dtype=torch.float32) / y_normalizer
 y_train_classification = torch.tensor(y_train_classification_list, dtype=torch.int64)
 print(y_train_classification)
@@ -80,8 +78,7 @@ y_validation_regression_list = []
 y_validation_classification_list = []
 y_validation_date = []
 for idx in range(row_cursor, row_cursor + validation_size):
-  sequence_data = df.iloc[idx: idx + sequence_size].values
-  sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+  sequence_data = df.iloc[idx: idx + sequence_size].values     # sequence_data.shape: (sequence_size, 5)
   X_validation_list.append(torch.from_numpy(sequence_data))
   y_validation_regression_list.append(df.iloc[idx + sequence_size]["Close"])
   y_validation_classification_list.append(
@@ -90,13 +87,12 @@ for idx in range(row_cursor, row_cursor + validation_size):
   y_validation_date.append(date_list[idx + sequence_size])
   row_cursor += 1
 
-X_validation = torch.stack(X_validation_list, dim=0)
+X_validation = torch.stack(X_validation_list, dim=0).to(torch.float)
 y_validation_regression = torch.tensor(y_validation_regression_list, dtype=torch.float32) / y_normalizer
 y_validation_classification = torch.tensor(y_validation_classification_list, dtype=torch.int64)
 print(y_validation_classification)
 
-X_validation -= m
-X_validation /= s
+X_validation = (X_validation - m) / s
 print(X_validation.shape, y_validation_regression.shape, y_validation_classification.shape)
 print("Label - Start Date: {0} ~ End Date: {1}".format(y_validation_date[0], y_validation_date[-1]))
 
@@ -109,8 +105,7 @@ y_test_regression_list = []
 y_test_classification_list = []
 y_test_date = []
 for idx in range(row_cursor, row_cursor + test_size):
-  sequence_data = df.iloc[idx: idx + sequence_size].values
-  sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+  sequence_data = df.iloc[idx: idx + sequence_size].values   # sequence_data.shape: (sequence_size, 5)
   X_test_list.append(torch.from_numpy(sequence_data))
   y_test_regression_list.append(df.iloc[idx + sequence_size]["Close"])
   y_test_classification_list.append(
@@ -119,12 +114,11 @@ for idx in range(row_cursor, row_cursor + test_size):
   y_test_date.append(date_list[idx + sequence_size])
   row_cursor += 1
 
-X_test = torch.stack(X_test_list, dim=0)
+X_test = torch.stack(X_test_list, dim=0).to(torch.float)
 y_test_regression = torch.tensor(y_test_regression_list, dtype=torch.float32) / y_normalizer
 y_test_classification = torch.tensor(y_test_classification_list, dtype=torch.int64)
 print(y_test_classification)
-X_test -= m
-X_test /= s
+X_test = (X_test - m) / s
 print(X_test.shape, y_test_regression.shape, y_test_classification.shape)
 print("Label - Start Date: {0} ~ End Date: {1}".format(y_test_date[0], y_test_date[-1]))
 

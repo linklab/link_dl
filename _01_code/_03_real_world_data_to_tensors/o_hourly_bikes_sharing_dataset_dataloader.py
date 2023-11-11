@@ -43,7 +43,9 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
     }
   )
   bikes_data = torch.from_numpy(bikes_numpy).to(torch.float)
-  bikes_target = bikes_data[:, -1].unsqueeze(dim=-1)   #'cnt'
+  print(bikes_data.shape, "!!!")  # >>> torch.Size([17520, 17])
+  bikes_target = bikes_data[:, -1].unsqueeze(dim=-1)  # 'cnt'
+  bikes_data = bikes_data[:, :-1]  # >>> torch.Size([17520, 16])
 
   eye_matrix = torch.eye(4)
 
@@ -55,7 +57,7 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
     data_torch_list.append(concat_data_torch)
 
   bikes_data = torch.stack(data_torch_list, dim=0)
-  bikes_data = torch.cat([bikes_data[:, :9], bikes_data[:, 10:]], dim=-1)
+  bikes_data = torch.cat([bikes_data[:, 1:9], bikes_data[:, 10:]], dim=-1)
 
   data_size = len(bikes_data) - sequence_size
   train_size = data_size - (validation_size + test_size)
@@ -68,12 +70,12 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
   y_train_regression_list = []
   for idx in range(0, train_size):
     sequence_data = bikes_data[idx: idx + sequence_size]
-    sequence_target = bikes_target[idx + sequence_size]
+    sequence_target = bikes_target[idx + sequence_size - 1]
     X_train_list.append(sequence_data)
     y_train_regression_list.append(sequence_target)
     row_cursor += 1
 
-  X_train = torch.stack(X_train_list, dim=0)
+  X_train = torch.stack(X_train_list, dim=0).to(torch.float)
   y_train_regression = torch.tensor(y_train_regression_list, dtype=torch.float32) / y_normalizer
 
   m = X_train.mean(dim=0, keepdim=True)
@@ -86,12 +88,12 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
   y_validation_regression_list = []
   for idx in range(row_cursor, row_cursor + validation_size):
     sequence_data = bikes_data[idx: idx + sequence_size]
-    sequence_target = bikes_target[idx + sequence_size]
+    sequence_target = bikes_target[idx + sequence_size - 1]
     X_validation_list.append(sequence_data)
     y_validation_regression_list.append(sequence_target)
     row_cursor += 1
 
-  X_validation = torch.stack(X_validation_list, dim=0)
+  X_validation = torch.stack(X_validation_list, dim=0).to(torch.float)
   y_validation_regression = torch.tensor(y_validation_regression_list, dtype=torch.float32) / y_normalizer
 
   X_validation -= m
@@ -102,12 +104,12 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
   y_test_regression_list = []
   for idx in range(row_cursor, row_cursor + test_size):
     sequence_data = bikes_data[idx: idx + sequence_size]
-    sequence_target = bikes_target[idx + sequence_size]
+    sequence_target = bikes_target[idx + sequence_size - 1]
     X_test_list.append(sequence_data)
     y_test_regression_list.append(sequence_target)
     row_cursor += 1
 
-  X_test = torch.stack(X_test_list, dim=0)
+  X_test = torch.stack(X_test_list, dim=0).to(torch.float)
   y_test_regression = torch.tensor(y_test_regression_list, dtype=torch.float32) / y_normalizer
 
   X_test -= m

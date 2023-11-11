@@ -1,7 +1,7 @@
 import torch
 from torch import nn, optim
 from torch.utils.data import random_split, DataLoader
-from _01_code._03_real_world_data_to_tensors.l_california_housing_dataset_dataloader import CaliforniaHousingDataset
+from _01_code._03_real_world_data_to_tensors.m_california_housing_dataset_dataloader import CaliforniaHousingDataset
 
 
 def get_data():

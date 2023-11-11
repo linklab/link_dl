@@ -55,8 +55,7 @@ def get_cryptocurrency_data(
   y_train_classification_list = []
   y_train_date = []
   for idx in range(0, train_size):
-    sequence_data = df.iloc[idx: idx + sequence_size].values
-    sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+    sequence_data = df.iloc[idx: idx + sequence_size].values  # sequence_data.shape: (sequence_size, 5)
     X_train_list.append(torch.from_numpy(sequence_data))
     y_train_regression_list.append(df.iloc[idx + sequence_size][target_column])
     y_train_classification_list.append(
@@ -65,14 +64,13 @@ def get_cryptocurrency_data(
     y_train_date.append(date_list[idx + sequence_size])
     row_cursor += 1
 
-  X_train = torch.stack(X_train_list, dim=0)
+  X_train = torch.stack(X_train_list, dim=0).to(torch.float)
   y_train_regression = torch.tensor(y_train_regression_list, dtype=torch.float32) / y_normalizer
   y_train_classification = torch.tensor(y_train_classification_list, dtype=torch.int64)
 
   m = X_train.mean(dim=0, keepdim=True)
   s = X_train.std(dim=0, unbiased=False, keepdim=True)
-  X_train -= m
-  X_train /= s
+  X_train = (X_train - m) / s
 
   #################################################################################################
 
@@ -81,8 +79,7 @@ def get_cryptocurrency_data(
   y_validation_classification_list = []
   y_validation_date = []
   for idx in range(row_cursor, row_cursor + validation_size):
-    sequence_data = df.iloc[idx: idx + sequence_size].values
-    sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+    sequence_data = df.iloc[idx: idx + sequence_size].values  # sequence_data.shape: (sequence_size, 5)
     X_validation_list.append(torch.from_numpy(sequence_data))
     y_validation_regression_list.append(df.iloc[idx + sequence_size][target_column])
     y_validation_classification_list.append(
@@ -91,12 +88,11 @@ def get_cryptocurrency_data(
     y_validation_date.append(date_list[idx + sequence_size])
     row_cursor += 1
 
-  X_validation = torch.stack(X_validation_list, dim=0)
+  X_validation = torch.stack(X_validation_list, dim=0).to(torch.float)
   y_validation_regression = torch.tensor(y_validation_regression_list, dtype=torch.float32) / y_normalizer
   y_validation_classification = torch.tensor(y_validation_classification_list, dtype=torch.int64)
 
-  X_validation -= m
-  X_validation /= s
+  X_validation = (X_validation - m) / s
   #################################################################################################
 
   X_test_list = []
@@ -104,8 +100,7 @@ def get_cryptocurrency_data(
   y_test_classification_list = []
   y_test_date = []
   for idx in range(row_cursor, row_cursor + test_size):
-    sequence_data = df.iloc[idx: idx + sequence_size].values
-    sequence_data = sequence_data.astype(np.float32)  # sequence_data.shape: (sequence_size, 5)
+    sequence_data = df.iloc[idx: idx + sequence_size].values  # sequence_data.shape: (sequence_size, 5)
     X_test_list.append(torch.from_numpy(sequence_data))
     y_test_regression_list.append(df.iloc[idx + sequence_size][target_column])
     y_test_classification_list.append(
@@ -114,12 +109,11 @@ def get_cryptocurrency_data(
     y_test_date.append(date_list[idx + sequence_size])
     row_cursor += 1
 
-  X_test = torch.stack(X_test_list, dim=0)
+  X_test = torch.stack(X_test_list, dim=0).to(torch.float)
   y_test_regression = torch.tensor(y_test_regression_list, dtype=torch.float32) / y_normalizer
   y_test_classification = torch.tensor(y_test_classification_list, dtype=torch.int64)
 
-  X_test -= m
-  X_test /= s
+  X_test = (X_test - m) / s
 
   if is_regression:
     return (

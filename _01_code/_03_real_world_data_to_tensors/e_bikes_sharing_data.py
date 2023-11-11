@@ -60,13 +60,12 @@ print("#" * 50, 3)
 
 print(daily_bikes_data[:, :, :9].shape, daily_bikes_data[:, :, 10:].shape)
 daily_bikes_data = torch.cat(
-  [daily_bikes_data[:, :, :9], daily_bikes_data[:, :, 10:]],
-  dim=2
-)
+  [daily_bikes_data[:, :, 1:9], daily_bikes_data[:, :, 10:]], dim=2
+) # Drop 'instant' and 'whethersit' columns
 print(daily_bikes_data.shape)
 
-temperatures = daily_bikes_data[:, :, 9]
-daily_bikes_data[:, :, 9] = (daily_bikes_data[:, :, 9] - torch.mean(temperatures)) / torch.std(temperatures)
+temperatures = daily_bikes_data[:, :, 8]
+daily_bikes_data[:, :, 8] = (daily_bikes_data[:, :, 8] - torch.mean(temperatures)) / torch.std(temperatures)
 
 # daily_bikes_data = daily_bikes_data.transpose(1, 2)
 print(daily_bikes_data.shape)  # >>> torch.Size([730, 17, 24])
