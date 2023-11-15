@@ -59,15 +59,12 @@ def get_new_data():
 
 
 def train_model(
-    dataloaders, dataset_sizes, model, criterion, optimizer, scheduler, num_epochs=25, device=torch.device("cpu")
+    dataloaders, dataset_sizes, model, loss_fn, optimizer, scheduler, num_epochs=25, device=torch.device("cpu")
 ):
     since = time.time()
 
-    # Create a temporary directory to save training checkpoints
-
     best_model_params_path = os.path.join(CHECKPOINT_FILE_PATH, 'best_model_params.pt')
 
-    torch.save(model.state_dict(), best_model_params_path)
     best_acc = 0.0
 
     for epoch in range(num_epochs):
@@ -92,12 +89,11 @@ def train_model(
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
-                # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
                     outputs = model(inputs)
                     _, preds = torch.max(outputs, 1)
-                    loss = criterion(outputs, labels)
+                    loss = loss_fn(outputs, labels)
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
@@ -107,6 +103,7 @@ def train_model(
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
+
             if phase == 'train':
                 scheduler.step()
 
@@ -122,12 +119,12 @@ def train_model(
 
         print()
 
-        time_elapsed = time.time() - since
-        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
-        print(f'Best val Acc: {best_acc:4f}\n')
+    time_elapsed = time.time() - since
+    print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+    print(f'Best val Acc: {best_acc:4f}\n')
 
-        # load best model weights
-        model.load_state_dict(torch.load(best_model_params_path))
+    # load best model weights
+    model.load_state_dict(torch.load(best_model_params_path))
     return model
 
 
@@ -148,6 +145,7 @@ def imshow(input, label=None):
 
 def visualize_model(dataloaders, class_names, model, num_images=6):
     model.eval()
+
     images_so_far = 0
 
     for i, (inputs, labels) in enumerate(dataloaders['val']):
@@ -156,8 +154,7 @@ def visualize_model(dataloaders, class_names, model, num_images=6):
 
         for j in range(inputs.size()[0]):
             imshow(
-                inputs.data[j],
-                label="Prediction: {0} - Label: {1}".format(
+                inputs.data[j], label="Prediction: {0} - Label: {1}".format(
                     class_names[preds[j].item()], class_names[labels[j].item()]
                 )
             )
@@ -169,11 +166,9 @@ def visualize_model(dataloaders, class_names, model, num_images=6):
 def get_model(method, device=torch.device("cpu")):
     model_ft = models.resnet18(weights='IMAGENET1K_V1')
 
-    if method == "frozen_the_featurizers_and_train_new_classifier":
+    if method == "frozen_and_train_new_classifier":
         for param in model_ft.parameters():
             param.requires_grad = False
-    else:
-        pass
 
     print(model_ft)
     print("#" * 100)
@@ -196,7 +191,7 @@ def main(method):
 
     model_ft = get_model(method, device)
 
-    criterion = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss()
 
     # Observe that all parameters are being optimized
     optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
@@ -205,7 +200,7 @@ def main(method):
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 
     model_ft = train_model(
-        dataloaders, dataset_sizes, model_ft, criterion, optimizer_ft, exp_lr_scheduler,
+        dataloaders, dataset_sizes, model_ft, loss_fn, optimizer_ft, exp_lr_scheduler,
         num_epochs=25, device=device
     )
 
@@ -215,6 +210,7 @@ def main(method):
 if __name__ == "__main__":
     method_idx = 0
     methods = [
-        "frozen_the_featurizers_and_train_new_classifier", "fine_tune_the_whole_model"
+        "frozen_and_train_new_classifier",
+        "fine_tune_the_whole_model"
     ]
     main(methods[method_idx])

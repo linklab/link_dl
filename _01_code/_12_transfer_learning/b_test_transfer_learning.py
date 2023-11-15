@@ -1,9 +1,7 @@
 # https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
 
 import torch
-import matplotlib.pyplot as plt
 import os
-from tempfile import TemporaryDirectory
 from pathlib import Path
 from PIL import Image
 
@@ -34,6 +32,7 @@ def visualize_model_prediction_single(data_transforms, class_names, model, img_p
             )
         )
 
+
 def main(method):
     device = torch.device("cpu")
 
@@ -56,6 +55,7 @@ def main(method):
 if __name__ == "__main__":
     method_idx = 0
     methods = [
-        "frozen_the_featurizers_and_train_new_classifier", "fine_tune_the_whole_model"
+        "frozen_and_train_new_classifier",
+        "fine_tune_the_whole_model"
     ]
     main(methods[method_idx])
