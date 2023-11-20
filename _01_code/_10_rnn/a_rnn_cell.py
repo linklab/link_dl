@@ -15,7 +15,7 @@ input = torch.randn(6, 3)
 hx = torch.randn(4)
 output = []
 for i in range(6):  # sequence size (L): 6
-  hx = rnn_cell(input[i], hx)
+  hx = rnn_cell(input=input[i], hx=hx)
   output.append(hx)
 
 for idx, out in enumerate(output):

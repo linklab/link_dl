@@ -41,11 +41,11 @@ def test_main(test_model):
       output_test = test_model(input_test)
 
     for idx, (output, target) in enumerate(zip(output_test, target_test)):
+      output = round(output.item() * y_normalizer)
+      target = target.item() * y_normalizer
+
       print("{0:2}: {1:6,.2f} <--> {2:6,.2f} (Loss: {3:>13,.2f})".format(
-        idx,
-        round(output.item() * y_normalizer),
-        target.item() * y_normalizer,
-        abs(round(output.item() * y_normalizer) - target.item() * y_normalizer)
+        idx, output, target, abs(output - target)
       ))
 
 
