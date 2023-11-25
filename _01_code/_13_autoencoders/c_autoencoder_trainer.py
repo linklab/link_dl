@@ -101,31 +101,35 @@ class AutoencoderTrainer:
     return validation_loss
 
   def plot_denoising_autoencoders_outputs(self, n=10, noise_factor=0.3):
+    self.model.eval()
+
     plt.figure(figsize=(16, 4.5))
     targets = self.test_dataset.targets.numpy()
     t_idx = {i: np.where(targets == i)[0][0] for i in range(n)}
     for i in range(n):
       ax = plt.subplot(3, n, i + 1)
       img = self.test_dataset.data[t_idx[i]].unsqueeze(0).unsqueeze(0)
-      image_noisy = self.add_noise(img, noise_factor)
-      image_noisy = image_noisy.to(self.device)
 
-      self.model.eval()
+      if self.denoising is True:
+        image_noisy = self.add_noise(img, noise_factor)
+        image_noisy = image_noisy.to(self.device)
 
       with torch.no_grad():
-        decoded_img = self.model(image_noisy)
+        decoded_img = self.model(image_noisy if self.denoising is True else img)
 
       plt.imshow(img.cpu().squeeze().numpy(), cmap='gist_gray')
       ax.get_xaxis().set_visible(False)
       ax.get_yaxis().set_visible(False)
       if i == n // 2:
         ax.set_title('Original images')
-      ax = plt.subplot(3, n, i + 1 + n)
-      plt.imshow(image_noisy.cpu().squeeze().numpy(), cmap='gist_gray')
-      ax.get_xaxis().set_visible(False)
-      ax.get_yaxis().set_visible(False)
-      if i == n // 2:
-        ax.set_title('Corrupted images')
+
+      if self.denoising is True:
+        ax = plt.subplot(3, n, i + 1 + n)
+        plt.imshow(image_noisy.cpu().squeeze().numpy(), cmap='gist_gray')
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        if i == n // 2:
+          ax.set_title('Corrupted images')
 
       ax = plt.subplot(3, n, i + 1 + n + n)
       plt.imshow(decoded_img.cpu().squeeze().numpy(), cmap='gist_gray')
