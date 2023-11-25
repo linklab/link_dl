@@ -113,6 +113,9 @@ class AutoencoderTrainer:
       if self.denoising is True:
         image_noisy = self.add_noise(img, noise_factor)
         image_noisy = image_noisy.to(self.device)
+      else:
+        img = img.type(torch.float)
+        img = img.to(self.device)
 
       with torch.no_grad():
         decoded_img = self.model(image_noisy if self.denoising is True else img)
