@@ -28,12 +28,15 @@ def get_model(encoded_space_dim=8):
 
             ### Convolutional section
             self.encoder_cnn = nn.Sequential(
-                nn.Conv2d(1, 8, 3, stride=2, padding=1),
+                # B x 1 x 28 x 28 --> B x 8 x (28 - 3 + 1) x (28 - 3 + 1) = B x 8 x 26 x 26
+                nn.Conv2d(1, 8, 3, stride=1),
                 nn.LeakyReLU(),
-                nn.Conv2d(8, 16, 3, stride=2, padding=1),
+                # B x 8 x 26 x 26 --> B x 16 x (26 - 3 + 1) x (26 - 3 + 1) = B x 16 x 24 x 24
+                nn.Conv2d(8, 16, 3, stride=1),
                 nn.BatchNorm2d(16),
                 nn.LeakyReLU(),
-                nn.Conv2d(16, 32, 3, stride=2, padding=0),
+                # B x 16 x 24 x 24 --> B x 32 x (24 - 3 + 1) x (24 - 3 + 1) = B x 32 x 22 x 22
+                nn.Conv2d(16, 32, 3, stride=1),
                 nn.LeakyReLU()
             )
 
@@ -42,9 +45,9 @@ def get_model(encoded_space_dim=8):
 
             ### Linear section
             self.encoder_lin = nn.Sequential(
-                nn.Linear(3 * 3 * 32, 128),
+                nn.Linear(32 * 22 * 22, 256),
                 nn.LeakyReLU(),
-                nn.Linear(128, encoded_space_dim)
+                nn.Linear(256, encoded_space_dim)
             )
 
         def forward(self, x):
@@ -57,24 +60,21 @@ def get_model(encoded_space_dim=8):
         def __init__(self):
             super(Decoder, self).__init__()
             self.decoder_lin = nn.Sequential(
-                nn.Linear(encoded_space_dim, 128),
+                nn.Linear(encoded_space_dim, 256),
                 nn.LeakyReLU(),
-                nn.Linear(128, 32 * 3 * 3),
+                nn.Linear(256, 32 * 22 * 22),
                 nn.LeakyReLU()
             )
 
-            self.unflatten = nn.Unflatten(dim=1, unflattened_size=(32, 3, 3))
+            self.unflatten = nn.Unflatten(dim=1, unflattened_size=(32, 22, 22))
 
             self.decoder_conv = nn.Sequential(
-                nn.ConvTranspose2d(32, 16, 3,
-                                   stride=2, output_padding=0),
+                nn.ConvTranspose2d(32, 16, 3, stride=1),
                 nn.BatchNorm2d(16),
                 nn.LeakyReLU(),
-                nn.ConvTranspose2d(16, 8, 3, stride=2,
-                                   padding=1, output_padding=1),
+                nn.ConvTranspose2d(16, 8, 3, stride=1),
                 nn.LeakyReLU(),
-                nn.ConvTranspose2d(8, 1, 3, stride=2,
-                                   padding=1, output_padding=1)
+                nn.ConvTranspose2d(8, 1, 3, stride=1)
             )
 
         def forward(self, x):
