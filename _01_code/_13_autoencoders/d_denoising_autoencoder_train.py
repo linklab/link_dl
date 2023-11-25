@@ -109,7 +109,7 @@ def main(args):
         project_name, model, optimizer, train_data_loader, validation_data_loader, f_mnist_transforms,
         run_time_str, wandb, device, CHECKPOINT_FILE_PATH,
         f_mnist_test_images, f_mnist_transforms,
-        denoising=False,
+        denoising=True,
     )
     regression_trainer.train_loop()
 

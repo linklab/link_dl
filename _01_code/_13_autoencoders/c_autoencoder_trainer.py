@@ -32,7 +32,7 @@ class AutoencoderTrainer:
     # Use a built-in loss function
     self.loss_fn = nn.MSELoss()
 
-  def add_noise(self, inputs, noise_factor=0.3):
+  def add_noise(self, inputs, noise_factor=0.1):
     noisy = inputs + torch.randn(inputs.size()) * noise_factor
     noisy = torch.clip(noisy, 0., 1.)
     return noisy
@@ -100,7 +100,7 @@ class AutoencoderTrainer:
 
     return validation_loss
 
-  def plot_denoising_autoencoders_outputs(self, n=10, noise_factor=0.3):
+  def plot_denoising_autoencoders_outputs(self, n=10, noise_factor=0.1):
     self.model.eval()
 
     plt.figure(figsize=(16, 4.5))
