@@ -21,7 +21,7 @@ from _01_code._13_autoencoders.a_arg_parser import get_parser
 from _01_code._13_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
 
 
-def get_model(encoded_space_dim=4):
+def get_model(encoded_space_dim=8):
     class Encoder(nn.Module):
         def __init__(self):
             super(Encoder, self).__init__()
