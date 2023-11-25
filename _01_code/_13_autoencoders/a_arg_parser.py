@@ -21,8 +21,8 @@ def get_parser():
   )
 
   parser.add_argument(
-    "-v", "--validation_intervals", type=int, default=1,
-    help="Number of training epochs between validations (int, default: 1)"
+    "-v", "--validation_intervals", type=int, default=5,
+    help="Number of training epochs between validations (int, default: 5)"
   )
 
   parser.add_argument(

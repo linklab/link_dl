@@ -142,7 +142,6 @@ class AutoencoderTrainer:
 
     plt.subplots_adjust(left=0.1, bottom=0.1, right=0.7, top=0.9, wspace=0.3, hspace=0.3)
     plt.show(block=False)
-    plt.draw()
 
   def train_loop(self):
     early_stopping = EarlyStopping(
