@@ -11,12 +11,11 @@ from _01_code._99_common_utils.utils import strfdelta
 
 class AutoencoderTrainer:
   def __init__(
-    self, project_name, encoder, decoder, optimizer, train_data_loader, validation_data_loader, transforms,
+    self, project_name, model, optimizer, train_data_loader, validation_data_loader, transforms,
     run_time_str, wandb, device, checkpoint_file_path, test_dataset, test_transforms, denoising=True
   ):
     self.project_name = project_name
-    self.encoder = encoder
-    self.decoder = decoder
+    self.model = model
     self.optimizer = optimizer
     self.train_data_loader = train_data_loader
     self.validation_data_loader = validation_data_loader
@@ -39,8 +38,7 @@ class AutoencoderTrainer:
     return noisy
 
   def do_train(self):
-    self.encoder.train()
-    self.decoder.train()
+    self.model.train()
 
     loss_train = 0.0
     num_trains = 0
@@ -58,8 +56,7 @@ class AutoencoderTrainer:
       if self.transforms:
         input_train = self.transforms(input_train)
 
-      encoded_input_train = self.encoder(input_train)
-      decoded_input_train = self.decoder(encoded_input_train)
+      decoded_input_train = self.model(input_train)
 
       loss = self.loss_fn(decoded_input_train, input_train)
 
@@ -76,8 +73,7 @@ class AutoencoderTrainer:
     return train_loss
 
   def do_validation(self):
-    self.encoder.eval()
-    self.decoder.eval()
+    self.model.eval()
 
     loss_validation = 0.0
     num_validations = 0
@@ -94,8 +90,7 @@ class AutoencoderTrainer:
         if self.transforms:
           input_validation = self.transforms(input_validation)
 
-        encoded_input_validation = self.encoder(input_validation)
-        decoded_input_validation = self.decoder(encoded_input_validation)
+        decoded_input_validation = self.model(input_validation)
 
         loss_validation += self.loss_fn(decoded_input_validation, input_validation).item()
 
@@ -115,11 +110,10 @@ class AutoencoderTrainer:
       image_noisy = self.add_noise(img, noise_factor)
       image_noisy = image_noisy.to(self.device)
 
-      self.encoder.eval()
-      self.decoder.eval()
+      self.model.eval()
 
       with torch.no_grad():
-        rec_img = self.decoder(self.encoder(image_noisy))
+        decoded_img = self.model(image_noisy)
 
       plt.imshow(img.cpu().squeeze().numpy(), cmap='gist_gray')
       ax.get_xaxis().set_visible(False)
@@ -134,7 +128,7 @@ class AutoencoderTrainer:
         ax.set_title('Corrupted images')
 
       ax = plt.subplot(3, n, i + 1 + n + n)
-      plt.imshow(rec_img.cpu().squeeze().numpy(), cmap='gist_gray')
+      plt.imshow(decoded_img.cpu().squeeze().numpy(), cmap='gist_gray')
       ax.get_xaxis().set_visible(False)
       ax.get_yaxis().set_visible(False)
       if i == n // 2:
@@ -163,7 +157,7 @@ class AutoencoderTrainer:
         elapsed_time = datetime.now() - training_start_time
         epoch_per_second = 1000 * epoch / elapsed_time.microseconds
 
-        message, early_stop = early_stopping.check_and_save(validation_loss, self.encoder)
+        message, early_stop = early_stopping.check_and_save(validation_loss, self.model)
 
         print(
           f"[Epoch {epoch:>3}] "

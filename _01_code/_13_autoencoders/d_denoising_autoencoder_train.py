@@ -4,8 +4,7 @@ from datetime import datetime
 import os
 import wandb
 from pathlib import Path
-
-from _01_code._13_autoencoders.b_fashion_mnist_data import get_fashion_mnist_data, get_fashion_mnist_test_data
+import torch.nn.functional as F
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
@@ -17,74 +16,57 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
+from _01_code._13_autoencoders.b_fashion_mnist_data import get_fashion_mnist_data, get_fashion_mnist_test_data
 from _01_code._13_autoencoders.a_arg_parser import get_parser
 from _01_code._13_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
 
 
 def get_model(encoded_space_dim=4):
     class Encoder(nn.Module):
-        def __init__(self, encoded_space_dim):
-            super().__init__()
-
-            ### Convolutional section
-            self.encoder_cnn = nn.Sequential(
-                nn.Conv2d(in_channels=1, out_channels=8, kernel_size=3, stride=2, padding=1),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=8, out_channels=16, kernel_size=3, stride=2, padding=1),
-                nn.BatchNorm2d(num_features=16),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=2, padding=0),
-                nn.ReLU()
-            )
-
-            ### Flatten layer
-            self.flatten = nn.Flatten(start_dim=1)
-
-            ### Linear section
-            self.encoder_lin = nn.Sequential(
-                nn.Linear(in_features=32 * 3 * 3, out_features=128),
-                nn.ReLU(),
-                nn.Linear(in_features=128, out_features=encoded_space_dim)
-            )
+        def __init__(self):
+            super(Encoder, self).__init__()
+            self.conv1 = nn.Conv2d(1, 8, kernel_size=(3, 3))
+            self.conv2 = nn.Conv2d(8, 16, kernel_size=(3, 3))
+            self.conv3 = nn.Conv2d(16, 32, kernel_size=(3, 3))
+            self.conv4 = nn.Conv2d(32, 64, kernel_size=(3, 3))
 
         def forward(self, x):
-            x = self.encoder_cnn(x)
-            x = self.flatten(x)
-            x = self.encoder_lin(x)
+            x = F.leaky_relu(self.conv1(x))
+            x = F.leaky_relu(self.conv2(x))
+            x = F.leaky_relu(self.conv3(x))
+            x = F.leaky_relu(self.conv4(x))
             return x
 
     class Decoder(nn.Module):
-        def __init__(self, encoded_space_dim):
-            super().__init__()
-            self.decoder_lin = nn.Sequential(
-                nn.Linear(in_features=encoded_space_dim, out_features=128),
-                nn.ReLU(),
-                nn.Linear(in_features=128, out_features=32 * 3 * 3),
-                nn.ReLU()
-            )
-
-            self.unflatten = nn.Unflatten(dim=1, unflattened_size=(32, 3, 3))
-
-            self.decoder_conv = nn.Sequential(
-                nn.ConvTranspose2d(in_channels=32, out_channels=16, kernel_size=3, stride=2, padding=0, output_padding=0),
-                nn.BatchNorm2d(num_features=16),
-                nn.ReLU(),
-                nn.ConvTranspose2d(in_channels=16, out_channels=8, kernel_size=3, stride=2, padding=1, output_padding=1),
-                nn.ReLU(),
-                nn.ConvTranspose2d(in_channels=8, out_channels=1, kernel_size=3, stride=2, padding=1, output_padding=1),
-                nn.Sigmoid()
-            )
+        def __init__(self):
+            super(Decoder, self).__init__()
+            self.conv1 = nn.ConvTranspose2d(64, 32, kernel_size=(3, 3))
+            self.conv2 = nn.ConvTranspose2d(32, 16, kernel_size=(3, 3))
+            self.conv3 = nn.ConvTranspose2d(16, 8, kernel_size=(3, 3))
+            self.conv4 = nn.ConvTranspose2d(8, 1, kernel_size=(3, 3))
+            self.sigmoid_activation = torch.nn.Sigmoid()
 
         def forward(self, x):
-            x = self.decoder_lin(x)
-            x = self.unflatten(x)
-            x = self.decoder_conv(x)
+            x = F.leaky_relu(self.conv1(x))
+            x = F.leaky_relu(self.conv2(x))
+            x = F.leaky_relu(self.conv3(x))
+            x = F.leaky_relu(self.conv4(x))
+            x = self.sigmoid_activation(x)
             return x
 
-    encoder = Encoder(encoded_space_dim=encoded_space_dim)
-    decoder = Decoder(encoded_space_dim=encoded_space_dim)
+    class Autoencoder(torch.nn.Module):
+        def __init__(self):
+            super(Autoencoder, self).__init__()
+            self.encoder = Encoder()
+            self.decoder = Decoder()
 
-    return encoder, decoder
+        def forward(self, x):
+            x = self.encoder(x)
+            x = self.decoder(x)
+            return x
+
+    autoencoder = Autoencoder()
+    return autoencoder
 
 
 def main(args):
@@ -117,19 +99,14 @@ def main(args):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Training on device {device}.")
 
-    encoder, decoder = get_model()
-    encoder.to(device)
-    decoder.to(device)
+    model = get_model()
+    model.to(device)
+    wandb.watch(model)
 
-    params_to_optimize = [
-        {'params': encoder.parameters()},
-        {'params': decoder.parameters()}
-    ]
-
-    optimizer = optim.Adam(params_to_optimize, lr=wandb.config.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
     regression_trainer = AutoencoderTrainer(
-        project_name, encoder, decoder, optimizer, train_data_loader, validation_data_loader, f_mnist_transforms,
+        project_name, model, optimizer, train_data_loader, validation_data_loader, f_mnist_transforms,
         run_time_str, wandb, device, CHECKPOINT_FILE_PATH,
         f_mnist_test_images, f_mnist_transforms,
         denoising=True,
