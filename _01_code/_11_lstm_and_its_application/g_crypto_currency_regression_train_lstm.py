@@ -6,7 +6,6 @@ import os
 import wandb
 from pathlib import Path
 
-
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
 sys.path.append(BASE_PATH)
@@ -90,7 +89,7 @@ def main(args):
   print(args)
   print(wandb.config)
 
-  train_data_loader, validation_data_loader, test_data_loader = get_btc_krw_data()
+  train_data_loader, validation_data_loader, _ = get_btc_krw_data()
   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   print(f"Training on device {device}.")
 

@@ -1,9 +1,10 @@
 import torch
+import wandb
 from matplotlib import pyplot as plt
-from torch import nn
-from torch.utils.data import DataLoader
+from datetime import datetime
 import os
 from pathlib import Path
+
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
@@ -14,28 +15,17 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
+from _01_code._11_lstm_and_its_application.f_arg_parser import get_parser
 from _01_code._03_real_world_data_to_tensors.p_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
   CryptoCurrencyDataset
-from _01_code._11_lstm_and_its_application.g_crypto_currency_regression_train_lstm import get_model
+from _01_code._11_lstm_and_its_application.g_crypto_currency_regression_train_lstm import get_model, get_btc_krw_data
 
 
-def test_main(test_model):
-  _, _, X_test, _, _, y_test, _, _, y_test_date = get_cryptocurrency_data(
-    sequence_size=10, validation_size=100, test_size=10,
-    target_column='Close', y_normalizer=1.0e7, is_regression=True
-  )
-
-  test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)
-
-  test_data_loader = DataLoader(
-    dataset=test_crypto_currency_dataset, batch_size=len(test_crypto_currency_dataset)
-  )
+def test(test_model):
+  _, _, test_data_loader = get_btc_krw_data()
 
   test_model.eval()
 
-  loss_fn = nn.MSELoss()
-
-  loss_test = 0.0
   y_normalizer = 100
 
   print("[TEST DATA]")
@@ -99,7 +89,28 @@ def predict_all(test_model):
   plt.show()
 
 
-if __name__ == "__main__":
+def main(args):
+  run_time_str = datetime.now().astimezone().strftime('%Y-%m-%d_%H-%M-%S')
+
+  config = {
+    'epochs': args.epochs,
+    'batch_size': args.batch_size,
+    'validation_intervals': args.validation_intervals,
+    'learning_rate': args.learning_rate,
+    'early_stop_patience': args.early_stop_patience,
+    'early_stop_delta': args.early_stop_delta,
+  }
+
+  project_name = "lstm_regression_btc_krw"
+  wandb.init(
+    mode="disabled",
+    project=project_name,
+    notes="btc_krw experiment with lstm",
+    tags=["lstm", "regression", "btc_krw"],
+    name=run_time_str,
+    config=config
+  )
+
   test_model = get_model()
 
   project_name = "lstm_regression_btc_krw"
@@ -109,5 +120,11 @@ if __name__ == "__main__":
   print("MODEL FILE: {0}".format(latest_file_path))
   test_model.load_state_dict(torch.load(latest_file_path, map_location=torch.device('cpu')))
 
-  test_main(test_model)
+  test(test_model)
   predict_all(test_model)
+
+
+if __name__ == "__main__":
+  parser = get_parser()
+  args = parser.parse_args()
+  main(args)
