@@ -29,12 +29,12 @@ def get_model(encoded_space_dim=8):
             ### Convolutional section
             self.encoder_cnn = nn.Sequential(
                 nn.Conv2d(1, 8, 3, stride=2, padding=1),
-                nn.ReLU(True),
+                nn.LeakyReLU(),
                 nn.Conv2d(8, 16, 3, stride=2, padding=1),
                 nn.BatchNorm2d(16),
-                nn.ReLU(True),
+                nn.LeakyReLU(),
                 nn.Conv2d(16, 32, 3, stride=2, padding=0),
-                nn.ReLU(True)
+                nn.LeakyReLU()
             )
 
             ### Flatten layer
@@ -43,7 +43,7 @@ def get_model(encoded_space_dim=8):
             ### Linear section
             self.encoder_lin = nn.Sequential(
                 nn.Linear(3 * 3 * 32, 128),
-                nn.ReLU(True),
+                nn.LeakyReLU(),
                 nn.Linear(128, encoded_space_dim)
             )
 
@@ -58,23 +58,21 @@ def get_model(encoded_space_dim=8):
             super(Decoder, self).__init__()
             self.decoder_lin = nn.Sequential(
                 nn.Linear(encoded_space_dim, 128),
-                nn.ReLU(True),
-                nn.Linear(128, 3 * 3 * 32),
-                nn.ReLU(True)
+                nn.LeakyReLU(),
+                nn.Linear(128, 32 * 3 * 3),
+                nn.LeakyReLU()
             )
 
-            self.unflatten = nn.Unflatten(dim=1,
-                                          unflattened_size=(32, 3, 3))
+            self.unflatten = nn.Unflatten(dim=1, unflattened_size=(32, 3, 3))
 
             self.decoder_conv = nn.Sequential(
                 nn.ConvTranspose2d(32, 16, 3,
                                    stride=2, output_padding=0),
                 nn.BatchNorm2d(16),
-                nn.ReLU(True),
+                nn.LeakyReLU(),
                 nn.ConvTranspose2d(16, 8, 3, stride=2,
                                    padding=1, output_padding=1),
-                nn.BatchNorm2d(8),
-                nn.ReLU(True),
+                nn.LeakyReLU(),
                 nn.ConvTranspose2d(8, 1, 3, stride=2,
                                    padding=1, output_padding=1)
             )
