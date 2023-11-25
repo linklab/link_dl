@@ -45,7 +45,9 @@ def get_model(encoded_space_dim=8):
 
             ### Linear section
             self.encoder_lin = nn.Sequential(
-                nn.Linear(32 * 22 * 22, 256),
+                nn.Linear(32 * 22 * 22, 1024),
+                nn.LeakyReLU(),
+                nn.Linear(1024, 256),
                 nn.LeakyReLU(),
                 nn.Linear(256, encoded_space_dim)
             )
@@ -60,7 +62,9 @@ def get_model(encoded_space_dim=8):
         def __init__(self):
             super(Decoder, self).__init__()
             self.decoder_lin = nn.Sequential(
-                nn.Linear(encoded_space_dim, 256),
+                nn.Linear(encoded_space_dim, 1024),
+                nn.LeakyReLU(),
+                nn.Linear(1024, 256),
                 nn.LeakyReLU(),
                 nn.Linear(256, 32 * 22 * 22),
                 nn.LeakyReLU()
