@@ -4,7 +4,6 @@ from datetime import datetime
 import os
 import wandb
 from pathlib import Path
-import torch.nn.functional as F
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
@@ -19,7 +18,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
 from _01_code._06_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
 from _01_code._13_autoencoders.a_arg_parser import get_parser
-from _01_code._13_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
+from _01_code._13_autoencoders.b_autoencoder_trainer import AutoencoderTrainer
 
 
 def get_model(encoded_space_dim=8):
