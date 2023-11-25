@@ -16,7 +16,8 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
-from _01_code._13_autoencoders.b_fashion_mnist_data import get_fashion_mnist_data, get_fashion_mnist_test_data
+from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
+from _01_code._06_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
 from _01_code._13_autoencoders.a_arg_parser import get_parser
 from _01_code._13_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
 
@@ -127,8 +128,8 @@ def main(args):
     print(args)
     print(wandb.config)
 
-    train_data_loader, validation_data_loader, f_mnist_transforms = get_fashion_mnist_data()
-    f_mnist_test_images, test_data_loader, f_mnist_transforms = get_fashion_mnist_test_data()
+    train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(flatten=False)
+    mnist_test_images, test_data_loader, mnist_transforms = get_mnist_test_data(flatten=False)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Training on device {device}.")
@@ -140,9 +141,9 @@ def main(args):
     optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
     regression_trainer = AutoencoderTrainer(
-        project_name, model, optimizer, train_data_loader, validation_data_loader, f_mnist_transforms,
+        project_name, model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
         run_time_str, wandb, device, CHECKPOINT_FILE_PATH,
-        f_mnist_test_images, f_mnist_transforms,
+        mnist_test_images, mnist_transforms,
         denoising=False,
     )
     regression_trainer.train_loop()
