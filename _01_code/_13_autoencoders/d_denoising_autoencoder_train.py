@@ -28,65 +28,52 @@ def get_model(encoded_space_dim=8):
             super(Encoder, self).__init__()
 
             ### Convolutional section
-            self.encoder_cnn = nn.Sequential(
-                # B x 1 x 28 x 28 --> B x 4 x (28 - 3 + 1) x (28 - 3 + 1) = B x 4 x 26 x 26
-                nn.Conv2d(1, 4, 3, stride=1),
-                nn.LeakyReLU(),
-                # B x 4 x 26 x 26 --> B x 8 x (26 - 3 + 1) x (26 - 3 + 1) = B x 8 x 24 x 24
-                nn.Conv2d(4, 8, 3, stride=1),
-                nn.BatchNorm2d(8),
-                nn.LeakyReLU(),
-                # B x 8 x 24 x 24 --> B x 16 x (24 - 3 + 1) x (24 - 3 + 1) = B x 16 x 22 x 22
-                nn.Conv2d(8, 16, 3, stride=1),
-                nn.LeakyReLU()
-            )
+            self.encoder = nn.Sequential(
+                nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(32),
+                nn.ReLU(),
 
-            ### Flatten layer
-            self.flatten = nn.Flatten(start_dim=1)
+                nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(),
 
-            ### Linear section
-            self.encoder_lin = nn.Sequential(
-                nn.Linear(16 * 22 * 22, 1024),
-                nn.LeakyReLU(),
-                nn.Linear(1024, 256),
-                nn.LeakyReLU(),
-                nn.Linear(256, encoded_space_dim)
+                nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(128),
+                nn.ReLU(),
+                nn.MaxPool2d(kernel_size=1, stride=2),
+
+                nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(256),
+                nn.ReLU(),
+                nn.MaxPool2d(kernel_size=1, stride=2)
             )
 
         def forward(self, x):
-            x = self.encoder_cnn(x)
-            x = self.flatten(x)
-            x = self.encoder_lin(x)
+            x = self.encoder(x)
             return x
 
     class Decoder(nn.Module):
         def __init__(self):
             super(Decoder, self).__init__()
-            self.decoder_lin = nn.Sequential(
-                nn.Linear(encoded_space_dim, 256),
-                nn.LeakyReLU(),
-                nn.Linear(256, 1024),
-                nn.LeakyReLU(),
-                nn.Linear(1024, 16 * 22 * 22),
-                nn.LeakyReLU()
-            )
+            self.decoder = nn.Sequential(
+                nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(128),
+                nn.ReLU(),
 
-            self.unflatten = nn.Unflatten(dim=1, unflattened_size=(16, 22, 22))
+                nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=2, stride=2, padding=0),
+                nn.BatchNorm2d(64),
+                nn.ReLU(),
 
-            self.decoder_conv = nn.Sequential(
-                nn.ConvTranspose2d(16, 8, 3, stride=1),
-                nn.BatchNorm2d(8),
-                nn.LeakyReLU(),
-                nn.ConvTranspose2d(8, 4, 3, stride=1),
-                nn.LeakyReLU(),
-                nn.ConvTranspose2d(4, 1, 3, stride=1)
+                nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=2, stride=2, padding=0),
+                nn.BatchNorm2d(32),
+                nn.ReLU(),
+
+                nn.ConvTranspose2d(in_channels=32, out_channels=1, kernel_size=3, stride=1, padding=1),
+                nn.Sigmoid()
             )
 
         def forward(self, x):
-            x = self.decoder_lin(x)
-            x = self.unflatten(x)
-            x = self.decoder_conv(x)
-            x = torch.sigmoid(x)
+            x = self.decoder(x)
             return x
 
     class Autoencoder(torch.nn.Module):
