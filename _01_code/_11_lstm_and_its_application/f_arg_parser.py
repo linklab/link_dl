@@ -21,6 +21,10 @@ def get_parser():
   )
 
   parser.add_argument(
+    "-w", "--weight_decay", type=float, default=0.0, help="Weight decay (float, default: 0.0)"
+  )
+
+  parser.add_argument(
     "-v", "--validation_intervals", type=int, default=30,
     help="Number of training epochs between validations (int, default: 10)"
   )

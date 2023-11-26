@@ -75,6 +75,7 @@ def main(args):
     'learning_rate': args.learning_rate,
     'early_stop_patience': args.early_stop_patience,
     'early_stop_delta': args.early_stop_delta,
+    'weight_decay': args.weight_decay
   }
 
   project_name = "lstm_regression_btc_krw"
@@ -97,7 +98,7 @@ def main(args):
   model.to(device)
   wandb.watch(model)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=wandb.config.weight_decay)
 
   regression_trainer = RegressionTrainer(
     project_name, model, optimizer, train_data_loader, validation_data_loader, None,
@@ -106,6 +107,7 @@ def main(args):
   regression_trainer.train_loop()
 
   wandb.finish()
+
 
 if __name__ == "__main__":
   parser = get_parser()
