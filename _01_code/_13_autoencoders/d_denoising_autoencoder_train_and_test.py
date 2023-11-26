@@ -62,20 +62,20 @@ def get_model(encoded_space_dim=2):
                 nn.Unflatten(1, (64, 7, 7)),
                 nn.LeakyReLU(),
 
-                # B x 64 x 7 x 7 --> B x 64 x ((7 - 1) x 2 - 2 x 1 + 3 + 2 x 1) x ((7 - 1) x 2 - 2 x 1 + 3 + 2 x 1) =
-                # B x 64 x (12 - 2 + 3 + 2) x (12 - 2 + 3 + 2) = B x 64 x 15 x 15
+                # B x 64 x 7 x 7 --> B x 64 x ((7 - 1) x 2 - 2 x 1 + 3 + 1) x ((7 - 1) x 2 - 2 x 1 + 3 + 1) =
+                # B x 64 x (12 - 2 + 3 + 1) x (12 - 2 + 3 + 1) = B x 64 x 14 x 14
                 nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, padding=1, stride=2, output_padding=1),
                 nn.BatchNorm2d(64),
-                nn.ReLU(),
+                nn.LeakyReLU(),
 
-                # B x 64 x 15 x 15 --> B x 32 x ((15 - 1) x 2 - 2 x 1 + 3 + 2 x 1) x ((15 - 1) x 2 - 2 x 1 + 3 + 2 x 1) =
-                # B x 32 x (28 - 2 + 3 + 2) x (12 - 2 + 3 + 2) = B x 32 x 31 x 31
+                # B x 64 x 14 x 14 --> B x 32 x ((14 - 1) x 2 - 2 x 1 + 3 + 1) x ((15 - 1) x 2 - 2 x 1 + 3 + 1) =
+                # B x 32 x (26 - 2 + 3 + 1) x (26 - 2 + 3 + 1) = B x 32 x 28 x 28
                 nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=3, padding=1, stride=2, output_padding=1),
                 nn.BatchNorm2d(32),
-                nn.ReLU(),
+                nn.LeakyReLU(),
 
-                # B x 32 x 31 x 31 --> B x 1 x ((31 - 1) x 1 - 2 x 1 + 3 + 2 x 0) x ((31 - 1) x 1 - 2 x 1 + 3 + 2 x 0) =
-                # B x 1 x (30 - 2 + 3) x (30 - 2 + 3) = B x 1 x 31 x 31
+                # B x 32 x 28 x 28 --> B x 1 x ((28 - 1) x 1 - 2 x 1 + 3 + 0) x ((28 - 1) x 1 - 2 x 1 + 3 + 0) =
+                # B x 1 x (27 - 2 + 3) x (27 - 2 + 3) = B x 1 x 28 x 28
                 nn.ConvTranspose2d(in_channels=32, out_channels=1, kernel_size=3, padding=1),
                 nn.Sigmoid()
             )
