@@ -1,3 +1,4 @@
+# https://blog.joonas.io/215
 import torch
 from torch import nn, optim
 from datetime import datetime
@@ -17,34 +18,36 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 
 from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
 from _01_code._06_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
-from _01_code._13_autoencoders.a_arg_parser import get_parser
-from _01_code._13_autoencoders.b_autoencoder_trainer import AutoencoderTrainer
+from _01_code._13_autoencoders.b_arg_parser import get_parser
+from _01_code._13_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
 
 
-def get_model(encoded_space_dim=8):
+def get_model(encoded_space_dim=2):
     class Encoder(nn.Module):
         def __init__(self):
             super(Encoder, self).__init__()
 
             ### Convolutional section
             self.encoder = nn.Sequential(
-                nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1),
+                # B x 1 x 28 x 28 --> B x 32 x (28 - 3 + 2 + 1) x (28 - 3 + 2 + 1) = B x 32 x 28 x 28
+                nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1, stride=1),
                 nn.BatchNorm2d(32),
-                nn.ReLU(),
+                nn.LeakyReLU(),
 
-                nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1),
+                # B x 32 x 28 x 28 --> B x 64 x (|(28 - 3 + 2) / 2| + 1) x (|(28 - 3 + 2) / 2| + 1) = B x 64 x 14 x 14
+                nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1, stride=2),
                 nn.BatchNorm2d(64),
-                nn.ReLU(),
+                nn.LeakyReLU(),
 
-                nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm2d(128),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=1, stride=2),
+                # B x 64 x 14 x 14 --> B x 64 x (|(14 - 3 + 2) / 2| + 1) x (|(28 - 3 + 2) / 2| + 1) = B x 64 x 7 x 7
+                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1, stride=2),
+                nn.BatchNorm2d(64),
+                nn.LeakyReLU(),
 
-                nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm2d(256),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=1, stride=2)
+                nn.Flatten(),
+
+                nn.Linear(64 * 7 * 7, encoded_space_dim),
+                nn.LeakyReLU(),
             )
 
         def forward(self, x):
@@ -55,19 +58,25 @@ def get_model(encoded_space_dim=8):
         def __init__(self):
             super(Decoder, self).__init__()
             self.decoder = nn.Sequential(
-                nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm2d(128),
-                nn.ReLU(),
+                nn.Linear(encoded_space_dim, 64 * 7 * 7),
+                nn.Unflatten(1, (64, 7, 7)),
+                nn.LeakyReLU(),
 
-                nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=2, stride=2, padding=0),
+                # B x 64 x 7 x 7 --> B x 64 x ((7 - 1) x 2 - 2 x 1 + 3 + 2 x 1) x ((7 - 1) x 2 - 2 x 1 + 3 + 2 x 1) =
+                # B x 64 x (12 - 2 + 3 + 2) x (12 - 2 + 3 + 2) = B x 64 x 15 x 15
+                nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, padding=1, stride=2, output_padding=1),
                 nn.BatchNorm2d(64),
                 nn.ReLU(),
 
-                nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=2, stride=2, padding=0),
+                # B x 64 x 15 x 15 --> B x 32 x ((15 - 1) x 2 - 2 x 1 + 3 + 2 x 1) x ((15 - 1) x 2 - 2 x 1 + 3 + 2 x 1) =
+                # B x 32 x (28 - 2 + 3 + 2) x (12 - 2 + 3 + 2) = B x 32 x 31 x 31
+                nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=3, padding=1, stride=2, output_padding=1),
                 nn.BatchNorm2d(32),
                 nn.ReLU(),
 
-                nn.ConvTranspose2d(in_channels=32, out_channels=1, kernel_size=3, stride=1, padding=1),
+                # B x 32 x 31 x 31 --> B x 1 x ((31 - 1) x 1 - 2 x 1 + 3 + 2 x 0) x ((31 - 1) x 1 - 2 x 1 + 3 + 2 x 0) =
+                # B x 1 x (30 - 2 + 3) x (30 - 2 + 3) = B x 1 x 31 x 31
+                nn.ConvTranspose2d(in_channels=32, out_channels=1, kernel_size=3, padding=1),
                 nn.Sigmoid()
             )
 
@@ -82,7 +91,7 @@ def get_model(encoded_space_dim=8):
             self.decoder = Decoder()
 
         def forward(self, x):
-            x = self.encoder(x)
+            x = self.encoder(x)  # x.shape: [B, 256, 7, 7]
             x = self.decoder(x)
             return x
 
@@ -121,6 +130,10 @@ def main(args):
     print(f"Training on device {device}.")
 
     model = get_model()
+
+    from torchinfo import summary
+    summary(model, input_size=(1, 1, 28, 28))
+
     model.to(device)
     wandb.watch(model)
 
