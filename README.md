@@ -5,7 +5,8 @@ link_deep_learning
 # environment
 
 '''
-conda create -n link_dl python=3.10 conda activate link_dl
+conda create -n link_dl python=3.10 
+conda activate link_dl
 '''
 
 # pull repository

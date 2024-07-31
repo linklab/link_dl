@@ -174,3 +174,5 @@ wandb
 *.zip
 
 _04_homeworks_solution
+
+ignore
