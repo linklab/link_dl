@@ -63,7 +63,7 @@ y_train_classification = torch.tensor(y_train_classification_list, dtype=torch.i
 print(y_train_classification)
 
 m = X_train.mean(dim=0, keepdim=True)
-s = X_train.std(dim=0, unbiased=False, keepdim=True)
+s = X_train.std(dim=0, keepdim=True)
 X_train -= m
 X_train /= s
 print(X_train.shape, y_train_regression.shape, y_train_classification.shape)

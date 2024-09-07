@@ -69,7 +69,7 @@ def get_cryptocurrency_data(
   y_train_classification = torch.tensor(y_train_classification_list, dtype=torch.int64)
 
   m = X_train.mean(dim=0, keepdim=True)
-  s = X_train.std(dim=0, unbiased=False, keepdim=True)
+  s = X_train.std(dim=0, keepdim=True)
   X_train = (X_train - m) / s
 
   #################################################################################################

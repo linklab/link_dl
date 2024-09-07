@@ -18,7 +18,7 @@ bikes_numpy = np.loadtxt(
   }
 )
 bikes_data = torch.from_numpy(bikes_numpy).to(torch.float)
-print(bikes_data.shape, "!!!")    # >>> torch.Size([17520, 17])
+print(bikes_data.shape)    # >>> torch.Size([17520, 17])
 bikes_target = bikes_data[:, -1].unsqueeze(dim=-1)  # 'cnt'
 bikes_data = bikes_data[:, :-1]   # >>> torch.Size([17520, 16])
 
@@ -67,10 +67,11 @@ for idx in range(0, train_size):
   row_cursor += 1
 
 X_train = torch.stack(X_train_list, dim=0).to(torch.float)
+print(X_train.shape)
 y_train_regression = torch.tensor(y_train_regression_list, dtype=torch.float32) / y_normalizer
 
 m = X_train.mean(dim=0, keepdim=True)
-s = X_train.std(dim=0, unbiased=False, keepdim=True)
+s = X_train.std(dim=0, keepdim=True)
 X_train = (X_train - m) / s
 
 print(X_train.shape, y_train_regression.shape)

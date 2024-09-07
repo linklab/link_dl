@@ -78,7 +78,7 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
   y_train_regression = torch.tensor(y_train_regression_list, dtype=torch.float32) / y_normalizer
 
   m = X_train.mean(dim=0, keepdim=True)
-  s = X_train.std(dim=0, unbiased=False, keepdim=True)
+  s = X_train.std(dim=0, keepdim=True)
   X_train = (X_train - m) / s
 
   #################################################################################################
