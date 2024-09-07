@@ -173,6 +173,7 @@ wandb
 
 *.zip
 
+_01_code
 _03_your_code
 _04_homeworks_solution
 
