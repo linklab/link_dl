@@ -31,7 +31,7 @@ sequence_size = 10
 validation_size = 100
 test_size = 50
 
-data_size = row_size - sequence_size
+data_size = row_size - sequence_size + 1
 print("data_size: {0}".format(data_size))
 train_size = data_size - (validation_size + test_size)
 print("train_size: {0}, validation_size: {1}, test_size: {2}".format(train_size, validation_size, test_size))
@@ -50,11 +50,11 @@ y_train_date = []
 for idx in range(0, train_size):
   sequence_data = df.iloc[idx: idx + sequence_size].values  # sequence_data.shape: (sequence_size, 5)
   X_train_list.append(torch.from_numpy(sequence_data))
-  y_train_regression_list.append(df.iloc[idx + sequence_size]["Close"])
+  y_train_regression_list.append(df.iloc[idx + sequence_size - 1]["Close"])
   y_train_classification_list.append(
-    1 if df.iloc[idx + sequence_size]["Close"] >= df.iloc[idx + sequence_size - 1]["Close"] else 0
+    1 if df.iloc[idx + sequence_size - 1]["Close"] >= df.iloc[idx + sequence_size - 1]["Close"] else 0
   )
-  y_train_date.append(date_list[idx + sequence_size])
+  y_train_date.append(date_list[idx + sequence_size - 1])
   row_cursor += 1
 
 X_train = torch.stack(X_train_list, dim=0).to(torch.float)
@@ -80,11 +80,11 @@ y_validation_date = []
 for idx in range(row_cursor, row_cursor + validation_size):
   sequence_data = df.iloc[idx: idx + sequence_size].values     # sequence_data.shape: (sequence_size, 5)
   X_validation_list.append(torch.from_numpy(sequence_data))
-  y_validation_regression_list.append(df.iloc[idx + sequence_size]["Close"])
+  y_validation_regression_list.append(df.iloc[idx + sequence_size - 1]["Close"])
   y_validation_classification_list.append(
-    1 if df.iloc[idx + sequence_size]["Close"] >= df.iloc[idx + sequence_size - 1]["Close"] else 0
+    1 if df.iloc[idx + sequence_size - 1]["Close"] >= df.iloc[idx + sequence_size - 1]["Close"] else 0
   )
-  y_validation_date.append(date_list[idx + sequence_size])
+  y_validation_date.append(date_list[idx + sequence_size - 1])
   row_cursor += 1
 
 X_validation = torch.stack(X_validation_list, dim=0).to(torch.float)
@@ -107,11 +107,11 @@ y_test_date = []
 for idx in range(row_cursor, row_cursor + test_size):
   sequence_data = df.iloc[idx: idx + sequence_size].values   # sequence_data.shape: (sequence_size, 5)
   X_test_list.append(torch.from_numpy(sequence_data))
-  y_test_regression_list.append(df.iloc[idx + sequence_size]["Close"])
+  y_test_regression_list.append(df.iloc[idx + sequence_size - 1]["Close"])
   y_test_classification_list.append(
-    1 if df.iloc[idx + sequence_size]["Close"] > df.iloc[idx + sequence_size - 1]["Close"] else 0
+    1 if df.iloc[idx + sequence_size - 1]["Close"] > df.iloc[idx + sequence_size - 1]["Close"] else 0
   )
-  y_test_date.append(date_list[idx + sequence_size])
+  y_test_date.append(date_list[idx + sequence_size - 1])
   row_cursor += 1
 
 X_test = torch.stack(X_test_list, dim=0).to(torch.float)

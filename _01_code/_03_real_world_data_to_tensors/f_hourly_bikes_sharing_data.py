@@ -46,7 +46,7 @@ validation_size = 96
 test_size = 24
 y_normalizer = 100
 
-data_size = len(bikes_data) - sequence_size
+data_size = len(bikes_data) - sequence_size + 1
 print("data_size: {0}".format(data_size))
 train_size = data_size - (validation_size + test_size)
 print("train_size: {0}, validation_size: {1}, test_size: {2}".format(train_size, validation_size, test_size))
