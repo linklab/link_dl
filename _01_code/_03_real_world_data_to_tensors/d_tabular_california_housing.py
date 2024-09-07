@@ -31,15 +31,15 @@ print("#" * 50, 2)
 
 from sklearn.model_selection import train_test_split
 
-X_train, X_valid, y_train, y_valid = train_test_split(data, target, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.2)
 
 X_train = torch.from_numpy(X_train)
-X_valid = torch.from_numpy(X_valid)
+X_test = torch.from_numpy(X_test)
 y_train = torch.from_numpy(y_train)
-y_valid = torch.from_numpy(y_valid)
+y_test = torch.from_numpy(y_test)
 
 print(X_train.shape)
 print(y_train.shape)
 
-print(X_valid.shape)
-print(y_valid.shape)
+print(X_test.shape)
+print(y_test.shape)

@@ -64,13 +64,13 @@ print("#" * 50, 4)
 
 from sklearn.model_selection import train_test_split
 
-X_train, X_valid, y_train, y_valid = train_test_split(data, onehot_target, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(data, onehot_target, test_size=0.2)
 
 print(X_train.shape)
 print(y_train.shape)
 
-print(X_valid.shape)
-print(y_valid.shape)
+print(X_test.shape)
+print(y_test.shape)
 
 
 def get_wine_data():
