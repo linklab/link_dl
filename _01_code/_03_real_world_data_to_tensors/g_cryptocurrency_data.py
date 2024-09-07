@@ -52,7 +52,7 @@ for idx in range(0, train_size):
   X_train_list.append(torch.from_numpy(sequence_data))
   y_train_regression_list.append(df.iloc[idx + sequence_size - 1]["Close"])
   y_train_classification_list.append(
-    1 if df.iloc[idx + sequence_size - 1]["Close"] >= df.iloc[idx + sequence_size - 1]["Close"] else 0
+    1 if df.iloc[idx + sequence_size - 1]["Close"] >= df.iloc[idx + sequence_size - 2]["Close"] else 0
   )
   y_train_date.append(date_list[idx + sequence_size - 1])
   row_cursor += 1
@@ -82,7 +82,7 @@ for idx in range(row_cursor, row_cursor + validation_size):
   X_validation_list.append(torch.from_numpy(sequence_data))
   y_validation_regression_list.append(df.iloc[idx + sequence_size - 1]["Close"])
   y_validation_classification_list.append(
-    1 if df.iloc[idx + sequence_size - 1]["Close"] >= df.iloc[idx + sequence_size - 1]["Close"] else 0
+    1 if df.iloc[idx + sequence_size - 1]["Close"] >= df.iloc[idx + sequence_size - 2]["Close"] else 0
   )
   y_validation_date.append(date_list[idx + sequence_size - 1])
   row_cursor += 1
@@ -109,7 +109,7 @@ for idx in range(row_cursor, row_cursor + test_size):
   X_test_list.append(torch.from_numpy(sequence_data))
   y_test_regression_list.append(df.iloc[idx + sequence_size - 1]["Close"])
   y_test_classification_list.append(
-    1 if df.iloc[idx + sequence_size - 1]["Close"] > df.iloc[idx + sequence_size - 1]["Close"] else 0
+    1 if df.iloc[idx + sequence_size - 1]["Close"] > df.iloc[idx + sequence_size - 2]["Close"] else 0
   )
   y_test_date.append(date_list[idx + sequence_size - 1])
   row_cursor += 1
