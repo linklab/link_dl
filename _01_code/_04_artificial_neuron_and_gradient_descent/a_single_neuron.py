@@ -48,7 +48,7 @@ def activate(u):
 
 
 def loss_fn(y_pred, y):
-  loss = torch.square(y_pred - y).mean()
+  loss = torch.square(y_pred - y).mean()    # print(loss.shape) >>> torch.Size([])
   assert loss.shape == () or loss.shape == (1,)
   return loss
 
