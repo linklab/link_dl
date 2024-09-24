@@ -10,9 +10,12 @@ def learn(W, b, train_data_loader):
 
   for epoch in range(0, MAX_EPOCHS):
     batch = next(iter(train_data_loader))
-    inputs, target = batch
-    y_pred = model(input, W, b)
-    loss = loss_fn(y_pred, target)
+    inputs, targets = batch
+    # inputs.shape: torch.Size([12, 2])
+    # target.shape: torch.Size([12])
+
+    y_pred = model(inputs, W, b)
+    loss = loss_fn(y_pred, targets)
 
     loss.backward()
 
