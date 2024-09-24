@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 
-from a_single_neuron import model, loss_fn, SimpleDataset
+from _01_code._04_artificial_neuron_and_gradient_descent_and_bp.a_single_neuron import model, loss_fn, SimpleDataset
 
 
 def learn(W, b, train_data_loader):
