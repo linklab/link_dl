@@ -17,8 +17,8 @@ class ClassificationNet(nn.Module):
     return z
 
 model = ClassificationNet(input_size=4, output_size=1)
-x = torch.rand(size=(256, 4))   # (1, 4)
-y = torch.ones(size=(256, 1))   # (1, 1): value
+x = torch.rand(size=(256, 4))
+y = torch.randint(0, 2, size=(256, 1)).float()
 z = model(x)	              # mu = 𝑁𝑁(𝑥_𝑖;𝜽)
 bce_loss = nn.BCEWithLogitsLoss()
 loss = bce_loss(z, y)

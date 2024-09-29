@@ -18,9 +18,9 @@ class ClassificationNet(nn.Module):
     lda = F.log_softmax(z, dim=-1)
     return lda
 
-model = ClassificationNet(input_size=4, output_size=4)
-x = torch.rand(size=(256, 4))   # (256, 4)
-y = torch.torch.empty(256, dtype=torch.long).random_(4)   # (256, 1): value
+model = ClassificationNet(input_size=4, output_size=10)
+x = torch.rand(size=(256, 4))
+y = torch.empty(256, dtype=torch.long).random_(10)
 lda = model(x)	              # mu = 𝑁𝑁(𝑥_𝑖;𝜽)
 ce_loss = nn.NLLLoss()
 loss = ce_loss(lda, y)

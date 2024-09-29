@@ -17,9 +17,9 @@ class ClassificationNet(nn.Module):
     z = self.outp(z) # logits output
     return z
 
-model = ClassificationNet(input_size=4, output_size=4)
-x = torch.rand(size=(256, 4))   # (1, 4)
-y = torch.torch.empty(256, dtype=torch.long).random_(4)   # (1, 1): value
+model = ClassificationNet(input_size=4, output_size=10)
+x = torch.rand(size=(256, 4))
+y = torch.empty(256, dtype=torch.long).random_(10)
 z = model(x)	              # mu = 𝑁𝑁(𝑥_𝑖;𝜽)
 ce_loss = nn.CrossEntropyLoss()
 loss = ce_loss(z, y)
