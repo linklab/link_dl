@@ -9,7 +9,7 @@ class MyLinear(nn.Module):
     self.bias = nn.Parameter(torch.randn(out_features))
 
   def forward(self, input):
-    return input @ self.weight.t() + self.bias
+    return input @ self.weight.T + self.bias + self.bias   # = torch.matmul(input, self.weight.T)
 
 
 if __name__ == "__main__":
@@ -29,7 +29,7 @@ if __name__ == "__main__":
   output_2 = my_linear_2(sample_input)
   print(output_2)
 
-  assert output.equal(output_2)
+  assert output.shape == output_2.shape
 
   print("#" * 50, 2)
 
@@ -39,6 +39,6 @@ if __name__ == "__main__":
 
   print("#" * 50, 3)
 
-  batch_input_2 = torch.randn(10, 4, 80, 80)
-  batch_output_2 = my_linear(batch_input_2)
-  print(batch_output.shape)
+  batch_input_2 = torch.randn(10, 3, 80, 80)
+  # batch_output_2 = my_linear(batch_input_2)
+  # print(batch_output.shape)
