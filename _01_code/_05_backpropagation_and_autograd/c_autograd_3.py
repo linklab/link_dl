@@ -5,9 +5,9 @@ weights = torch.ones(4, requires_grad=True)
 
 for epoch in range(3):
   # just a dummy example
-  output = (weights * 3).sum()
-  print("[output {0}]:".format(epoch), output)
-  output.backward()
+  loss = (weights * 3).sum()
+  print("[loss {0}]:".format(epoch), loss)
+  loss.backward()
 
   print("weights.grad:", weights.grad)
 
@@ -21,8 +21,8 @@ for epoch in range(3):
   print("weights:", weights)
   print()
 
-output = (weights * 3).sum()
-print("\n[output final]:", output)
+loss = (weights * 3).sum()
+print("\n[final loss]:", loss)
 
 print("#" * 50, 1)
 
@@ -31,9 +31,9 @@ optimizer = torch.optim.SGD([weights], lr=0.1)
 
 for epoch in range(3):
   # just a dummy example
-  output = (weights * 3).sum()
-  print("[output {0}]:".format(epoch), output)
-  output.backward()
+  loss = (weights * 3).sum()
+  print("[loss {0}]:".format(epoch), loss)
+  loss.backward()
 
   print("weights.grad:", weights.grad)
 
@@ -44,5 +44,5 @@ for epoch in range(3):
   print("weights:", weights)
   print()
 
-output = (weights * 3).sum()
-print("\n[output final]:", output)
+loss = (weights * 3).sum()
+print("\n[final loss]:", loss)

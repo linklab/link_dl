@@ -56,7 +56,6 @@ def loss_fn(y_pred, y):
 def gradient(W, b, X, y_pred, y):
   # W.shape: (2,), b.shape: (1,)
   # X.shape: (12, 2), y.shape: (12,)
-  y_pred = model(X, W, b)
   dl_dy = 2 * (y_pred - y)
   dl_dy = dl_dy.unsqueeze(dim=-1)  # dl_dy_pred.shape: [12, 1]
 

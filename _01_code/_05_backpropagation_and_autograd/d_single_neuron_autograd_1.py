@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 
-from a_single_neuron import model, loss_fn, SimpleDataset
+from _01_code._04_artificial_neuron_and_gradient_descent_and_bp.a_single_neuron import model, loss_fn, SimpleDataset
 
 
 def learn(W, b, train_data_loader):
@@ -10,8 +10,12 @@ def learn(W, b, train_data_loader):
 
   for epoch in range(0, MAX_EPOCHS):
     batch = next(iter(train_data_loader))
-    y_pred = model(batch["input"], W, b)
-    loss = loss_fn(y_pred, batch["target"])
+    inputs, targets = batch
+    # inputs.shape: torch.Size([12, 2])
+    # target.shape: torch.Size([12])
+
+    y_pred = model(inputs, W, b)
+    loss = loss_fn(y_pred, targets)
 
     loss.backward()
 
@@ -24,8 +28,8 @@ def learn(W, b, train_data_loader):
     with torch.no_grad():
       W -= LEARNING_RATE * W.grad
       b -= LEARNING_RATE * b.grad
-      W.grad = None
-      b.grad = None
+      W.grad.zero_()
+      b.grad.zero_()
 
 
 def main():
