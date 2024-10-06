@@ -121,8 +121,6 @@ def main(args):
 
   linear_model, optimizer = get_model_and_optimizer()
 
-  wandb.watch(linear_model)
-
   print("#" * 50, 1)
 
   training_loop(

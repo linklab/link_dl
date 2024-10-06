@@ -45,6 +45,7 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
     for idx, train_batch in enumerate(train_data_loader):
       input, target = train_batch
       output_train = model(input)
+
       loss = loss_fn(output_train, target)
       loss_train += loss.item()
       num_trains += 1
@@ -59,6 +60,7 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
       for idx, validation_batch in enumerate(validation_data_loader):
         input, target = validation_batch
         output_validation = model(input)
+
         loss = loss_fn(output_validation, target)
         loss_validation += loss.item()
         num_validations += 1
