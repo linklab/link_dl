@@ -14,9 +14,9 @@ activation_list = [
   nn.ReLU(),
 
   nn.ReLU6(),
-  nn.ELU(),
+  nn.ELU(alpha=1.0),
 
-  nn.LeakyReLU(negative_slope=0.1),
+  nn.LeakyReLU(negative_slope=0.01),
   nn.RReLU(),
 ]
 
