@@ -27,11 +27,12 @@ class ClassificationTester:
       for test_batch in self.test_data_loader:
         input_test, target_test = test_batch
 
-        input_test = self.transforms(input_test)
+        if self.transforms:
+          input_test = self.transforms(input_test)
 
         output_test = self.model(input_test)
 
-        predicted_test = torch.argmax(output_test, dim=1)
+        predicted_test = torch.argmax(output_test, dim=-1)
         num_corrects_test += torch.sum(torch.eq(predicted_test, target_test))
 
         num_tested_samples += len(input_test)
@@ -47,6 +48,6 @@ class ClassificationTester:
       input_test = self.transforms(input_test)
 
       output_test = self.model(input_test)
-      predicted_test = torch.argmax(output_test, dim=1)
+      predicted_test = torch.argmax(output_test, dim=-1)
 
     return predicted_test.item()
