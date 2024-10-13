@@ -26,7 +26,7 @@ class ClassificationTrainer:
     self.loss_fn = nn.CrossEntropyLoss()
 
   def do_train(self):
-    self.model.train()  # Explained at 'Diverse Techniques' section
+    self.model.train()  # Will be explained at 'Diverse Techniques' section
 
     loss_train = 0.0
     num_corrects_train = 0
@@ -42,11 +42,13 @@ class ClassificationTrainer:
         input_train = self.transforms(input_train)
 
       output_train = self.model(input_train)
-
       loss = self.loss_fn(output_train, target_train)
       loss_train += loss.item()
 
-      predicted_train = torch.argmax(output_train, dim=1)
+      predicted_train = torch.argmax(output_train, dim=-1)
+
+      # >>> predicted_train: tensor([5, 8, 9, 0, 9, 8, 9, 8, ..., 0, 1, 3, 7, 1, 4, 3])
+      # >>> target_train:    tensor([5, 8, 9, 2, 9, 8, 7, 8, ..., 4, 1, 9, 6, 1, 4, 3])
       num_corrects_train += torch.sum(torch.eq(predicted_train, target_train)).item()
 
       num_trained_samples += len(input_train)

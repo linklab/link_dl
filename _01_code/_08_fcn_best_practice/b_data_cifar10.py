@@ -77,5 +77,5 @@ train_data_loader = DataLoader(dataset=cifar10_train, batch_size=32, shuffle=Tru
 for idx, train_batch in enumerate(train_data_loader):
     input, target = train_batch
     transformed_input = cifar10_transforms(input)
-    if idx == 0:
-        print(input.shape, transformed_input.shape)
+    print(input.shape, transformed_input.shape, target.shape)
+    print(target)
