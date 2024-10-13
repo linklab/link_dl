@@ -16,8 +16,8 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_model
-from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
+from _01_code._08_fcn_best_practice.h_cifar10_train_fcn import get_model
+from _01_code._08_fcn_best_practice.d_tester import ClassificationTester
 
 
 def get_cifar10_test_data(flatten=False):

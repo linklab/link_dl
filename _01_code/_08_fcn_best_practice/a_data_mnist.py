@@ -8,6 +8,8 @@ from torch.utils.data import random_split, DataLoader
 from torchvision import datasets
 
 data_path = os.path.join(os.path.pardir, os.path.pardir, "_00_data", "h_mnist")
+# If train=True, creates dataset from train-images-idx3-ubyte,
+# otherwise from t10k-images-idx3-ubyte.
 mnist_train_images = datasets.MNIST(data_path, train=True, download=True)
 mnist_test_images = datasets.MNIST(data_path, train=False, download=True)
 
