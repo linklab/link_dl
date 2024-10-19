@@ -17,9 +17,9 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
-from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
-from _01_code._06_fcn_best_practice.e_arg_parser import get_parser
+from _01_code._08_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._08_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
+from _01_code._08_fcn_best_practice.e_arg_parser import get_parser
 
 
 def get_cnn_model():
@@ -38,6 +38,7 @@ def get_cnn_model():
         # B x 16 x 8 x 8 --> B x 16 x 4 x 4
         nn.MaxPool2d(kernel_size=2, stride=2),
         nn.ReLU(),
+        # B x 16 x 4 x 4 --> B x 256
         nn.Flatten(),
         nn.Linear(256, 128),
         nn.ReLU(),
