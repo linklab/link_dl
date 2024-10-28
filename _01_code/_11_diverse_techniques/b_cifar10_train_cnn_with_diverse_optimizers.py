@@ -17,10 +17,10 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
-from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._07_cnn.c_cifar10_train_cnn import get_cnn_model
-from _01_code._08_diverse_techniques.a_arg_parser import get_parser
+from _01_code._08_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._08_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
+from _01_code._10_cnn_architectures.c_cifar10_train_cnn import get_cnn_model
+from _01_code._11_diverse_techniques.a_arg_parser import get_parser
 
 
 def main(args):
@@ -80,7 +80,7 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 0 -v 1
-  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 1 -v 1
-  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 2 -v 1
-  # python _01_code/_08_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 3 -v 1
+  # python _01_code/_11_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 0 -v 1
+  # python _01_code/_11_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 1 -v 1
+  # python _01_code/_11_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 2 -v 1
+  # python _01_code/_11_diverse_techniques/b_cifar10_train_cnn_with_diverse_optimizers.py --wandb -o 3 -v 1

@@ -17,10 +17,10 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
-from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._07_cnn.c_cifar10_train_cnn import get_cnn_model
-from _01_code._08_diverse_techniques.a_arg_parser import get_parser
+from _01_code._08_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._08_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
+from _01_code._10_cnn_architectures.c_cifar10_train_cnn import get_cnn_model
+from _01_code._11_diverse_techniques.a_arg_parser import get_parser
 
 
 def get_cnn_model_with_dropout():
