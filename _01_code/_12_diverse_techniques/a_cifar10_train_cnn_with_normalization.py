@@ -17,10 +17,10 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
-from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._08_diverse_techniques.e_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
-from _01_code._08_diverse_techniques.a_arg_parser import get_parser
+from _01_code._08_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._08_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
+from _01_code._11_diverse_techniques.e_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
+from _01_code._11_diverse_techniques.a_arg_parser import get_parser
 
 
 def get_cnn_model_with_dropout_and_batch_normalization():
@@ -167,6 +167,6 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb -v 1 -o 3 -w 0.002 --dropout -n 0
-  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb -v 1 -o 3 -w 0.002 --dropout -n 1
-  # python _01_code/_08_diverse_techniques/f_cifar10_train_cnn_with_normalization.py --wandb -v 1 -o 3 -w 0.002 --dropout -n 2
+  # python _01_code/_12_diverse_techniques/a_cifar10_train_cnn_with_normalization.py --wandb -v 1 -o 3 -w 0.002 --dropout -n 0
+  # python _01_code/_12_diverse_techniques/a_cifar10_train_cnn_with_normalization.py --wandb -v 1 -o 3 -w 0.002 --dropout -n 1
+  # python _01_code/_12_diverse_techniques/a_cifar10_train_cnn_with_normalization.py --wandb -v 1 -o 3 -w 0.002 --dropout -n 2

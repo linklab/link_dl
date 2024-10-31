@@ -82,9 +82,9 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.0
-  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.001
-  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.002
-  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.005
-  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.01
-  # python _01_code/_08_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.02
+  # python _01_code/_11_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.0
+  # python _01_code/_11_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.001
+  # python _01_code/_11_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.002
+  # python _01_code/_11_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.005
+  # python _01_code/_11_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.01
+  # python _01_code/_11_diverse_techniques/c_cifar10_train_cnn_with_weight_decay.py --wandb -v 1 -o 3 -w 0.02

@@ -124,5 +124,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_08_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --wandb -v 1 -o 3 -w 0.002 --dropout
-  # python _01_code/_08_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --wandb -v 1 -o 3 -w 0.002 --no-dropout
+  # python _01_code/_11_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --wandb -v 1 -o 3 -w 0.002 --dropout
+  # python _01_code/_11_diverse_techniques/e_cifar10_train_cnn_with_dropout.py --wandb -v 1 -o 3 -w 0.002 --no-dropout
