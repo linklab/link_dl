@@ -17,9 +17,9 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
-from _01_code._06_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._09_modern_cnns.a_arg_parser import get_parser
+from _01_code._08_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._08_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
+from _01_code._13_modern_cnns.a_arg_parser import get_parser
 
 
 def get_vgg_model():
