@@ -57,9 +57,9 @@ def get_resnet_model():
         )
       )
 
-      for i, b in enumerate(arch):
+      for i, (num_residuals, num_channels) in enumerate(arch):
         self.model.add_module(
-          name=f'b{i + 2}', module=self.block(*b, first_block=(i == 0))
+          name=f'block_{i}', module=self.block(num_residuals, num_channels, first_block=(i == 0))
         )
 
       self.model.add_module(
