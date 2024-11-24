@@ -55,7 +55,6 @@ def main(args):
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
   model = get_cnn_model()
   model.to(device)
-  wandb.watch(model)
 
   optimizers = [
     optim.SGD(model.parameters(), lr=wandb.config.learning_rate),

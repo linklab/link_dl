@@ -120,7 +120,6 @@ def main(args):
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
   model = get_resnet_model()
   model.to(device)
-  #wandb.watch(model)
 
   from torchinfo import summary
   summary(

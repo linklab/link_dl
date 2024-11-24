@@ -142,7 +142,6 @@ def main(args):
     raise ValueError()
 
   model.to(device)
-  wandb.watch(model)
 
   optimizers = [
     optim.SGD(model.parameters(), lr=wandb.config.learning_rate, weight_decay=args.weight_decay),

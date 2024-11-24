@@ -29,6 +29,15 @@ def get_btc_krw_data(sequence_size=10, validation_size=100, test_size=10, is_reg
       target_column='Close', y_normalizer=1.0e7, is_regression=is_regression
   )
 
+  # print(X_train.shape, X_validation.shape, X_test.shape, y_train.shape, y_validation.shape, y_test.shape, "!!! - 1")
+
+  # X_train.shape: [3212, 10, 5]
+  # X_validation.shape: [100, 10, 5]
+  # X_test.shape: [10, 10, 5]
+  # y_train.shape: [3212]
+  # y_validation.shape: [100]
+  # y_test.shape: [10]
+
   train_crypto_currency_dataset = CryptoCurrencyDataset(X=X_train, y=y_train)
   validation_crypto_currency_dataset = CryptoCurrencyDataset(X=X_validation, y=y_validation)
   test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)
@@ -96,7 +105,6 @@ def main(args):
 
   model = get_model()
   model.to(device)
-  wandb.watch(model)
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=wandb.config.weight_decay)
 

@@ -86,7 +86,6 @@ def main(args):
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
   model = get_cnn_model()
   model.to(device)
-  wandb.watch(model)
 
   from torchinfo import summary
   summary(model=model, input_size=(1, 3, 32, 32))

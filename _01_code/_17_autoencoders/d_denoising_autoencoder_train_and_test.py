@@ -135,7 +135,6 @@ def main(args):
   summary(model, input_size=(1, 1, 28, 28))
 
   model.to(device)
-  wandb.watch(model)
 
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 

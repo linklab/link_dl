@@ -160,7 +160,6 @@ def main(args):
   train_data_loader, validation_data_loader, mnist_transforms = get_imagenet_data()
   model = get_alexnet_model()
   model.to(device)
-  wandb.watch(model)
 
   from torchinfo import summary
   summary(model=model, input_size=(1, 3, 227, 227))
