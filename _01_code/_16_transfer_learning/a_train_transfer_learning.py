@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import numpy as np
+from torchinfo import summary
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 import time
@@ -53,7 +54,7 @@ def get_new_data():
         for x in ['train', 'val']
     }
 
-    class_names = image_datasets['train'].classes
+    class_names = image_datasets['train'].classes  # class_names <-- ['ants', 'bees']
 
     return image_datasets, dataset_sizes, dataloaders, class_names
 
@@ -110,7 +111,10 @@ def train_model(
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+            if phase == 'train':
+                print(f'TRAIN: Loss: {epoch_loss:.4f}, Acc: {epoch_acc:.4f}, LR: {scheduler.get_last_lr()}')
+            else:
+                print(f'  VAL: Loss: {epoch_loss:.4f}, Acc: {epoch_acc:.4f}')
 
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
@@ -170,13 +174,14 @@ def get_model(method, device=torch.device("cpu")):
         for param in model_ft.parameters():
             param.requires_grad = False
 
-    print(model_ft)
+    summary(model_ft, input_size=(1, 3, 224, 224))
     print("#" * 100)
 
     # Here the size of each output sample is set to 2.
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(in_features=num_ftrs, out_features=2)
-    print(model_ft)
+
+    summary(model_ft, input_size=(1, 3, 224, 224))
     print("#" * 100)
 
     model_ft = model_ft.to(device)
