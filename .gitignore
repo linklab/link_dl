@@ -174,8 +174,12 @@ wandb
 
 *.zip
 
-_03_your_code
+_04_your_code
 _04_homeworks_solution
 
 
 ignore
+
+temp/google/gemini_image.py
+
+figs

@@ -17,10 +17,10 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
-from _01_code._06_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
-from _01_code._06_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
-from _01_code._13_autoencoders.b_arg_parser import get_parser
-from _01_code._13_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
+from _01_code._08_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
+from _01_code._08_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
+from _01_code._17_autoencoders.b_arg_parser import get_parser
+from _01_code._17_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
 
 
 def get_model(encoded_space_dim=2):
@@ -30,23 +30,23 @@ def get_model(encoded_space_dim=2):
 
       self.encoder = nn.Sequential(
         # B x 1 x 28 x 28 --> B x 32 x (28 - 3 + 2 + 1) x (28 - 3 + 2 + 1) = B x 32 x 28 x 28
-        nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1, stride=1),
+        nn.LazyConv2d(out_channels=32, kernel_size=3, padding=1, stride=1),
         nn.BatchNorm2d(32),
         nn.LeakyReLU(),
 
         # B x 32 x 28 x 28 --> B x 64 x (|(28 - 3 + 2) / 2| + 1) x (|(28 - 3 + 2) / 2| + 1) = B x 64 x 14 x 14
-        nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1, stride=2),
+        nn.LazyConv2d(out_channels=64, kernel_size=3, padding=1, stride=2),
         nn.BatchNorm2d(64),
         nn.LeakyReLU(),
 
         # B x 64 x 14 x 14 --> B x 64 x (|(14 - 3 + 2) / 2| + 1) x (|(28 - 3 + 2) / 2| + 1) = B x 64 x 7 x 7
-        nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1, stride=2),
+        nn.LazyConv2d(out_channels=64, kernel_size=3, padding=1, stride=2),
         nn.BatchNorm2d(64),
         nn.LeakyReLU(),
 
         nn.Flatten(),
 
-        nn.Linear(64 * 7 * 7, encoded_space_dim),
+        nn.LazyLinear(encoded_space_dim),
         nn.LeakyReLU(),
       )
 
@@ -58,26 +58,26 @@ def get_model(encoded_space_dim=2):
     def __init__(self):
       super(Decoder, self).__init__()
       self.decoder = nn.Sequential(
-        nn.Linear(encoded_space_dim, 64 * 7 * 7),
-        nn.Unflatten(1, (64, 7, 7)),
+        nn.LazyLinear(64 * 7 * 7),
+        nn.Unflatten(dim=1, unflattened_size=(64, 7, 7)),
         nn.LeakyReLU(),
 
         # B x 64 x 7 x 7 --> B x 64 x ((7 - 1) x 2 - 2 x 1 + 3 + 1) x ((7 - 1) x 2 - 2 x 1 + 3 + 1) =
         # B x 64 x (12 - 2 + 3 + 1) x (12 - 2 + 3 + 1) = B x 64 x 14 x 14
-        nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, padding=1, stride=2, output_padding=1),
+        nn.LazyConvTranspose2d(out_channels=64, kernel_size=3, padding=1, stride=2, output_padding=1),
         nn.BatchNorm2d(64),
         nn.LeakyReLU(),
 
         # B x 64 x 14 x 14 --> B x 32 x ((14 - 1) x 2 - 2 x 1 + 3 + 1) x ((15 - 1) x 2 - 2 x 1 + 3 + 1) =
         # B x 32 x (26 - 2 + 3 + 1) x (26 - 2 + 3 + 1) = B x 32 x 28 x 28
-        nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=3, padding=1, stride=2, output_padding=1),
+        nn.LazyConvTranspose2d(out_channels=32, kernel_size=3, padding=1, stride=2, output_padding=1),
         nn.BatchNorm2d(32),
         nn.LeakyReLU(),
 
         # B x 32 x 28 x 28 --> B x 1 x ((28 - 1) x 1 - 2 x 1 + 3 + 0) x ((28 - 1) x 1 - 2 x 1 + 3 + 0) =
         # B x 1 x (27 - 2 + 3) x (27 - 2 + 3) = B x 1 x 28 x 28
-        nn.ConvTranspose2d(in_channels=32, out_channels=1, kernel_size=3, padding=1),
-        nn.Sigmoid()
+        nn.LazyConvTranspose2d(out_channels=1, kernel_size=3, padding=1),
+        nn.Sigmoid() # 0.0 ~ 1.0
       )
 
     def forward(self, x):

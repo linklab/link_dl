@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from torch import nn
 
 
-from _01_code._06_fcn_best_practice.c_trainer import EarlyStopping
+from _01_code._08_fcn_best_practice.c_trainer import EarlyStopping
 from _01_code._99_common_utils.utils import strfdelta
 
 
