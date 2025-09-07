@@ -50,7 +50,7 @@ def get_hourly_bikes_data(sequence_size=24, validation_size=96, test_size=24, y_
   data_torch_list = []
   for idx in range(bikes_data.shape[0]):  # range(730)
     hour_data = bikes_data[idx]  # day.shape: [24, 17]
-    weather_onehot = eye_matrix[hour_data[9].long() - 1]
+    weather_onehot = eye_matrix[hour_data[9].to(torch.int64) - 1]
     concat_data_torch = torch.cat(tensors=(hour_data, weather_onehot), dim=-1)  # day_torch.shape: [24, 21]
     data_torch_list.append(concat_data_torch)
 

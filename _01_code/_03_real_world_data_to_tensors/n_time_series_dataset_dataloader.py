@@ -34,7 +34,7 @@ class BikesDataset(Dataset):
     day_data_torch_list = []
     for daily_idx in range(self.daily_bikes_data.shape[0]):  # range(730)
       day = self.daily_bikes_data[daily_idx]  # day.shape: [24, 17]
-      weather_onehot = eye_matrix[day[:, 9].long() - 1]
+      weather_onehot = eye_matrix[day[:, 9].to(torch.int64) - 1]
       day_data_torch = torch.cat(tensors=(day, weather_onehot), dim=1)  # day_torch.shape: [24, 21]
       day_data_torch_list.append(day_data_torch)
 
