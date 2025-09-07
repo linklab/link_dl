@@ -34,7 +34,7 @@ print(target.shape)
 print(target)
 print()
 
-target = target.long()  # treat labels as an integer
+target = target.to(torch.int64)  # treat labels as an integer
 print(target.dtype)
 print(target.shape)
 print(target)
