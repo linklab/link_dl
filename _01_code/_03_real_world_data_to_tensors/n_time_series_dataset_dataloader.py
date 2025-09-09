@@ -50,16 +50,14 @@ class BikesDataset(Dataset):
     train_temperatures = self.train_bikes_data[:, :, 9]
     train_temperatures_mean = torch.mean(train_temperatures)
     train_temperatures_std = torch.std(train_temperatures)
-    self.train_bikes_data[:, :, 9] = \
-      (self.train_bikes_data[:, :, 9] - torch.mean(train_temperatures_mean)) / torch.std(train_temperatures_std)
+    self.train_bikes_data[:, :, 9] = (self.train_bikes_data[:, :, 9] - train_temperatures_mean) / train_temperatures_std
 
     assert len(self.train_bikes_data) == len(self.train_bikes_targets)
 
     self.test_bikes_data = self.daily_bikes_data[-test_days:]
     self.test_bikes_targets = self.daily_bikes_target[-test_days:]
 
-    self.test_bikes_data[:, :, 9] = \
-      (self.test_bikes_data[:, :, 9] - torch.mean(train_temperatures_mean)) / torch.std(train_temperatures_std)
+    self.test_bikes_data[:, :, 9] = (self.test_bikes_data[:, :, 9] - train_temperatures_mean)/ train_temperatures_std
 
     assert len(self.test_bikes_data) == len(self.test_bikes_targets)
 

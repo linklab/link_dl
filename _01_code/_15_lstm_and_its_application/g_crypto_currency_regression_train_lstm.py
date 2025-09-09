@@ -18,7 +18,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 
 from _01_code._15_lstm_and_its_application.f_arg_parser import get_parser
 from _01_code._14_rnn.g_rnn_trainer import RegressionTrainer
-from _01_code._03_real_world_data_to_tensors.p_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
+from _01_code._03_real_world_data_to_tensors.p__cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
   CryptoCurrencyDataset
 
 
