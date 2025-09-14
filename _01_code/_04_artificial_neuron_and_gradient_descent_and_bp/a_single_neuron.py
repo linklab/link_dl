@@ -10,12 +10,12 @@ class SimpleDataset(Dataset):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
 
-    X = [[0.5, 0.9], [14.0, 12.0],
-         [15.0, 13.6], [28.0, 22.8],
-         [11.0, 8.1], [8.0, 7.1],
-         [3.0, 2.9], [4.0, 0.1],
-         [6.0, 5.3], [13.0, 12.0],
-         [21.0, 19.9], [-1.0, 1.5]]
+    X = [[0.5, 0.9],    [14.0, 12.0],
+         [15.0, 13.6],  [28.0, 22.8],
+         [11.0, 8.1],   [8.0, 7.1],
+         [3.0, 2.9],    [4.0, 0.1],
+         [6.0, 5.3],    [13.0, 12.0],
+         [21.0, 19.9],  [-1.0, 1.5]]
 
     y = [35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4, 29.1]
 
@@ -40,7 +40,11 @@ def model(X, W, b):
   # print(X.shape)  # >>> torch.Size([12, 2])
   # print(W.shape)  # >>> torch.Size([2])
   # print(b.shape)  # >>> torch.Size([1])
+
   u = torch.sum(X * W, dim=1) + b
+  # u = X @ W + b
+  # u.shape: torch.Size([12])
+
   z = activate(u)
   return z
 
@@ -58,41 +62,45 @@ def loss_fn(y_pred, y):
 def gradient(W, b, X, y_pred, y):
   # W.shape: (2,), b.shape: (1,)
   # X.shape: (12, 2), y.shape: (12,)
-  dl_dy = 2 * (y_pred - y)
-  dl_dy = dl_dy.unsqueeze(dim=-1)  # dl_dy_pred.shape: [12, 1]
-
+  dl_dy = 2 * (y_pred - y)            # dl_dy_pred.shape: (12,)
   dy_ds = 1.0
 
-  z = torch.sum(X * W, dim=-1) + b
+  z = torch.sum(X * W, dim=-1) + b    # z.shape: (12,)
   ds_dz = activate(z) * (1.0 - activate(z))
-  ds_dz = ds_dz.unsqueeze(dim=-1)  # ds_dz_pred.shape: [12, 1]
+  # ds_dz = ds_dz.unsqueeze(dim=-1)  # ds_dz_pred.shape: [12, 1]
 
-  W_grad = torch.mean(dl_dy * dy_ds * ds_dz * X, dim=0)
+  w0_grad = torch.mean(dl_dy * dy_ds * ds_dz * X[:, 0], dim=0)
+  w1_grad = torch.mean(dl_dy * dy_ds * ds_dz * X[:, 1], dim=0)
   b_grad = torch.mean(dl_dy * dy_ds * ds_dz * 1.0, dim=0)
 
-  return W_grad, b_grad
+  return w0_grad, w1_grad, b_grad
 
 
 def learn(W, b, train_data_loader):
-  MAX_EPOCHS = 20_000
+  MAX_EPOCHS = 30_000
   LEARNING_RATE = 0.01
 
-  for epoch in range(0, MAX_EPOCHS):
+  print("[Epoch:{0:6,}] loss: {1:9}, w0:{2:12.9f}, w1:{3:12.9f}, b:{4:12.9f}".format(
+    0, 'N/A', W[0].item(), W[1].item(), b.item()
+  ))
+  for epoch in range(1, MAX_EPOCHS + 1):
     batch = next(iter(train_data_loader))
     input, target = batch
     y_pred = model(input, W, b)     # y_pred.shape: (12,)
     loss = loss_fn(y_pred, target)
 
-    W_grad, b_grad = gradient(W, b, input, y_pred, target)
+    w0_grad, w1_grad, b_grad = gradient(W, b, input, y_pred, target)
 
-    if epoch % 100 == 0:
-      print("[Epoch:{0:6,}] loss:{1:8.5f}, w0:{2:6.3f}, w1:{3:6.3f}, b:{4:6.3f}".format(
-        epoch, loss.item(), W[0].item(), W[1].item(), b.item()
-      ), end=", ")
-      print("W.grad: {0}, b.grad:{1}".format(W_grad, b_grad))
-
-    W = W - LEARNING_RATE * W_grad
+    W[0] = W[0] - LEARNING_RATE * w0_grad
+    W[1] = W[1] - LEARNING_RATE * w1_grad
     b = b - LEARNING_RATE * b_grad
+
+    if epoch % 10 == 0:
+      print("[Epoch:{0:6,}] loss:{1:10.7f}, w0:{2:12.9f}, w1:{3:12.9f}, b:{4:12.9f}".format(
+        epoch, loss.item(), W[0].item(), W[1].item(), b.item()
+      ))
+
+  return W, b
 
 
 def main():
@@ -104,15 +112,27 @@ def main():
   batch = next(iter(train_data_loader))
 
   input, target = batch
+  print(input.shape, target.shape, "!!!!!")
 
   y_pred = model(input, W, b)
   print(y_pred.shape)
-  print(y_pred)
+  print("y_pred:", y_pred)
+  print("target:", target)
 
   loss = loss_fn(y_pred, target)
-  print(loss)
+  print("loss:", loss)
 
-  learn(W, b, train_data_loader)
+  print("#" * 50)
+
+  W, b = learn(W, b, train_data_loader)
+
+  print("#" * 50)
+
+  y_pred = model(input, W, b)
+  print("y_pred:", y_pred)
+  print("target:", target)
+  loss = loss_fn(y_pred, target)
+  print("loss:", loss)
 
 
 if __name__ == "__main__":
