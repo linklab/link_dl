@@ -1,7 +1,6 @@
 import os
 import torch
 
-
 class EarlyStopping:
   """Early stops the training if validation loss doesn't improve after a given patience."""
   def __init__(self, patience=10, delta=0.00001, project_name=None, checkpoint_file_path=None, run_time_str=None):

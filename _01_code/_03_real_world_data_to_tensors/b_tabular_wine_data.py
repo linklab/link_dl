@@ -34,7 +34,7 @@ print(target.shape)
 print(target)
 print()
 
-target = target.long()  # treat labels as an integer
+target = target.to(torch.int64)  # treat labels as an integer
 print(target.dtype)
 print(target.shape)
 print(target)
@@ -80,7 +80,7 @@ def get_wine_data():
   wineq = torch.from_numpy(wineq_numpy)
 
   data = wineq[:, :-1]  # Selects all rows and all columns except the last
-  target = wineq[:, -1].long()  # treat labels as an integer
+  target = wineq[:, -1].to(torch.int64)  # treat labels as an integer
 
   eye_matrix = torch.eye(10)
   onehot_target = eye_matrix[target]

@@ -34,7 +34,7 @@ class BikesDataset(Dataset):
     day_data_torch_list = []
     for daily_idx in range(self.daily_bikes_data.shape[0]):  # range(730)
       day = self.daily_bikes_data[daily_idx]  # day.shape: [24, 17]
-      weather_onehot = eye_matrix[day[:, 9].long() - 1]
+      weather_onehot = eye_matrix[day[:, 9].to(torch.int64) - 1]
       day_data_torch = torch.cat(tensors=(day, weather_onehot), dim=1)  # day_torch.shape: [24, 21]
       day_data_torch_list.append(day_data_torch)
 
@@ -50,16 +50,14 @@ class BikesDataset(Dataset):
     train_temperatures = self.train_bikes_data[:, :, 9]
     train_temperatures_mean = torch.mean(train_temperatures)
     train_temperatures_std = torch.std(train_temperatures)
-    self.train_bikes_data[:, :, 9] = \
-      (self.train_bikes_data[:, :, 9] - torch.mean(train_temperatures_mean)) / torch.std(train_temperatures_std)
+    self.train_bikes_data[:, :, 9] = (self.train_bikes_data[:, :, 9] - train_temperatures_mean) / train_temperatures_std
 
     assert len(self.train_bikes_data) == len(self.train_bikes_targets)
 
     self.test_bikes_data = self.daily_bikes_data[-test_days:]
     self.test_bikes_targets = self.daily_bikes_target[-test_days:]
 
-    self.test_bikes_data[:, :, 9] = \
-      (self.test_bikes_data[:, :, 9] - torch.mean(train_temperatures_mean)) / torch.std(train_temperatures_std)
+    self.test_bikes_data[:, :, 9] = (self.test_bikes_data[:, :, 9] - train_temperatures_mean)/ train_temperatures_std
 
     assert len(self.test_bikes_data) == len(self.test_bikes_targets)
 

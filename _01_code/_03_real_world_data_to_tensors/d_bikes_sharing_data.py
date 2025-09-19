@@ -12,7 +12,7 @@ bikes_numpy = np.loadtxt(
     1: lambda x: float(x[8:10])  # 2011-01-07 --> 07 --> 7.0
   }
 )
-bikes = torch.from_numpy(bikes_numpy)
+bikes = torch.from_numpy(bikes_numpy).to(torch.float)
 print(bikes.shape)
 
 daily_bikes = bikes.view(-1, 24, bikes.shape[1])
@@ -30,11 +30,12 @@ first_day_data = daily_bikes_data[0]
 print(first_day_data.shape)
 
 # Whether situation: 1: clear, 2:mist, 3: light rain/snow, 4: heavy rain/snow
-print(first_day_data[:, 9].long())
+print(first_day_data[:, 9])
+print(first_day_data[:, 9].shape, first_day_data[:, 9].dtype)
 eye_matrix = torch.eye(4)
 print(eye_matrix)
 
-weather_onehot = eye_matrix[first_day_data[:, 9].long() - 1]
+weather_onehot = eye_matrix[first_day_data[:, 9].to(torch.int64) - 1]
 print(weather_onehot.shape)
 print(weather_onehot)
 
@@ -48,7 +49,7 @@ day_data_torch_list = []
 
 for daily_idx in range(daily_bikes_data.shape[0]):  # range(730)
   day = daily_bikes_data[daily_idx]  # day.shape: [24, 16]
-  weather_onehot = eye_matrix[day[:, 9].long() - 1]
+  weather_onehot = eye_matrix[day[:, 9].to(torch.int64) - 1]
   day_data_torch = torch.cat(tensors=(day, weather_onehot), dim=1)  # day_data_torch.shape: [24, 20]
   day_data_torch_list.append(day_data_torch)
 

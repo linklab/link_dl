@@ -16,7 +16,7 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
-from _01_code._03_real_world_data_to_tensors.o_hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, \
+from _01_code._03_real_world_data_to_tensors.o__hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, \
     HourlyBikesDataset
 from _01_code._14_rnn.g_rnn_trainer import RegressionTrainer
 from _01_code._14_rnn.f_arg_parser import get_parser

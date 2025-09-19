@@ -15,7 +15,7 @@ class WineDataset(Dataset):
     data_var = torch.var(data, dim=0)
     self.data = (data - data_mean) / torch.sqrt(data_var)
 
-    target = wineq[:, -1].long()  # treat labels as an integer
+    target = wineq[:, -1].to(torch.int64)  # treat labels as an integer
     eye_matrix = torch.eye(10)
     self.target = eye_matrix[target]
 
