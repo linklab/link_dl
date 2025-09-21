@@ -124,7 +124,7 @@ def main():
 
   print("#" * 50)
 
-  W, b = learn(W, b, train_data_loader)
+  learn(W, b, train_data_loader)
 
   print("#" * 50)
 

@@ -27,6 +27,8 @@ print(a.requires_grad)
 b = a.detach()
 print(b.requires_grad)
 print(b is a)
+print(a)
+print(b)
 
 from torchviz import make_dot
 
