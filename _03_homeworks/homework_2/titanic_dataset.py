@@ -2,7 +2,10 @@ import os
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
-
+# 출력 폭 제한을 해제 (무제한)
+pd.set_option("display.width", None)
+# 모든 컬럼 출력되도록 설정
+pd.set_option("display.max_columns", None)
 
 class TitanicDataset(Dataset):
   def __init__(self, X, y):
@@ -65,13 +68,16 @@ def get_preprocessed_dataset():
 
     all_df = get_preprocessed_dataset_6(all_df)
 
+    print(all_df.columns)
+    print(all_df.head(10))
+
     train_X = all_df[~all_df["Survived"].isnull()].drop("Survived", axis=1).reset_index(drop=True)
     train_y = train_df["Survived"]
 
     test_X = all_df[all_df["Survived"].isnull()].drop("Survived", axis=1).reset_index(drop=True)
-
     dataset = TitanicDataset(train_X.values, train_y.values)
-    #print(dataset)
+    print(dataset)
+
     train_dataset, validation_dataset = random_split(dataset, [0.8, 0.2])
     test_dataset = TitanicTestDataset(test_X.values)
     #print(test_dataset)
@@ -80,11 +86,12 @@ def get_preprocessed_dataset():
 
 
 def get_preprocessed_dataset_1(all_df):
-    # Pclass별 Fare 평균값을 사용하여 Fare 결측치 메우기
+    # Pclass별 Fare (요금) 평균값을 사용하여 Fare 결측치 메우기
     Fare_mean = all_df[["Pclass", "Fare"]].groupby("Pclass").mean().reset_index()
     Fare_mean.columns = ["Pclass", "Fare_mean"]
     all_df = pd.merge(all_df, Fare_mean, on="Pclass", how="left")
     all_df.loc[(all_df["Fare"].isnull()), "Fare"] = all_df["Fare_mean"]
+    all_df = all_df.drop(columns=["Fare_mean"])
 
     return all_df
 
@@ -92,9 +99,9 @@ def get_preprocessed_dataset_1(all_df):
 def get_preprocessed_dataset_2(all_df):
     # name을 세 개의 컬럼으로 분리하여 다시 all_df에 합침
     name_df = all_df["Name"].str.split("[,.]", n=2, expand=True)
-    name_df.columns = ["family_name", "honorific", "name"]
+    name_df.columns = ["family_name", "title", "name"]
     name_df["family_name"] = name_df["family_name"].str.strip()
-    name_df["honorific"] = name_df["honorific"].str.strip()
+    name_df["title"] = name_df["title"].str.strip()
     name_df["name"] = name_df["name"].str.strip()
     all_df = pd.concat([all_df, name_df], axis=1)
 
@@ -102,12 +109,12 @@ def get_preprocessed_dataset_2(all_df):
 
 
 def get_preprocessed_dataset_3(all_df):
-    # honorific별 Age 평균값을 사용하여 Age 결측치 메우기
-    honorific_age_mean = all_df[["honorific", "Age"]].groupby("honorific").median().round().reset_index()
-    honorific_age_mean.columns = ["honorific", "honorific_age_mean", ]
-    all_df = pd.merge(all_df, honorific_age_mean, on="honorific", how="left")
-    all_df.loc[(all_df["Age"].isnull()), "Age"] = all_df["honorific_age_mean"]
-    all_df = all_df.drop(["honorific_age_mean"], axis=1)
+    # title별 Age 평균값을 사용하여 Age 결측치 메우기
+    title_age_mean = all_df[["title", "Age"]].groupby("title").median().round().reset_index()
+    title_age_mean.columns = ["title", "title_age_mean", ]
+    all_df = pd.merge(all_df, title_age_mean, on="title", how="left")
+    all_df.loc[(all_df["Age"].isnull()), "Age"] = all_df["title_age_mean"]
+    all_df = all_df.drop(["title_age_mean"], axis=1)
 
     return all_df
 
@@ -127,15 +134,15 @@ def get_preprocessed_dataset_4(all_df):
 
 
 def get_preprocessed_dataset_5(all_df):
-    # honorific 값 개수 줄이기
+    # title 값 개수 줄이기
     all_df.loc[
     ~(
-            (all_df["honorific"] == "Mr") |
-            (all_df["honorific"] == "Miss") |
-            (all_df["honorific"] == "Mrs") |
-            (all_df["honorific"] == "Master")
+            (all_df["title"] == "Mr") |
+            (all_df["title"] == "Miss") |
+            (all_df["title"] == "Mrs") |
+            (all_df["title"] == "Master")
     ),
-    "honorific"
+    "title"
     ] = "other"
     all_df["Embarked"].fillna("missing", inplace=True)
 
@@ -155,35 +162,6 @@ def get_preprocessed_dataset_6(all_df):
     return all_df
 
 
-from torch import nn
-class MyModel(nn.Module):
-  def __init__(self, n_input, n_output):
-    super().__init__()
-
-    self.model = nn.Sequential(
-      nn.Linear(n_input, 30),
-      nn.ReLU(),
-      nn.Linear(30, 30),
-      nn.ReLU(),
-      nn.Linear(30, n_output),
-    )
-
-  def forward(self, x):
-    x = self.model(x)
-    return x
-
-
-def test(test_data_loader):
-  print("[TEST]")
-  batch = next(iter(test_data_loader))
-  print("{0}".format(batch['input'].shape))
-  my_model = MyModel(n_input=11, n_output=2)
-  output_batch = my_model(batch['input'])
-  prediction_batch = torch.argmax(output_batch, dim=1)
-  for idx, prediction in enumerate(prediction_batch, start=892):
-      print(idx, prediction.item())
-
-
 if __name__ == "__main__":
   train_dataset, validation_dataset, test_dataset = get_preprocessed_dataset()
 
@@ -192,13 +170,8 @@ if __name__ == "__main__":
   ))
   print("#" * 50, 1)
 
-  for idx, sample in enumerate(train_dataset):
-    print("{0} - {1}: {2}".format(idx, sample['input'], sample['target']))
-
-  print("#" * 50, 2)
-
   train_data_loader = DataLoader(dataset=train_dataset, batch_size=16, shuffle=True)
-  validation_data_loader = DataLoader(dataset=validation_dataset, batch_size=16, shuffle=True)
+  validation_data_loader = DataLoader(dataset=validation_dataset, batch_size=len(validation_dataset), shuffle=True)
   test_data_loader = DataLoader(dataset=test_dataset, batch_size=len(test_dataset))
 
   print("[TRAIN]")
@@ -209,6 +182,6 @@ if __name__ == "__main__":
   for idx, batch in enumerate(validation_data_loader):
     print("{0} - {1}: {2}".format(idx, batch['input'].shape, batch['target'].shape))
 
-  print("#" * 50, 3)
-
-  test(test_data_loader)
+  print("[TEST]")
+  for idx, batch in enumerate(test_data_loader):
+    print("{0} - {1}".format(idx, batch['input'].shape))
