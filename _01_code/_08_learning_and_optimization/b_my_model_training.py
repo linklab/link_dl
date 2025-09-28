@@ -36,6 +36,9 @@ class MyModel(nn.Module):
 
 def get_model_and_optimizer():
   my_model = MyModel(n_input=8, n_hidden_unit_list=[20, 20], n_output=1)
+  for idx, param in enumerate(my_model.parameters()):
+    print(idx, param.data.shape, param.requires_grad)
+
   optimizer = optim.SGD(my_model.parameters(), lr=1e-3)
 
   return my_model, optimizer
