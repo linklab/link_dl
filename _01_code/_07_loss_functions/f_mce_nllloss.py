@@ -20,7 +20,7 @@ class ClassificationNet(nn.Module):
 
 model = ClassificationNet(input_size=4, output_size=10)
 x = torch.rand(size=(256, 4))
-y = torch.empty(256, dtype=torch.long).random_(10)
+y = torch.randint(0, 10, size=(256,))
 lda = model(x)	              # mu = 𝑁𝑁(𝑥_𝑖;𝜽)
 ce_loss = nn.NLLLoss()
 loss = ce_loss(lda, y)

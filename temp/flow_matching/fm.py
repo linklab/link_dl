@@ -32,7 +32,7 @@ def train_flow_matching(model, real_data, epochs=1000, batch_size=256, lr=1e-3):
 
     for epoch in range(epochs):
         # 배치 샘플링
-        idx = torch.randint(0, len(real_data), size=(batch_size,))
+        idx = torch.randint(low=0, high=len(real_data), size=(batch_size,))
         x1 = real_data[idx]  # 깨끗한 데이터
 
         # 노이즈 샘플링
