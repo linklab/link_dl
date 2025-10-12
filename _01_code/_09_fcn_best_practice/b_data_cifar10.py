@@ -47,11 +47,11 @@ cifar10_test = datasets.CIFAR10(data_path, train=False, download=False, transfor
 
 print(len(cifar10_train), len(cifar10_validation), len(cifar10_test))  # >>> 45000 5000 10000
 
-img_t, _ = cifar10_train[0]
+img_t, img_label = cifar10_train[0]
 print(type(img_t))
 print(img_t.shape)
 print(img_t.min(), img_t.max())
-
+print(img_label)
 print("#" * 50, 3)
 
 imgs = torch.stack([img_t for img_t, _ in cifar10_train], dim=3)
