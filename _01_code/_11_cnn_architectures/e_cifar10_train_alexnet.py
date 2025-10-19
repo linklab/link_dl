@@ -76,7 +76,7 @@ def get_alexnet_model():
         Pass the input through the net.
         """
         x = self.cnn(x)
-        x = x.view(-1, 192 * 3 * 3)  # reduce the dimensions for linear layer input
+        x = x.view(-1, 192 * 3 * 3)  # flatten the dimensions for linear layer input
         return self.fcn(x)
 
   my_model = AlexNet(in_channels=3, n_output=10)
