@@ -18,8 +18,8 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 
 from _01_code._03_real_world_data_to_tensors.o__hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, \
     HourlyBikesDataset
-from _01_code._15_rnn.g_rnn_trainer import RegressionTrainer
-from _01_code._15_rnn.f_arg_parser import get_parser
+from _01_code._16_rnn.g_rnn_trainer import RegressionTrainer
+from _01_code._16_rnn.f_arg_parser import get_parser
 
 
 def get_train_bikes_data():

@@ -105,5 +105,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_11_cnn/c_cifar10_train_cnn.py --wandb -b 2048 -r 1e-3 -v 10
-  # python _01_code/_11_cnn/c_cifar10_train_cnn.py --no-wandb -b 2048 -r 1e-3 -v 10
+  # python _01_code/_11_cnn_architectures/c_cifar10_train_cnn.py --wandb -b 2048 -r 1e-3 -v 10
+  # python _01_code/_11_cnn_architectures/c_cifar10_train_cnn.py --no-wandb -b 2048 -r 1e-3 -v 10

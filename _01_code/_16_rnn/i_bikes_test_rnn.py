@@ -15,7 +15,7 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from _01_code._03_real_world_data_to_tensors.o__hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, HourlyBikesDataset
-from _01_code._15_rnn.h_bikes_train_rnn import get_model
+from _01_code._16_rnn.h_bikes_train_rnn import get_model
 
 
 def test_main(test_model):

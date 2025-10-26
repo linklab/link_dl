@@ -16,8 +16,8 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
   os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
 from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
-from _01_code._16_lstm_and_its_application.f_arg_parser import get_parser
-from _01_code._16_lstm_and_its_application.g_crypto_currency_regression_train_lstm import get_btc_krw_data
+from _01_code._17_lstm_and_its_application.f_arg_parser import get_parser
+from _01_code._17_lstm_and_its_application.g_crypto_currency_regression_train_lstm import get_btc_krw_data
 
 
 def get_model():
