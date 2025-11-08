@@ -20,14 +20,13 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._13_diverse_techniques.a_arg_parser import get_parser
-from _01_code._13_diverse_techniques.a_cifar10_train_cnn_with_normalization import \
-  get_cnn_model_with_dropout_and_batch_normalization, get_cnn_model_with_dropout_and_layer_normalization
 from _01_code._99_common_utils.utils import get_num_cpu_cores, is_linux, is_windows
 from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._09_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._13_diverse_techniques.e_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
-
+from _01_code._13_regularization.c_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
+from _01_code._14_normalization.a_cifar10_train_cnn_with_normalization import \
+  get_cnn_model_with_dropout_and_batch_normalization, get_cnn_model_with_dropout_and_layer_normalization
+from _01_code._16_data_augmentation.a_arg_parser import get_parser
 
 def get_augmented_cifar10_data():
   data_path = os.path.join(BASE_PATH, "_00_data", "i_cifar10")
@@ -151,6 +150,6 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_13_diverse_techniques/b_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout --augment -v 1 -o 3 -w 0.002 -n 1
-  # python _01_code/_13_diverse_techniques/b_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout --no-augment -v 1 -o 3 -w 0.002 -n 1
+  # python _01_code/_16_data_augmentation/a_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout --augment -v 1 -o 3 -w 0.002 -n 1
+  # python _01_code/_16_data_augmentation/a_cifar10_train_cnn_with_image_augmentation_and_batch_normalization.py --wandb --dropout --no-augment -v 1 -o 3 -w 0.002 -n 1
 

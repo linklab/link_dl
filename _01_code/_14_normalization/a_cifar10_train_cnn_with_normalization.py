@@ -19,8 +19,8 @@ sys.path.append(BASE_PATH)
 
 from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._09_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._12_optimizers.e_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
 from _01_code._12_optimizers.a_arg_parser import get_parser
+from _01_code._13_regularization.c_cifar10_train_cnn_with_dropout import get_cnn_model_with_dropout
 
 
 def get_cnn_model_with_dropout_and_batch_normalization():

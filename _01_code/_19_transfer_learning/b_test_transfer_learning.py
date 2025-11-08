@@ -12,7 +12,7 @@ sys.path.append(BASE_PATH)
 CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 
-from _01_code._18_transfer_learning.a_train_transfer_learning import get_model, imshow, get_new_data, data_transforms
+from _01_code._19_transfer_learning.a_train_transfer_learning import get_model, imshow, get_new_data, data_transforms
 
 
 def visualize_model_prediction_single(data_transforms, class_names, model, img_path, img_label):

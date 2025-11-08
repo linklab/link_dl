@@ -26,9 +26,10 @@ def get_fashion_mnist_data():
 
     print("Num Train Samples: ", len(f_mnist_train))
     print("Num Validation Samples: ", len(f_mnist_validation))
-    print("Sample Shape: ", f_mnist_train[0][0].shape)  # torch.Size([1, 28, 28])
+    print("Sample Data Shape: ", f_mnist_train[0][0].shape)  # torch.Size([1, 28, 28])
+    print("Sample Data Target: ", f_mnist_train[0][1])  # 9
 
-    num_data_loading_workers = get_num_cpu_cores() if is_linux() or is_windows() else 0
+    num_data_loading_workers = get_num_cpu_cores()
     print("Number of Data Loading Workers:", num_data_loading_workers)
 
     train_data_loader = DataLoader(

@@ -41,7 +41,6 @@ class ClassificationTrainer:
 
       if self.transforms:
         input_train = self.transforms(input_train)
-      print(input_train.shape)
 
       output_train = self.model(input_train)
       loss = self.loss_fn(output_train, target_train)

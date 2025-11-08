@@ -48,4 +48,13 @@ def get_parser():
     "--dropout", action=argparse.BooleanOptionalAction, default=False, help="Dropout: True or False"
   )
 
+  parser.add_argument(
+    "-n", "--normalization", type=int, default=0,
+    help="Normalization (0: No Normalization, 1: BatchNorm, 2: LayerNorm, default: 0)"
+  )
+
+  parser.add_argument(
+    "--augment", action=argparse.BooleanOptionalAction, default=False, help="augment: True or False"
+  )
+
   return parser

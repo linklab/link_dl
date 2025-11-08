@@ -19,8 +19,8 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 
 from _01_code._09_fcn_best_practice.f_mnist_train_fcn import get_mnist_data
 from _01_code._09_fcn_best_practice.g_mnist_test_fcn import get_mnist_test_data
-from _01_code._19_autoencoders.b_arg_parser import get_parser
-from _01_code._19_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
+from _01_code._20_autoencoders.b_arg_parser import get_parser
+from _01_code._20_autoencoders.c_autoencoder_trainer import AutoencoderTrainer
 
 
 def get_model(encoded_space_dim=2):
