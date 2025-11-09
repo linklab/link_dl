@@ -19,43 +19,50 @@ sys.path.append(BASE_PATH)
 
 from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._09_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
-from _01_code._15_modern_cnns.a_arg_parser import get_parser
+from _01_code._16_modern_cnns.a_arg_parser import get_parser
 
 
-def get_nin_model():
-  def nin_block(out_channels, kernel_size, strides, padding):
-    block = nn.Sequential(
-      nn.LazyConv2d(out_channels=out_channels, kernel_size=kernel_size, stride=strides, padding=padding),
-      nn.ReLU(),
-      nn.LazyConv2d(out_channels=out_channels, kernel_size=1),
-      nn.ReLU(),
-      nn.LazyConv2d(out_channels=out_channels, kernel_size=1),
-      nn.ReLU()
-    )
+def get_vgg_model():
+  def vgg_block(num_conv_layers, out_channels):
+    layers = []
+
+    for _ in range(num_conv_layers):
+      layers.append(nn.LazyConv2d(out_channels=out_channels, kernel_size=3, padding=1))
+      layers.append(nn.ReLU())
+
+    layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
+
+    block = nn.Sequential(*layers)
     return block
 
-  class NiN(nn.Module):
-    def __init__(self, n_output=10):
+  class VGG(nn.Module):
+    def __init__(self, block_info, n_output=10):
       super().__init__()
 
+      conv_blocks = []
+      for (num_conv_layers, out_channels) in block_info:
+        conv_blocks.append(vgg_block(num_conv_layers, out_channels))
+
       self.model = nn.Sequential(
-        nin_block(out_channels=96, kernel_size=3, strides=1, padding=1),
-        nn.MaxPool2d(kernel_size=3, stride=2),
-        nin_block(out_channels=256, kernel_size=3, strides=1, padding=1),
-        nn.MaxPool2d(kernel_size=3, stride=2),
-        nin_block(out_channels=384, kernel_size=3, strides=1, padding=1),
-        nn.MaxPool2d(kernel_size=3, stride=2),
+        *conv_blocks,
+        nn.Flatten(),
+        nn.LazyLinear(out_features=512),
+        nn.ReLU(),
         nn.Dropout(0.5),
-        nin_block(out_channels=n_output, kernel_size=3, strides=1, padding=1),
-        nn.AdaptiveAvgPool2d((1, 1)),
-        nn.Flatten()
+        nn.LazyLinear(out_features=512),
+        nn.ReLU(),
+        nn.Dropout(0.5),
+        nn.LazyLinear(n_output)
       )
 
     def forward(self, x):
       x = self.model(x)
       return x
 
-  my_model = NiN(n_output=10)
+  my_model = VGG(
+    block_info=((1, 64), (1, 128), (2, 256), (2, 512), (2, 512)),
+    n_output=10
+  )
 
   return my_model
 
@@ -73,12 +80,12 @@ def main(args):
   }
 
   project_name = "modern_cifar10"
-  name = "nin_{0}".format(run_time_str)
+  name = "vgg_{0}".format(run_time_str)
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
-    notes="cifar10 experiment with nin",
-    tags=["nin", "cifar10"],
+    notes="cifar10 experiment with vgg",
+    tags=["vgg", "cifar10"],
     name=name,
     config=config
   )
@@ -89,7 +96,7 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_nin_model()
+  model = get_vgg_model()
   model.to(device)
 
   from torchinfo import summary
@@ -101,7 +108,7 @@ def main(args):
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    project_name + "_nin", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name + "_vgg", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
@@ -113,5 +120,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnns/_02_nin/a_cifar10_train_nin.py --wandb -v 10
+  # python _01_code/_09_modern_cnns/_01_vgg/a_cifar10_train_vgg.py --wandb -v 10
 
