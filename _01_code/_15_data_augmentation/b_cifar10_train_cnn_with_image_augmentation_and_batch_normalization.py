@@ -6,7 +6,8 @@ import wandb
 from pathlib import Path
 
 from torch.utils.data import random_split, DataLoader, ConcatDataset
-from torchvision import datasets, transforms
+from torchvision import datasets
+from torchvision.transforms import v2
 
 BASE_PATH = str(Path(__file__).resolve().parent.parent.parent) # BASE_PATH: /Users/yhhan/git/link_dl
 import sys
@@ -33,15 +34,27 @@ def get_augmented_cifar10_data():
 
   print("DATA PATH: {0}".format(data_path))
 
-  cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=transforms.ToTensor())
+  cifar10_train = datasets.CIFAR10(data_path, train=True, download=True, transform=v2.ToTensor())
 
   cifar10_train, cifar10_validation = random_split(cifar10_train, [45_000, 5_000])
 
-  cifar10_train_transforms = nn.Sequential(
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop([32, 32], padding=4),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
-  )
+  cifar10_train_transforms = v2.Compose([
+    v2.RandomHorizontalFlip(),
+    v2.RandomCrop([32, 32], padding=4),
+    v2.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+  ])
+
+  # cifar10_train_transforms = v2.Compose([
+  #   v2.RandomChoice([
+  #     v2.ColorJitter(brightness=0.3),
+  #     v2.RandomGrayscale(p=0.5)
+  #   ]),
+  #   v2.RandomApply([
+  #     v2.RandomHorizontalFlip(),
+  #     v2.RandomVerticalFlip()
+  #   ], p=0.4),
+  #   v2.ToTensor(),
+  # ])
 
   transformed_train_data = []
   for image, label in cifar10_train:
@@ -66,10 +79,10 @@ def get_augmented_cifar10_data():
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
-  cifar10_transforms = nn.Sequential(
-    transforms.ConvertImageDtype(torch.float),
-    transforms.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
-  )
+  cifar10_transforms = v2.Compose([
+    v2.ConvertImageDtype(torch.float),
+    v2.Normalize(mean=(0.4915, 0.4823, 0.4468), std=(0.2470, 0.2435, 0.2616)),
+  ])
 
   return train_data_loader, validation_data_loader, cifar10_transforms
 
