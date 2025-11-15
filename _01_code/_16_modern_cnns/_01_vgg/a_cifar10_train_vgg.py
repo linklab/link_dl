@@ -52,7 +52,7 @@ def get_vgg_model():
         nn.LazyLinear(out_features=512),
         nn.ReLU(),
         nn.Dropout(0.5),
-        nn.LazyLinear(n_output)
+        nn.LazyLinear(out_features=n_output)
       )
 
     def forward(self, x):
