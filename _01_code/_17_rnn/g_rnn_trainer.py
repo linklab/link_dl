@@ -40,9 +40,7 @@ class RegressionTrainer:
         input_train = self.transforms(input_train)
 
       output_train = self.model(input_train)
-
       loss = self.loss_fn(output_train.squeeze(dim=-1), target_train)
-
       loss_train += loss.item()
 
       num_trains += 1
@@ -71,9 +69,7 @@ class RegressionTrainer:
           input_validation = self.transforms(input_validation)
 
         output_validation = self.model(input_validation)
-
         loss_validation += self.loss_fn(output_validation.squeeze(dim=-1), target_validation).item()
-
         num_validations += 1
 
     validation_loss = loss_validation / num_validations
@@ -98,7 +94,7 @@ class RegressionTrainer:
         validation_loss = self.do_validation()
 
         elapsed_time = datetime.now() - training_start_time
-        epoch_per_second = 1000 * epoch / elapsed_time.microseconds
+        epoch_per_second = 0 if elapsed_time.seconds == 0 else epoch / elapsed_time.seconds
 
         message, early_stop = early_stopping.check_and_save(validation_loss, self.model)
 

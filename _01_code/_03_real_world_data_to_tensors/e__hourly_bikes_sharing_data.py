@@ -18,9 +18,11 @@ bikes_numpy = np.loadtxt(
   }
 )
 bikes_data = torch.from_numpy(bikes_numpy).to(torch.float)
-print(bikes_data.shape)    # >>> torch.Size([17520, 17])
+
 bikes_target = bikes_data[:, -1].unsqueeze(dim=-1)  # 'cnt'
 bikes_data = bikes_data[:, :-1]   # >>> torch.Size([17520, 16])
+print("*bikes_data.shape:", bikes_data.shape)     # >>> torch.Size([17520, 16])
+print("bikes_target.shape:", bikes_target.shape)  # >>> torch.Size([17520, 1])
 
 eye_matrix = torch.eye(4)
 
@@ -36,14 +38,14 @@ bikes_data = torch.stack(data_torch_list, dim=0)
 bikes_data = torch.cat([bikes_data[:, 1:9], bikes_data[:, 10:]], dim=-1)
 # Drop 'instant' and 'whethersit' columns
 
-print(bikes_data.shape)
+print("**bikes_data.shape:", bikes_data.shape)      # >>> torch.Size([17520, 16])
 print(bikes_data[0])
 
 #################################################################################################
 
 sequence_size = 24
 validation_size = 96
-test_size = 24
+test_size = 32
 y_normalizer = 100
 
 data_size = len(bikes_data) - sequence_size + 1

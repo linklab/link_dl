@@ -24,9 +24,9 @@ from _01_code._17_rnn.f_arg_parser import get_parser
 
 def get_train_bikes_data():
     X_train, X_validation, X_test, y_train, y_validation, y_test = get_hourly_bikes_data(
-        sequence_size=24, validation_size=96, test_size=24, y_normalizer=100
+        sequence_size=24, validation_size=96, test_size=32, y_normalizer=100
     )
-    # print(X_train.shape, X_validation.shape, X_test.shape, y_train.shape, y_validation.shape, y_test.shape, "!!! - 1")
+    print(X_train.shape, X_validation.shape, X_test.shape, y_train.shape, y_validation.shape, y_test.shape, "!!! - 1")
 
     # X_train.shape: [17376, 24, 18]
     # X_validation.shape: [96, 24, 18]
