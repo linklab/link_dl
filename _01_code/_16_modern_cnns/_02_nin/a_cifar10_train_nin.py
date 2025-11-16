@@ -113,5 +113,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnns/_02_nin/a_cifar10_train_nin.py --wandb -v 10
+  # python _01_code/_16_modern_cnns/_02_nin/a_cifar10_train_nin.py --wandb -v 10
 

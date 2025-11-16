@@ -12,14 +12,18 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 import sys
 sys.path.append(BASE_PATH)
 
-from _01_code._06_fcn_best_practice.d_tester import ClassificationTester
-from _01_code._06_fcn_best_practice.i_cifar10_test_fcn import get_cifar10_test_data
-from _01_code._09_modern_cnns._04_resnet.a_cifar10_train_resnet import get_resnet_model
+from _01_code._09_fcn_best_practice.d_tester import ClassificationTester
+from _01_code._09_fcn_best_practice.i_cifar10_test_fcn import get_cifar10_test_data
+from _01_code._16_modern_cnns._04_resnet.a_cifar10_train_resnet import get_resnet_model
+
+import torchvision
+
+USE_PYTORCH_MODEL = False
 
 def main():
   cifar10_test_images, test_data_loader, cifar10_transforms = get_cifar10_test_data(flatten=False)
 
-  test_model = get_resnet_model()
+  test_model = torchvision.models.resnet18(num_classes=10) if USE_PYTORCH_MODEL else get_resnet_model(num_classes=10)
 
   project_name = "modern_cifar10"
   classification_tester = ClassificationTester(

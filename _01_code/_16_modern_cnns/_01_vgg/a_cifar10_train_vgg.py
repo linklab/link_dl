@@ -21,8 +21,12 @@ from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._09_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 from _01_code._16_modern_cnns.a_arg_parser import get_parser
 
+import torchvision
 
-def get_vgg_model():
+USE_PYTORCH_MODEL = True
+
+
+def get_vgg_model(num_classes=10):
   def vgg_block(num_conv_layers, out_channels):
     layers = []
 
@@ -36,7 +40,7 @@ def get_vgg_model():
     return block
 
   class VGG(nn.Module):
-    def __init__(self, block_info, n_output=10):
+    def __init__(self, block_info):
       super().__init__()
 
       conv_blocks = []
@@ -52,7 +56,7 @@ def get_vgg_model():
         nn.LazyLinear(out_features=512),
         nn.ReLU(),
         nn.Dropout(0.5),
-        nn.LazyLinear(out_features=n_output)
+        nn.LazyLinear(out_features=num_classes)
       )
 
     def forward(self, x):
@@ -60,8 +64,7 @@ def get_vgg_model():
       return x
 
   my_model = VGG(
-    block_info=((1, 64), (1, 128), (2, 256), (2, 512), (2, 512)),
-    n_output=10
+    block_info=((1, 64), (1, 128), (2, 256), (2, 512), (2, 512))
   )
 
   return my_model
@@ -96,7 +99,7 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_vgg_model()
+  model = torchvision.models.vgg11(num_classes=10) if USE_PYTORCH_MODEL else get_vgg_model(num_classes=10)
   model.to(device)
 
   from torchinfo import summary
@@ -120,5 +123,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnns/_01_vgg/a_cifar10_train_vgg.py --wandb -v 10
+  # python _01_code/_16_modern_cnns/_01_vgg/a_cifar10_train_vgg.py --wandb -v 10
 

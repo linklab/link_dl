@@ -19,10 +19,13 @@ sys.path.append(BASE_PATH)
 
 from _01_code._09_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 from _01_code._16_modern_cnns.a_arg_parser import get_parser
-from _01_code._16_modern_cnns._03_googlenet.b_googlenet_trainer import GoogLeNetClassificationTrainer
+from _01_code._16_modern_cnns._03_google_net.b_google_net_trainer import GoogLeNetClassificationTrainer
 
+import torchvision
 
-def get_googlenet_model():
+USE_PYTORCH_MODEL = False
+
+def get_google_net_model(num_classes=10):
   class Inception(nn.Module):
     # c1--c4 are the number of output channels for each branch
     def __init__(self, c1, c2, c3, c4, **kwargs):
@@ -47,36 +50,36 @@ def get_googlenet_model():
       return torch.cat((b1, b2, b3, b4), dim=1)
 
   class InceptionAux(nn.Module):
-    def __init__(self, n_outputs, **kwargs):
+    def __init__(self, **kwargs):
       super(InceptionAux, self).__init__(**kwargs)
 
       self.conv = nn.Sequential(
         #nn.AvgPool2d(kernel_size=5, stride=3),
         nn.LazyConv2d(out_channels=128, kernel_size=1),
+        nn.Flatten()
       )
 
       self.fc = nn.Sequential(
         nn.LazyLinear(out_features=1024),
         nn.ReLU(),
         nn.Dropout(),
-        nn.LazyLinear(out_features=n_outputs),
+        nn.LazyLinear(out_features=num_classes),
       )
 
     def forward(self, x):
       x = self.conv(x)
-      x = x.view(x.shape[0], -1)
       x = self.fc(x)
       return x
 
   class GoogleNet(nn.Module):
-    def __init__(self, n_outputs=10):
+    def __init__(self):
       super(GoogleNet, self).__init__()
       self.conv_block = nn.Sequential(self.conv_blk_1(), self.conv_blk_2())
       self.inception_block_1 = self.inception_blk_1()
       self.inception_block_2 = self.inception_blk_2()
       self.inception_block_3 = self.inception_blk_3()
-      self.aux_1 = InceptionAux(n_outputs)
-      self.aux_2 = InceptionAux(n_outputs)
+      self.aux_1 = InceptionAux()
+      self.aux_2 = InceptionAux()
 
     def conv_blk_1(self):
       # LocalRespNorm is ignored
@@ -123,12 +126,12 @@ def get_googlenet_model():
 
     def forward(self, x):
       x = self.conv_block(x)
-      inception_out_1 = self.inception_block_1(x)
-      aux_out_1 = self.aux_1(inception_out_1)
-      inception_out_2 = self.inception_block_2(inception_out_1)
-      aux_out_2 = self.aux_2(inception_out_2)
-      inception_out_3 = self.inception_block_3(inception_out_2)
-      return inception_out_3, aux_out_1, aux_out_2
+      out_1 = self.inception_block_1(x)
+      aux_out_1 = self.aux_1(out_1)
+      out_2 = self.inception_block_2(out_1)
+      aux_out_2 = self.aux_2(out_2)
+      out_3 = self.inception_block_3(out_2)
+      return out_3, aux_out_1, aux_out_2
 
   my_model = GoogleNet()
 
@@ -148,12 +151,12 @@ def main(args):
   }
 
   project_name = "modern_cifar10"
-  name = "googlenet_{0}".format(run_time_str)
+  name = "google_net_{0}".format(run_time_str)
   wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
-    notes="cifar10 experiment with googlenet",
-    tags=["googlenet", "cifar10"],
+    notes="cifar10 experiment with google_net",
+    tags=["google_net", "cifar10"],
     name=name,
     config=config
   )
@@ -164,7 +167,7 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_googlenet_model()
+  model = torchvision.models.googlenet(num_classes=10) if USE_PYTORCH_MODEL else get_google_net_model(num_classes=10)
   model.to(device)
 
   from torchinfo import summary
@@ -176,7 +179,7 @@ def main(args):
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = GoogLeNetClassificationTrainer(
-    project_name + "_googlenet", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name + "_google_net", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
@@ -188,5 +191,5 @@ if __name__ == "__main__":
   parser = get_parser()
   args = parser.parse_args()
   main(args)
-  # python _01_code/_09_modern_cnns/_02_googlenet/a_cifar10_train_googlenet.py --wandb -v 10
+  # python _01_code/_16_modern_cnns/_03_google_net/a_cifar10_train_google_net.py --wandb -v 10
 

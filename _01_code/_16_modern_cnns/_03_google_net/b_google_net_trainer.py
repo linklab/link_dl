@@ -1,6 +1,6 @@
 import torch
 
-from _01_code._06_fcn_best_practice.c_trainer import ClassificationTrainer
+from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 
 
 class GoogLeNetClassificationTrainer(ClassificationTrainer):

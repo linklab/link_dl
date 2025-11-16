@@ -21,71 +21,109 @@ from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._09_fcn_best_practice.h_cifar10_train_fcn import get_cifar10_data
 from _01_code._16_modern_cnns.a_arg_parser import get_parser
 
+import torchvision
 
-def get_resnet_model():
-  class Residual(nn.Module):
-    """The Residual block of ResNet models."""
-    def __init__(self, num_channels, use_1x1conv=False, strides=1):
-        super().__init__()
-        self.conv1 = nn.LazyConv2d(out_channels=num_channels, kernel_size=3, padding=1, stride=strides)
-        self.conv2 = nn.LazyConv2d(out_channels=num_channels, kernel_size=3, padding=1)
-        if use_1x1conv:
-            self.conv3 = nn.LazyConv2d(out_channels=num_channels, kernel_size=1, stride=strides)
-        else:
-            self.conv3 = None
-        self.bn1 = nn.LazyBatchNorm2d()
-        self.bn2 = nn.LazyBatchNorm2d()
+USE_PYTORCH_MODEL = False
 
-    def forward(self, X):
-        Y = torch.relu(self.bn1(self.conv1(X)))
-        Y = self.bn2(self.conv2(Y))
-        if self.conv3:
-            X = self.conv3(X)
-        Y += X
-        return torch.relu(Y)
+def get_resnet_model(num_classes=10):
+  class ResnetBlock(nn.Module):
 
+    def __init__(self, out_channels, stride=1, downsample=None):
+      """
+      in_channels는 LazyConv2d가 자동으로 추론함!
+      """
+      super(ResnetBlock, self).__init__()
 
-  class ResNet(nn.Module):
-    def __init__(self, arch, n_outputs=10):
-      super(ResNet, self).__init__()
-      self.model = nn.Sequential(
-        nn.Sequential(
-          nn.LazyConv2d(out_channels=64, kernel_size=7, stride=2, padding=3),
-          nn.LazyBatchNorm2d(),
-          nn.ReLU(),
-          nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        )
+      self.conv1 = nn.LazyConv2d(
+        out_channels, kernel_size=3, stride=stride, padding=1, bias=False
       )
+      self.bn1 = nn.LazyBatchNorm2d()
 
-      for i, (num_residuals, num_channels) in enumerate(arch):
-        self.model.add_module(
-          name=f'block_{i}', module=self.block(num_residuals, num_channels, first_block=(i == 0))
-        )
-
-      self.model.add_module(
-        name='last',
-        module=nn.Sequential(
-          nn.AdaptiveAvgPool2d((1, 1)),
-          nn.Flatten(),
-          nn.LazyLinear(n_outputs)
-        )
+      self.conv2 = nn.LazyConv2d(
+        out_channels, kernel_size=3, stride=1, padding=1, bias=False
       )
+      self.bn2 = nn.LazyBatchNorm2d()
 
-    def block(self, num_residuals, num_channels, first_block=False):
-      blk = []
-      for i in range(num_residuals):
-        if i == 0 and not first_block:
-          blk.append(Residual(num_channels=num_channels, use_1x1conv=True, strides=2))
-        else:
-          blk.append(Residual(num_channels=num_channels))
-      return nn.Sequential(*blk)
+      self.relu = nn.ReLU(inplace=True)
+      self.downsample = downsample
 
     def forward(self, x):
-      x = self.model(x)
+      identity = x
+
+      out = self.conv1(x)
+      out = self.bn1(out)
+      out = self.relu(out)
+
+      out = self.conv2(out)
+      out = self.bn2(out)
+
+      if self.downsample is not None:
+        identity = self.downsample(x)
+
+      out += identity
+      out = self.relu(out)
+
+      return out
+
+  # ------------------------------------
+  # ResNet-18 using Lazy Modules
+  # ------------------------------------
+  class ResNet18(nn.Module):
+    def __init__(self):
+      super(ResNet18, self).__init__()
+
+      # 처음 stem 부분 → LazyConv 사용
+      self.conv1 = nn.LazyConv2d(
+        64, kernel_size=7, stride=2, padding=3, bias=False
+      )
+      self.bn1 = nn.LazyBatchNorm2d()
+      self.relu = nn.ReLU(inplace=True)
+      self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+      # ResNet stages (2 blocks × 4 layers)
+      self.layer1 = self._make_layer(out_channels=64, blocks=2, stride=1)
+      self.layer2 = self._make_layer(out_channels=128, blocks=2, stride=2)
+      self.layer3 = self._make_layer(out_channels=256, blocks=2, stride=2)
+      self.layer4 = self._make_layer(out_channels=512, blocks=2, stride=2)
+
+      self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+      self.fc = nn.LazyLinear(num_classes)
+
+    def _make_layer(self, out_channels, blocks, stride):
+      downsample = None
+
+      # downsample 로직 → LazyConv/BatchNorm 활용
+      if stride != 1:
+        downsample = nn.Sequential(
+          nn.LazyConv2d(out_channels, kernel_size=1, stride=stride, bias=False),
+          nn.LazyBatchNorm2d()
+        )
+
+      layers = []
+      layers.append(ResnetBlock(out_channels, stride=stride, downsample=downsample))
+
+      for _ in range(1, blocks):
+        layers.append(ResnetBlock(out_channels))
+
+      return nn.Sequential(*layers)
+
+    def forward(self, x):
+      x = self.conv1(x)
+      x = self.bn1(x)
+      x = self.relu(x)
+      x = self.maxpool(x)
+
+      x = self.layer1(x)
+      x = self.layer2(x)
+      x = self.layer3(x)
+      x = self.layer4(x)
+
+      x = self.avgpool(x)
+      x = torch.flatten(x, 1)
+      x = self.fc(x)
       return x
 
-  my_model = ResNet(arch=((2, 64), (2, 128), (2, 256), (2, 512)), n_outputs=10)
-
+  my_model = ResNet18()
   return my_model
 
 
@@ -118,7 +156,7 @@ def main(args):
   print(f"Training on device {device}.")
 
   train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_resnet_model()
+  model = torchvision.models.resnet18(num_classes=10) if USE_PYTORCH_MODEL else get_resnet_model(num_classes=10)
   model.to(device)
 
   from torchinfo import summary
@@ -130,7 +168,7 @@ def main(args):
   optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
 
   classification_trainer = ClassificationTrainer(
-    project_name + "_googlenet", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+    project_name + "_resnet", model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
     run_time_str, wandb, device, CHECKPOINT_FILE_PATH
   )
   classification_trainer.train_loop()
