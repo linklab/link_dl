@@ -38,10 +38,11 @@ bikes_data = torch.stack(data_torch_list, dim=0)
 bikes_data = torch.cat([bikes_data[:, 1:9], bikes_data[:, 10:]], dim=-1)
 # Drop 'instant' and 'whethersit' columns
 
-print("**bikes_data.shape:", bikes_data.shape)      # >>> torch.Size([17520, 16])
+print("**bikes_data.shape:", bikes_data.shape)      # >>> torch.Size([17520, 18])
 print(bikes_data[0])
 
 #################################################################################################
+print("#" * 50, 0)
 
 sequence_size = 24
 validation_size = 96
