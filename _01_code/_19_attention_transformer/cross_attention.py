@@ -36,7 +36,7 @@ multi_heads_cross_attention = nn.MultiheadAttention(
 # 입력 생성
 query = torch.randn(batch_size, seq_len_q, query_dim)
 key = torch.randn(batch_size, seq_len_kv, key_value_dim)
-value = torch.randn(batch_size, seq_len_kv, key_value_dim)
+value = torch.clone(key)
 
 print(f"[원본] Query shape: {query.shape} (차원: {query_dim})")
 print(f"Key shape: {key.shape} (차원: {key_value_dim})")

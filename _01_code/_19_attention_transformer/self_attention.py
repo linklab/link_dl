@@ -59,7 +59,7 @@ print(f"  - 각 토큰이 시퀀스의 모든 토큰에 대해 가지는 가중�
 import numpy as np
 np.set_printoptions(precision=2, suppress=True, linewidth=150)
 print(f"\n{'=' * 60}")
-print("Attention Weights 예시 (첫 번째 배치의 처음 5개 토큰)")
+print("Attention Weights 예시 (첫 번째 배치의 처음 10개 토큰)")
 print(f"{'=' * 60}")
 print(attn_weights[0, :10, :10].detach().numpy())
 print("\n각 행: 해당 토큰이 다른 모든 토큰과 연관된 가중치")
