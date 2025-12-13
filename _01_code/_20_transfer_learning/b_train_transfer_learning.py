@@ -29,12 +29,18 @@ data_transforms = {
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
+    # RandomResizedCrop(224): 매번 랜덤 위치/스케일로 잘라서 224×224로 구성
+    # RandomHorizontalFlip(): 좌우 반전을 랜덤으로 넣어서 데이터 다양성을 늘림(특정 방향성에 과적합 방지)
+
     'val': transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
+    # Resize(256) + CenterCrop(224): 항상 동일한 규칙으로 크기 맞추고 가운데를 자름
+    # 랜덤성이 없어서 매번 같은 입력이 들어가므로 검증 정확도가 재현 가능하고, “모델 성능 비교”가 공정해짐.
+
 }
 
 
@@ -92,8 +98,8 @@ def train_model(
 
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
-                    outputs = model(inputs)
-                    _, preds = torch.max(outputs, 1)
+                    outputs = model(inputs)  # inputs.shape: [4, 3, 224, 224], outputs.shape: [4, 2]
+                    _, preds = torch.max(outputs, dim=1)
                     loss = loss_fn(outputs, labels)
 
                     # backward + optimize only if in training phase
@@ -168,7 +174,7 @@ def visualize_model(dataloaders, class_names, model, num_images=6):
 
 
 def get_model(method, device=torch.device("cpu")):
-    model_ft = models.resnet18(weights='IMAGENET1K_V1')
+    model_ft = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
     if method == "frozen_and_train_new_classifier":
         for param in model_ft.parameters():
@@ -178,8 +184,7 @@ def get_model(method, device=torch.device("cpu")):
     print("#" * 100)
 
     # Here the size of each output sample is set to 2.
-    num_ftrs = model_ft.fc.in_features
-    model_ft.fc = nn.Linear(in_features=num_ftrs, out_features=2)
+    model_ft.fc = nn.Linear(in_features=model_ft.fc.in_features, out_features=2)
 
     summary(model_ft, input_size=(1, 3, 224, 224))
     print("#" * 100)
