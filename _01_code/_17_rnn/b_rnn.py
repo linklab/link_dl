@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-rnn1 = nn.RNN(input_size=3, hidden_size=4, num_layers=1)
+rnn1 = nn.RNN(input_size=10, hidden_size=8, num_layers=2)
 
 for name, parameter in rnn1.named_parameters():
   print(name, parameter.shape)
