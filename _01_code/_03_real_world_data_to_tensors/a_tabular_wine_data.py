@@ -64,6 +64,9 @@ print("#" * 50, 4)
 
 from sklearn.model_selection import train_test_split
 
+print(data.shape)
+print(onehot_target.shape)
+
 X_train, X_test, y_train, y_test = train_test_split(data, onehot_target, test_size=0.2)
 
 print(X_train.shape)
