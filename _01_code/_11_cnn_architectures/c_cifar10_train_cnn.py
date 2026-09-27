@@ -69,36 +69,34 @@ def main(args):
   }
 
   project_name = "cnn_cifar10"
-  wandb.init(
+  with wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
     notes="cifar10 experiment with cnn",
     tags=["cnn", "cifar10"],
     name=run_time_str,
     config=config
-  )
-  print(args)
-  print(wandb.config)
+  ) as run:
+    print(args)
+    print(run.config)
 
-  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-  print(f"Training on device {device}.")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_cnn_model()
-  model.to(device)
+    train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
+    model = get_cnn_model()
+    model.to(device)
 
-  from torchinfo import summary
-  summary(model=model, input_size=(1, 3, 32, 32))
+    from torchinfo import summary
+    summary(model=model, input_size=(1, 3, 32, 32))
 
-  optimizer = optim.SGD(model.parameters(), lr=wandb.config.learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=run.config.learning_rate)
 
-  classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
-    run_time_str, wandb, device, CHECKPOINT_FILE_PATH
-  )
-  classification_trainer.train_loop()
-
-  wandb.finish()
+    classification_trainer = ClassificationTrainer(
+      project_name, model, optimizer, train_data_loader, validation_data_loader, cifar10_transforms,
+      run_time_str, run, device, CHECKPOINT_FILE_PATH
+    )
+    classification_trainer.train_loop()
 
 
 if __name__ == "__main__":

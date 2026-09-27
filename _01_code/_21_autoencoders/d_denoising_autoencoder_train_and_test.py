@@ -112,41 +112,39 @@ def main(args):
   }
 
   project_name = "denoising_autoencoder"
-  wandb.init(
+  with wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
     notes="denoising autoencoder",
     tags=["denoising", "autoencoder", "fashion_mnist"],
     name=run_time_str,
     config=config
-  )
-  print(args)
-  print(wandb.config)
+  ) as run:
+    print(args)
+    print(run.config)
 
-  train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(flatten=False)
-  mnist_test_images, test_data_loader, mnist_transforms = get_mnist_test_data(flatten=False)
+    train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(flatten=False)
+    mnist_test_images, test_data_loader, mnist_transforms = get_mnist_test_data(flatten=False)
 
-  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-  print(f"Training on device {device}.")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Training on device {device}.")
 
-  model = get_model()
+    model = get_model()
 
-  from torchinfo import summary
-  summary(model, input_size=(1, 1, 28, 28))
+    from torchinfo import summary
+    summary(model, input_size=(1, 1, 28, 28))
 
-  model.to(device)
+    model.to(device)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=run.config.learning_rate)
 
-  regression_trainer = AutoencoderTrainer(
-    project_name, model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
-    run_time_str, wandb, device, CHECKPOINT_FILE_PATH,
-    mnist_test_images, mnist_transforms,
-    denoising=True,
-  )
-  regression_trainer.train_loop()
-
-  wandb.finish()
+    regression_trainer = AutoencoderTrainer(
+      project_name, model, optimizer, train_data_loader, validation_data_loader, mnist_transforms,
+      run_time_str, run, device, CHECKPOINT_FILE_PATH,
+      mnist_test_images, mnist_transforms,
+      denoising=True,
+    )
+    regression_trainer.train_loop()
 
 
 if __name__ == "__main__":

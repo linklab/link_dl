@@ -38,41 +38,39 @@ def main(args):
   name = "{0}_{1}".format(optimizer_names[args.optimizer], run_time_str)
 
   project_name = "cnn_cifar10_with_diverse_optimizers"
-  wandb.init(
+  with wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
     notes="cifar10 experiment with cnn and diverse optimizers",
     tags=["cnn", "cifar10", "diverse_optimizers"],
     name=name,
     config=config
-  )
-  print(args)
-  print(wandb.config)
+  ) as run:
+    print(args)
+    print(run.config)
 
-  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-  print(f"Training on device {device}.")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Training on device {device}.")
 
-  train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
-  model = get_cnn_model()
-  model.to(device)
+    train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
+    model = get_cnn_model()
+    model.to(device)
 
-  optimizers = [
-    optim.SGD(model.parameters(), lr=wandb.config.learning_rate),
-    optim.SGD(model.parameters(), lr=wandb.config.learning_rate, momentum=0.9),
-    optim.RMSprop(model.parameters(), lr=wandb.config.learning_rate),
-    optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
-  ]
+    optimizers = [
+      optim.SGD(model.parameters(), lr=run.config.learning_rate),
+      optim.SGD(model.parameters(), lr=run.config.learning_rate, momentum=0.9),
+      optim.RMSprop(model.parameters(), lr=run.config.learning_rate),
+      optim.Adam(model.parameters(), lr=run.config.learning_rate)
+    ]
 
-  print("Optimizer:", optimizers[args.optimizer])
+    print("Optimizer:", optimizers[args.optimizer])
 
-  classification_trainer = ClassificationTrainer(
-    project_name, model, optimizers[args.optimizer],
-    train_data_loader, validation_data_loader, cifar10_transforms,
-    run_time_str, wandb, device, CHECKPOINT_FILE_PATH
-  )
-  classification_trainer.train_loop()
-
-  wandb.finish()
+    classification_trainer = ClassificationTrainer(
+      project_name, model, optimizers[args.optimizer],
+      train_data_loader, validation_data_loader, cifar10_transforms,
+      run_time_str, run, device, CHECKPOINT_FILE_PATH
+    )
+    classification_trainer.train_loop()
 
 
 if __name__ == "__main__":

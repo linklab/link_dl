@@ -102,26 +102,25 @@ def main(args):
   }
 
   project_name = "lstm_regression_btc_krw"
-  wandb.init(
+  with wandb.init(
     mode="disabled",
     project=project_name,
     notes="btc_krw experiment with lstm",
     tags=["lstm", "regression", "btc_krw"],
     name=run_time_str,
     config=config
-  )
+  ) as run:
+    test_model = get_model()
 
-  test_model = get_model()
+    project_name = "lstm_regression_btc_krw"
+    latest_file_path = os.path.join(
+      CHECKPOINT_FILE_PATH, f"{project_name}_checkpoint_latest.pt"
+    )
+    print("MODEL FILE: {0}".format(latest_file_path))
+    test_model.load_state_dict(torch.load(latest_file_path, map_location=torch.device('cpu')))
 
-  project_name = "lstm_regression_btc_krw"
-  latest_file_path = os.path.join(
-    CHECKPOINT_FILE_PATH, f"{project_name}_checkpoint_latest.pt"
-  )
-  print("MODEL FILE: {0}".format(latest_file_path))
-  test_model.load_state_dict(torch.load(latest_file_path, map_location=torch.device('cpu')))
-
-  test(test_model)
-  predict_all(test_model)
+    test(test_model)
+    predict_all(test_model)
 
 
 if __name__ == "__main__":

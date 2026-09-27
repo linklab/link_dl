@@ -53,33 +53,31 @@ def main(args):
   }
 
   project_name = "lstm_classification_btc_krw"
-  wandb.init(
+  with wandb.init(
     mode="online" if args.wandb else "disabled",
     project=project_name,
     notes="btc_krw experiment with lstm",
     tags=["lstm", "classification", "btc_krw"],
     name=run_time_str,
     config=config
-  )
-  print(args)
-  print(wandb.config)
+  ) as run:
+    print(args)
+    print(run.config)
 
-  train_data_loader, validation_data_loader, _ = get_btc_krw_data(is_regression=False)
-  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-  print(f"Training on device {device}.")
+    train_data_loader, validation_data_loader, _ = get_btc_krw_data(is_regression=False)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Training on device {device}.")
 
-  model = get_model()
-  model.to(device)
+    model = get_model()
+    model.to(device)
 
-  optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate, weight_decay=wandb.config.weight_decay)
+    optimizer = optim.Adam(model.parameters(), lr=run.config.learning_rate, weight_decay=run.config.weight_decay)
 
-  classification_trainer = ClassificationTrainer(
-    project_name, model, optimizer, train_data_loader, validation_data_loader, None,
-    run_time_str, wandb, device, CHECKPOINT_FILE_PATH
-  )
-  classification_trainer.train_loop()
-
-  wandb.finish()
+    classification_trainer = ClassificationTrainer(
+      project_name, model, optimizer, train_data_loader, validation_data_loader, None,
+      run_time_str, run, device, CHECKPOINT_FILE_PATH
+    )
+    classification_trainer.train_loop()
 
 
 if __name__ == "__main__":
