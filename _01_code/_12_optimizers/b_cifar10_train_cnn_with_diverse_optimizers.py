@@ -52,7 +52,7 @@ def main(args):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Training on device {device}.")
 
-    train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
+    train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(run, flatten=False)
     model = get_cnn_model()
     model.to(device)
 

@@ -123,7 +123,7 @@ def main(args):
     print(args)
     print(run.config)
 
-    train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(flatten=False)
+    train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(run, flatten=False)
     mnist_test_images, test_data_loader, mnist_transforms = get_mnist_test_data(flatten=False)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

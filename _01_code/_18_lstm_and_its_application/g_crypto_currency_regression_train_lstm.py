@@ -18,11 +18,11 @@ if not os.path.isdir(CHECKPOINT_FILE_PATH):
 
 from _01_code._18_lstm_and_its_application.f_arg_parser import get_parser
 from _01_code._17_rnn.g_rnn_trainer import RegressionTrainer
-from _01_code._03_real_world_data_to_tensors.p__cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
+from _01_code._03_real_world_data_to_tensors.p_cryptocurrency_dataset_dataloader import get_cryptocurrency_data, \
   CryptoCurrencyDataset
 
 
-def get_btc_krw_data(sequence_size=10, validation_size=100, test_size=10, is_regression=True):
+def get_btc_krw_data(run, sequence_size=10, validation_size=100, test_size=10, is_regression=True):
   X_train, X_validation, X_test, y_train, y_validation, y_test, y_train_date, y_validation_date, y_test_date \
     = get_cryptocurrency_data(
       sequence_size=sequence_size, validation_size=validation_size, test_size=test_size,
@@ -43,10 +43,10 @@ def get_btc_krw_data(sequence_size=10, validation_size=100, test_size=10, is_reg
   test_crypto_currency_dataset = CryptoCurrencyDataset(X=X_test, y=y_test)
 
   train_data_loader = DataLoader(
-    dataset=train_crypto_currency_dataset, batch_size=wandb.config.batch_size, shuffle=True
+    dataset=train_crypto_currency_dataset, batch_size=run.config.batch_size, shuffle=True
   )
   validation_data_loader = DataLoader(
-    dataset=validation_crypto_currency_dataset, batch_size=wandb.config.batch_size, shuffle=True
+    dataset=validation_crypto_currency_dataset, batch_size=run.config.batch_size, shuffle=True
   )
   test_data_loader = DataLoader(
     dataset=test_crypto_currency_dataset, batch_size=len(test_crypto_currency_dataset), shuffle=True

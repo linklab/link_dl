@@ -29,7 +29,7 @@ from _01_code._14_normalization.a_cifar10_train_cnn_with_normalization import \
   get_cnn_model_with_dropout_and_batch_normalization, get_cnn_model_with_dropout_and_layer_normalization
 from _01_code._15_data_augmentation.a_arg_parser import get_parser
 
-def get_augmented_cifar10_data():
+def get_augmented_cifar10_data(run):
   data_path = os.path.join(BASE_PATH, "_00_data", "i_cifar10")
 
   print("DATA PATH: {0}".format(data_path))
@@ -70,12 +70,12 @@ def get_augmented_cifar10_data():
   print("Number of Data Loading Workers:", num_data_loading_workers)
 
   train_data_loader = DataLoader(
-    dataset=cifar10_train, batch_size=wandb.config.batch_size, shuffle=True,
+    dataset=cifar10_train, batch_size=run.config.batch_size, shuffle=True,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
   validation_data_loader = DataLoader(
-    dataset=cifar10_validation, batch_size=wandb.config.batch_size,
+    dataset=cifar10_validation, batch_size=run.config.batch_size,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
@@ -125,9 +125,9 @@ def main(args):
     print(f"Training on device {device}.")
 
     if run.config.augment:
-      train_data_loader, validation_data_loader, cifar10_transforms = get_augmented_cifar10_data()
+      train_data_loader, validation_data_loader, cifar10_transforms = get_augmented_cifar10_data(run)
     else:
-      train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(flatten=False)
+      train_data_loader, validation_data_loader, cifar10_transforms = get_cifar10_data(run, flatten=False)
 
     if args.normalization == 0:
       model = get_cnn_model_with_dropout()

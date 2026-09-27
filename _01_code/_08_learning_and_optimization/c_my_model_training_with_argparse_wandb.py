@@ -16,29 +16,29 @@ from _01_code._03_real_world_data_to_tensors.m_california_housing_dataset_datalo
   import CaliforniaHousingDataset
 
 
-def get_data(config):
+def get_data(run):
   california_housing_dataset = CaliforniaHousingDataset()
   print(california_housing_dataset)
 
   train_dataset, validation_dataset = random_split(california_housing_dataset, [0.8, 0.2])
   print(len(train_dataset), len(validation_dataset))
 
-  train_data_loader = DataLoader(dataset=train_dataset, batch_size=config.batch_size, shuffle=True)
+  train_data_loader = DataLoader(dataset=train_dataset, batch_size=run.config.batch_size, shuffle=True)
   validation_data_loader = DataLoader(dataset=validation_dataset, batch_size=len(validation_dataset))
 
   return train_data_loader, validation_data_loader
 
 
 class MyModel(nn.Module):
-  def __init__(self, n_input, n_output, config):
+  def __init__(self, n_input, n_output, run):
     super().__init__()
 
     self.model = nn.Sequential(
-      nn.Linear(n_input, config.n_hidden_unit_list[0]),
+      nn.Linear(n_input, run.config.n_hidden_unit_list[0]),
       nn.ReLU(),
-      nn.Linear(config.n_hidden_unit_list[0], config.n_hidden_unit_list[1]),
+      nn.Linear(run.config.n_hidden_unit_list[0], run.config.n_hidden_unit_list[1]),
       nn.ReLU(),
-      nn.Linear(config.n_hidden_unit_list[1], n_output),
+      nn.Linear(run.config.n_hidden_unit_list[1], n_output),
     )
 
   def forward(self, x):
@@ -46,9 +46,9 @@ class MyModel(nn.Module):
     return x
 
 
-def get_model_and_optimizer(config):
-  my_model = MyModel(n_input=8, n_output=1, config=config)
-  optimizer = optim.SGD(my_model.parameters(), lr=config.learning_rate)
+def get_model_and_optimizer(run):
+  my_model = MyModel(n_input=8, n_output=1, run=run)
+  optimizer = optim.SGD(my_model.parameters(), lr=run.config.learning_rate)
 
   return my_model, optimizer
 
@@ -124,9 +124,9 @@ def main(args):
     # 가로축을 Epoch, 세로축을 Validation loss로 그려줘, 실험 요약에는 가장 낮았던 값을 남겨줘.”
     run.define_metric("Validation loss", step_metric="Epoch", summary="min")
 
-    train_data_loader, validation_data_loader = get_data(run.config)
+    train_data_loader, validation_data_loader = get_data(run)
 
-    linear_model, optimizer = get_model_and_optimizer(run.config)
+    linear_model, optimizer = get_model_and_optimizer(run)
 
     print("#" * 50, 1)
 

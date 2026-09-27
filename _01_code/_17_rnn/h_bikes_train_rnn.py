@@ -16,13 +16,13 @@ CHECKPOINT_FILE_PATH = os.path.join(CURRENT_FILE_PATH, "checkpoints")
 if not os.path.isdir(CHECKPOINT_FILE_PATH):
     os.makedirs(os.path.join(CURRENT_FILE_PATH, "checkpoints"))
 
-from _01_code._03_real_world_data_to_tensors.o__hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, \
+from _01_code._03_real_world_data_to_tensors.o_hourly_bikes_sharing_dataset_dataloader import get_hourly_bikes_data, \
     HourlyBikesDataset
 from _01_code._17_rnn.g_rnn_trainer import RegressionTrainer
 from _01_code._17_rnn.f_arg_parser import get_parser
 
 
-def get_train_bikes_data():
+def get_train_bikes_data(run):
     X_train, X_validation, X_test, y_train, y_validation, y_test = get_hourly_bikes_data(
         sequence_size=24, validation_size=96, test_size=32, y_normalizer=100
     )
@@ -39,10 +39,10 @@ def get_train_bikes_data():
     validation_hourly_bikes_dataset = HourlyBikesDataset(X=X_validation, y=y_validation)
 
     train_data_loader = DataLoader(
-        dataset=train_hourly_bikes_dataset, batch_size=wandb.config.batch_size, shuffle=True
+        dataset=train_hourly_bikes_dataset, batch_size=run.config.batch_size, shuffle=True
     )
     validation_data_loader = DataLoader(
-        dataset=validation_hourly_bikes_dataset, batch_size=wandb.config.batch_size, shuffle=True
+        dataset=validation_hourly_bikes_dataset, batch_size=run.config.batch_size, shuffle=True
     )
 
     return train_data_loader, validation_data_loader
@@ -91,7 +91,7 @@ def main(args):
         print(args)
         print(run.config)
 
-        train_data_loader, validation_data_loader = get_train_bikes_data()
+        train_data_loader, validation_data_loader = get_train_bikes_data(run)
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print(f"Training on device {device}.")

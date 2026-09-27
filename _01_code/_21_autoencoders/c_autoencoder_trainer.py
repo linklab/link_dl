@@ -12,7 +12,7 @@ from _01_code._99_common_utils.utils import strfdelta
 class AutoencoderTrainer:
   def __init__(
     self, project_name, model, optimizer, train_data_loader, validation_data_loader, transforms,
-    run_time_str, wandb, device, checkpoint_file_path, test_dataset, test_transforms, denoising=True
+    run_time_str, run, device, checkpoint_file_path, test_dataset, test_transforms, denoising=True
   ):
     self.project_name = project_name
     self.model = model
@@ -21,7 +21,7 @@ class AutoencoderTrainer:
     self.validation_data_loader = validation_data_loader
     self.transforms = transforms
     self.run_time_str = run_time_str
-    self.wandb = wandb
+    self.run = run
     self.device = device
     self.checkpoint_file_path = checkpoint_file_path
 
@@ -146,19 +146,19 @@ class AutoencoderTrainer:
 
   def train_loop(self):
     early_stopping = EarlyStopping(
-      patience=self.wandb.config.early_stop_patience,
-      delta=self.wandb.config.early_stop_delta,
+      patience=self.run.config.early_stop_patience,
+      delta=self.run.config.early_stop_delta,
       project_name=self.project_name,
       checkpoint_file_path=self.checkpoint_file_path,
       run_time_str=self.run_time_str
     )
-    n_epochs = self.wandb.config.epochs
+    n_epochs = self.run.config.epochs
     training_start_time = datetime.now()
 
     for epoch in range(1, n_epochs + 1):
       train_loss = self.do_train()
 
-      if epoch == 1 or epoch % self.wandb.config.validation_intervals == 0:
+      if epoch == 1 or epoch % self.run.config.validation_intervals == 0:
         validation_loss = self.do_validation()
 
         elapsed_time = datetime.now() - training_start_time
@@ -175,7 +175,7 @@ class AutoencoderTrainer:
           f"T_speed: {epoch_per_second:4.3f}"
         )
 
-        self.wandb.log({
+        self.run.log({
           "Epoch": epoch,
           "Training loss": train_loss,
           "Validation loss": validation_loss,

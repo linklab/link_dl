@@ -21,7 +21,7 @@ from _01_code._09_fcn_best_practice.c_trainer import ClassificationTrainer
 from _01_code._09_fcn_best_practice.e_arg_parser import get_parser
 
 
-def get_mnist_data(flatten=False):
+def get_mnist_data(run, flatten=False):
   data_path = os.path.join(BASE_PATH, "_00_data", "h_mnist")
 
   mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transforms.ToTensor())
@@ -34,12 +34,12 @@ def get_mnist_data(flatten=False):
   print("Number of Data Loading Workers:", num_data_loading_workers)
 
   train_data_loader = DataLoader(
-    dataset=mnist_train, batch_size=wandb.config.batch_size, shuffle=True,
+    dataset=mnist_train, batch_size=run.config.batch_size, shuffle=True,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
   validation_data_loader = DataLoader(
-    dataset=mnist_validation, batch_size=wandb.config.batch_size,
+    dataset=mnist_validation, batch_size=run.config.batch_size,
     pin_memory=True, num_workers=num_data_loading_workers
   )
 
@@ -106,7 +106,7 @@ def main(args):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Training on device {device}.")
 
-    train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(flatten=True)
+    train_data_loader, validation_data_loader, mnist_transforms = get_mnist_data(run, flatten=True)
     model = get_model()
     model.to(device)
 
