@@ -16,29 +16,29 @@ from _01_code._03_real_world_data_to_tensors.m_california_housing_dataset_datalo
   import CaliforniaHousingDataset
 
 
-def get_data():
+def get_data(config):
   california_housing_dataset = CaliforniaHousingDataset()
   print(california_housing_dataset)
 
   train_dataset, validation_dataset = random_split(california_housing_dataset, [0.8, 0.2])
   print(len(train_dataset), len(validation_dataset))
 
-  train_data_loader = DataLoader(dataset=train_dataset, batch_size=wandb.config.batch_size, shuffle=True)
+  train_data_loader = DataLoader(dataset=train_dataset, batch_size=config.batch_size, shuffle=True)
   validation_data_loader = DataLoader(dataset=validation_dataset, batch_size=len(validation_dataset))
 
   return train_data_loader, validation_data_loader
 
 
 class MyModel(nn.Module):
-  def __init__(self, n_input, n_output):
+  def __init__(self, n_input, n_output, config):
     super().__init__()
 
     self.model = nn.Sequential(
-      nn.Linear(n_input, wandb.config.n_hidden_unit_list[0]),
+      nn.Linear(n_input, config.n_hidden_unit_list[0]),
       nn.ReLU(),
-      nn.Linear(wandb.config.n_hidden_unit_list[0], wandb.config.n_hidden_unit_list[1]),
+      nn.Linear(config.n_hidden_unit_list[0], config.n_hidden_unit_list[1]),
       nn.ReLU(),
-      nn.Linear(wandb.config.n_hidden_unit_list[1], n_output),
+      nn.Linear(config.n_hidden_unit_list[1], n_output),
     )
 
   def forward(self, x):
@@ -46,15 +46,15 @@ class MyModel(nn.Module):
     return x
 
 
-def get_model_and_optimizer():
-  my_model = MyModel(n_input=8, n_output=1)
-  optimizer = optim.SGD(my_model.parameters(), lr=wandb.config.learning_rate)
+def get_model_and_optimizer(config):
+  my_model = MyModel(n_input=8, n_output=1, config=config)
+  optimizer = optim.SGD(my_model.parameters(), lr=config.learning_rate)
 
   return my_model, optimizer
 
 
-def training_loop(model, optimizer, train_data_loader, validation_data_loader):
-  n_epochs = wandb.config.epochs
+def training_loop(model, optimizer, train_data_loader, validation_data_loader, run):
+  n_epochs = run.config.epochs
   loss_fn = nn.MSELoss()  # Use a built-in loss function
   next_print_epoch = 100
 
@@ -82,7 +82,7 @@ def training_loop(model, optimizer, train_data_loader, validation_data_loader):
         loss_validation += loss.item()
         num_validations += 1
 
-    wandb.log({
+    run.log({
       "Epoch": epoch,
       "Training loss": loss_train / num_trains,
       "Validation loss": loss_validation / num_validations
@@ -107,38 +107,44 @@ def main(args):
     'n_hidden_unit_list': [20, 20],
   }
 
-  wandb.init(
+  with wandb.init(
     mode="online" if args.wandb else "disabled",
     project="my_model_training",
     notes="My first wandb experiment",
     tags=["my_model", "california_housing"],
     name=current_time_str,
     config=config
-  )
-  print(args)
-  print(wandb.config)
+  ) as run:
+    print(args)
+    print(run.config)
 
-  train_data_loader, validation_data_loader = get_data()
+    # 가로축을 Epoch, 세로축을 Training loss로 그려줘.”
+    run.define_metric("Training loss", step_metric="Epoch")
 
-  linear_model, optimizer = get_model_and_optimizer()
+    # 가로축을 Epoch, 세로축을 Validation loss로 그려줘, 실험 요약에는 가장 낮았던 값을 남겨줘.”
+    run.define_metric("Validation loss", step_metric="Epoch", summary="min")
 
-  print("#" * 50, 1)
+    train_data_loader, validation_data_loader = get_data(run.config)
 
-  training_loop(
-    model=linear_model,
-    optimizer=optimizer,
-    train_data_loader=train_data_loader,
-    validation_data_loader=validation_data_loader
-  )
-  wandb.finish()
+    linear_model, optimizer = get_model_and_optimizer(run.config)
+
+    print("#" * 50, 1)
+
+    training_loop(
+      model=linear_model,
+      optimizer=optimizer,
+      train_data_loader=train_data_loader,
+      validation_data_loader=validation_data_loader,
+      run=run
+    )
 
 
-# https://docs.wandb.ai/guides/track/config
+# https://docs.wandb.ai/models/track/config
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
 
   parser.add_argument(
-    "--wandb", action=argparse.BooleanOptionalAction, default=False, help="True or False"
+    "--wandb", action=argparse.BooleanOptionalAction, default=True, help="True or False"
   )
 
   parser.add_argument(
@@ -152,4 +158,3 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   main(args)
-
