@@ -36,15 +36,16 @@ class ResnetBlock(nn.Module):
   핵심 아이디어: 블록이 "입력 전체"를 배우는 대신, 입력과의 "차이(잔차, residual)"만 배운다.
   """
 
-  def __init__(self, in_channels, out_channels, stride=1):
+  def __init__(self, out_channels, stride=1):
     super().__init__()
 
+    # LazyConv2d: 입력 채널 수(in_channels)는 첫 forward 때 입력을 보고 자동으로 정해진다.
     # 첫 번째 conv: stride가 2이면 이미지의 가로/세로 크기가 절반으로 줄어든다.
-    self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
+    self.conv1 = nn.LazyConv2d(out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
     self.bn1 = nn.BatchNorm2d(out_channels)
 
     # 두 번째 conv: 크기와 채널 수를 그대로 유지한다.
-    self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
+    self.conv2 = nn.LazyConv2d(out_channels, kernel_size=3, stride=1, padding=1, bias=False)
     self.bn2 = nn.BatchNorm2d(out_channels)
 
     self.relu = nn.ReLU(inplace=True)
@@ -53,7 +54,7 @@ class ResnetBlock(nn.Module):
     # stride가 1이 아니면 크기가 달라지므로, 1x1 conv로 지름길의 크기를 맞춰준다.
     if stride != 1:
       self.downsample = nn.Sequential(
-        nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
+        nn.LazyConv2d(out_channels, kernel_size=1, stride=stride, bias=False),
         nn.BatchNorm2d(out_channels)
       )
     else:
@@ -96,26 +97,26 @@ class ResNet18(nn.Module):
     super().__init__()
 
     # 시작부분 (stem)
-    self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    self.conv1 = nn.LazyConv2d(64, kernel_size=7, stride=2, padding=3, bias=False)
     self.bn1 = nn.BatchNorm2d(64)
     self.relu = nn.ReLU(inplace=True)
     self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
     # 4개의 stage: 채널 수는 점점 늘리고, 이미지 크기는 점점 줄인다.
-    self.layer1 = self._make_layer(in_channels=64, out_channels=64, stride=1)
-    self.layer2 = self._make_layer(in_channels=64, out_channels=128, stride=2)
-    self.layer3 = self._make_layer(in_channels=128, out_channels=256, stride=2)
-    self.layer4 = self._make_layer(in_channels=256, out_channels=512, stride=2)
+    self.layer1 = self._make_layer(out_channels=64, stride=1)
+    self.layer2 = self._make_layer(out_channels=128, stride=2)
+    self.layer3 = self._make_layer(out_channels=256, stride=2)
+    self.layer4 = self._make_layer(out_channels=512, stride=2)
 
     # 분류부분
     self.avgpool = nn.AdaptiveAvgPool2d((1, 1))  # 어떤 크기든 (1, 1)로 평균
     self.fc = nn.Linear(512, num_classes)
 
-  def _make_layer(self, in_channels, out_channels, stride):
+  def _make_layer(self, out_channels, stride):
     # 한 stage는 블록 2개로 이루어진다.
     # 첫 번째 블록만 채널 수/크기를 바꾸고(stride 적용), 두 번째 블록은 그대로 유지한다.
-    first_block = ResnetBlock(in_channels, out_channels, stride=stride)
-    second_block = ResnetBlock(out_channels, out_channels, stride=1)
+    first_block = ResnetBlock(out_channels, stride=stride)
+    second_block = ResnetBlock(out_channels, stride=1)
     return nn.Sequential(first_block, second_block)
 
   def forward(self, x):
