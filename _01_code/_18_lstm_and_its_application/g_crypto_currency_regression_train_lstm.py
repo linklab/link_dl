@@ -22,14 +22,14 @@ from _01_code._03_real_world_data_to_tensors.p_cryptocurrency_dataset_dataloader
   CryptoCurrencyDataset
 
 
-def get_btc_krw_data(run, sequence_size=10, validation_size=100, test_size=10, is_regression=True):
+def get_btc_krw_data(run, sequence_size=10, validation_size=100, test_size=50, is_regression=True):
   X_train, X_validation, X_test, y_train, y_validation, y_test, y_train_date, y_validation_date, y_test_date \
     = get_cryptocurrency_data(
       sequence_size=sequence_size, validation_size=validation_size, test_size=test_size,
       target_column='Close', y_normalizer=1.0e7, is_regression=is_regression
   )
 
-  # print(X_train.shape, X_validation.shape, X_test.shape, y_train.shape, y_validation.shape, y_test.shape, "!!! - 1")
+  print(X_train.shape, X_validation.shape, X_test.shape, y_train.shape, y_validation.shape, y_test.shape, "!!! - 1")
 
   # X_train.shape: [3212, 10, 5]
   # X_validation.shape: [100, 10, 5]
@@ -99,7 +99,7 @@ def main(args):
     print(args)
     print(run.config)
 
-    train_data_loader, validation_data_loader, _ = get_btc_krw_data()
+    train_data_loader, validation_data_loader, _ = get_btc_krw_data(run)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Training on device {device}.")
 

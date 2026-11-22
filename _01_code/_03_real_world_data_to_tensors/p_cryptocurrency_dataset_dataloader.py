@@ -36,7 +36,7 @@ class CryptoCurrencyDataset(Dataset):
 def get_cryptocurrency_data(
     sequence_size=10, validation_size=100, test_size=10, target_column='Close', y_normalizer=1.0e7, is_regression=True
 ):
-  btc_krw_path = os.path.join(BASE_PATH, "_00_data", "k_cryptocurrency", "BTC_KRW.csv")
+  btc_krw_path = os.path.join(BASE_PATH, "_00_data", "k_cryptocurrency", "BTC_KRW_2026.csv")
   df = pd.read_csv(btc_krw_path)
   row_size = len(df)
   # ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
